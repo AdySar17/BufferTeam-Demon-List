@@ -18,7 +18,6 @@ import {
   willFetch
 } from "./suspense.js";
 function useBaseQuery(options, Observer, queryClient) {
-  var _a, _b, _c, _d;
   if (process.env.NODE_ENV !== "production") {
     if (typeof options !== "object" || Array.isArray(options)) {
       throw new Error(
@@ -30,8 +29,7 @@ function useBaseQuery(options, Observer, queryClient) {
   const errorResetBoundary = useQueryErrorResetBoundary();
   const client = useQueryClient(queryClient);
   const defaultedOptions = client.defaultQueryOptions(options);
-  (_b = (_a = client.getDefaultOptions().queries) == null ? void 0 : _a._experimental_beforeQuery) == null ? void 0 : _b.call(
-    _a,
+  client.getDefaultOptions().queries?._experimental_beforeQuery?.(
     defaultedOptions
   );
   const query = client.getQueryCache().get(defaultedOptions.queryHash);
@@ -83,8 +81,7 @@ function useBaseQuery(options, Observer, queryClient) {
     throw result.error;
   }
   ;
-  (_d = (_c = client.getDefaultOptions().queries) == null ? void 0 : _c._experimental_afterQuery) == null ? void 0 : _d.call(
-    _c,
+  client.getDefaultOptions().queries?._experimental_afterQuery?.(
     defaultedOptions,
     result
   );
@@ -94,9 +91,9 @@ function useBaseQuery(options, Observer, queryClient) {
       fetchOptimistic(defaultedOptions, observer, errorResetBoundary)
     ) : (
       // subscribe to the "cache promise" so that we can finalize the currentThenable once data comes in
-      query == null ? void 0 : query.promise
+      query?.promise
     );
-    promise == null ? void 0 : promise.catch(noop).finally(() => {
+    promise?.catch(noop).finally(() => {
       observer.updateResult();
     });
   }

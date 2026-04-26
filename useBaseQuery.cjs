@@ -42,7 +42,6 @@ var import_errorBoundaryUtils = require("./errorBoundaryUtils.cjs");
 var import_IsRestoringProvider = require("./IsRestoringProvider.cjs");
 var import_suspense = require("./suspense.cjs");
 function useBaseQuery(options, Observer, queryClient) {
-  var _a, _b, _c, _d;
   if (process.env.NODE_ENV !== "production") {
     if (typeof options !== "object" || Array.isArray(options)) {
       throw new Error(
@@ -54,8 +53,7 @@ function useBaseQuery(options, Observer, queryClient) {
   const errorResetBoundary = (0, import_QueryErrorResetBoundary.useQueryErrorResetBoundary)();
   const client = (0, import_QueryClientProvider.useQueryClient)(queryClient);
   const defaultedOptions = client.defaultQueryOptions(options);
-  (_b = (_a = client.getDefaultOptions().queries) == null ? void 0 : _a._experimental_beforeQuery) == null ? void 0 : _b.call(
-    _a,
+  client.getDefaultOptions().queries?._experimental_beforeQuery?.(
     defaultedOptions
   );
   const query = client.getQueryCache().get(defaultedOptions.queryHash);
@@ -107,8 +105,7 @@ function useBaseQuery(options, Observer, queryClient) {
     throw result.error;
   }
   ;
-  (_d = (_c = client.getDefaultOptions().queries) == null ? void 0 : _c._experimental_afterQuery) == null ? void 0 : _d.call(
-    _c,
+  client.getDefaultOptions().queries?._experimental_afterQuery?.(
     defaultedOptions,
     result
   );
@@ -118,9 +115,9 @@ function useBaseQuery(options, Observer, queryClient) {
       (0, import_suspense.fetchOptimistic)(defaultedOptions, observer, errorResetBoundary)
     ) : (
       // subscribe to the "cache promise" so that we can finalize the currentThenable once data comes in
-      query == null ? void 0 : query.promise
+      query?.promise
     );
-    promise == null ? void 0 : promise.catch(import_query_core.noop).finally(() => {
+    promise?.catch(import_query_core.noop).finally(() => {
       observer.updateResult();
     });
   }

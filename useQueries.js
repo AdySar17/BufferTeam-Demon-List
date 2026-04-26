@@ -96,7 +96,7 @@ function useQueries({
       });
     }
   );
-  if (firstSingleResultWhichShouldThrow == null ? void 0 : firstSingleResultWhichShouldThrow.error) {
+  if (firstSingleResultWhichShouldThrow?.error) {
     throw firstSingleResultWhichShouldThrow.error;
   }
   return getCombinedResult(trackResult());

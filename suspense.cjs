@@ -43,7 +43,7 @@ var ensureSuspenseTimers = (defaultedOptions) => {
   }
 };
 var willFetch = (result, isRestoring) => result.isLoading && result.isFetching && !isRestoring;
-var shouldSuspend = (defaultedOptions, result) => (defaultedOptions == null ? void 0 : defaultedOptions.suspense) && result.isPending;
+var shouldSuspend = (defaultedOptions, result) => defaultedOptions?.suspense && result.isPending;
 var fetchOptimistic = (defaultedOptions, observer, errorResetBoundary) => observer.fetchOptimistic(defaultedOptions).catch(() => {
   errorResetBoundary.clearReset();
 });
