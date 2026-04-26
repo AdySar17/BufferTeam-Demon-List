@@ -23,10 +23,65 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.safeParseAsync = exports.safeParse = exports.parseAsync = exports.parse = void 0;
-const core = __importStar(require("../core/index.cjs"));
-const errors_js_1 = require("./errors.cjs");
-exports.parse = core._parse(errors_js_1.ZodRealError);
-exports.parseAsync = core._parseAsync(errors_js_1.ZodRealError);
-exports.safeParse = core._safeParse(errors_js_1.ZodRealError);
-exports.safeParseAsync = core._safeParseAsync(errors_js_1.ZodRealError);
+exports.safeParseAsync = exports._safeParseAsync = exports.safeParse = exports._safeParse = exports.parseAsync = exports._parseAsync = exports.parse = exports._parse = void 0;
+const core = __importStar(require("./core.cjs"));
+const errors = __importStar(require("./errors.cjs"));
+const util = __importStar(require("./util.cjs"));
+const _parse = (_Err) => (schema, value, _ctx, _params) => {
+    const ctx = _ctx ? Object.assign(_ctx, { async: false }) : { async: false };
+    const result = schema._zod.run({ value, issues: [] }, ctx);
+    if (result instanceof Promise) {
+        throw new core.$ZodAsyncError();
+    }
+    if (result.issues.length) {
+        const e = new (_params?.Err ?? _Err)(result.issues.map((iss) => util.finalizeIssue(iss, ctx, core.config())));
+        util.captureStackTrace(e, _params?.callee);
+        throw e;
+    }
+    return result.value;
+};
+exports._parse = _parse;
+exports.parse = (0, exports._parse)(errors.$ZodRealError);
+const _parseAsync = (_Err) => async (schema, value, _ctx, params) => {
+    const ctx = _ctx ? Object.assign(_ctx, { async: true }) : { async: true };
+    let result = schema._zod.run({ value, issues: [] }, ctx);
+    if (result instanceof Promise)
+        result = await result;
+    if (result.issues.length) {
+        const e = new (params?.Err ?? _Err)(result.issues.map((iss) => util.finalizeIssue(iss, ctx, core.config())));
+        util.captureStackTrace(e, params?.callee);
+        throw e;
+    }
+    return result.value;
+};
+exports._parseAsync = _parseAsync;
+exports.parseAsync = (0, exports._parseAsync)(errors.$ZodRealError);
+const _safeParse = (_Err) => (schema, value, _ctx) => {
+    const ctx = _ctx ? { ..._ctx, async: false } : { async: false };
+    const result = schema._zod.run({ value, issues: [] }, ctx);
+    if (result instanceof Promise) {
+        throw new core.$ZodAsyncError();
+    }
+    return result.issues.length
+        ? {
+            success: false,
+            error: new (_Err ?? errors.$ZodError)(result.issues.map((iss) => util.finalizeIssue(iss, ctx, core.config()))),
+        }
+        : { success: true, data: result.value };
+};
+exports._safeParse = _safeParse;
+exports.safeParse = (0, exports._safeParse)(errors.$ZodRealError);
+const _safeParseAsync = (_Err) => async (schema, value, _ctx) => {
+    const ctx = _ctx ? Object.assign(_ctx, { async: true }) : { async: true };
+    let result = schema._zod.run({ value, issues: [] }, ctx);
+    if (result instanceof Promise)
+        result = await result;
+    return result.issues.length
+        ? {
+            success: false,
+            error: new _Err(result.issues.map((iss) => util.finalizeIssue(iss, ctx, core.config()))),
+        }
+        : { success: true, data: result.value };
+};
+exports._safeParseAsync = _safeParseAsync;
+exports.safeParseAsync = (0, exports._safeParseAsync)(errors.$ZodRealError);

@@ -1,23 +1,25 @@
-import * as core from "../core/index.cjs";
-import { type ZodError } from "./errors.cjs";
-export type ZodSafeParseResult<T> = ZodSafeParseSuccess<T> | ZodSafeParseError<T>;
-export type ZodSafeParseSuccess<T> = {
-    success: true;
-    data: T;
-    error?: never;
+import * as core from "./core.cjs";
+import * as errors from "./errors.cjs";
+import type * as schemas from "./schemas.cjs";
+import * as util from "./util.cjs";
+export type $ZodErrorClass = {
+    new (issues: errors.$ZodIssue[]): errors.$ZodError;
 };
-export type ZodSafeParseError<T> = {
-    success: false;
-    data?: never;
-    error: ZodError<T>;
-};
-export declare const parse: <T extends core.$ZodType>(schema: T, value: unknown, _ctx?: core.ParseContext<core.$ZodIssue>, _params?: {
-    callee?: core.util.AnyFunc;
-    Err?: core.$ZodErrorClass;
+export type $Parse = <T extends schemas.$ZodType>(schema: T, value: unknown, _ctx?: schemas.ParseContext<errors.$ZodIssue>, _params?: {
+    callee?: util.AnyFunc;
+    Err?: $ZodErrorClass;
 }) => core.output<T>;
-export declare const parseAsync: <T extends core.$ZodType>(schema: T, value: unknown, _ctx?: core.ParseContext<core.$ZodIssue>, _params?: {
-    callee?: core.util.AnyFunc;
-    Err?: core.$ZodErrorClass;
+export declare const _parse: (_Err: $ZodErrorClass) => $Parse;
+export declare const parse: $Parse;
+export type $ParseAsync = <T extends schemas.$ZodType>(schema: T, value: unknown, _ctx?: schemas.ParseContext<errors.$ZodIssue>, _params?: {
+    callee?: util.AnyFunc;
+    Err?: $ZodErrorClass;
 }) => Promise<core.output<T>>;
-export declare const safeParse: <T extends core.$ZodType>(schema: T, value: unknown, _ctx?: core.ParseContext<core.$ZodIssue>) => ZodSafeParseResult<core.output<T>>;
-export declare const safeParseAsync: <T extends core.$ZodType>(schema: T, value: unknown, _ctx?: core.ParseContext<core.$ZodIssue>) => Promise<ZodSafeParseResult<core.output<T>>>;
+export declare const _parseAsync: (_Err: $ZodErrorClass) => $ParseAsync;
+export declare const parseAsync: $ParseAsync;
+export type $SafeParse = <T extends schemas.$ZodType>(schema: T, value: unknown, _ctx?: schemas.ParseContext<errors.$ZodIssue>) => util.SafeParseResult<core.output<T>>;
+export declare const _safeParse: (_Err: $ZodErrorClass) => $SafeParse;
+export declare const safeParse: $SafeParse;
+export type $SafeParseAsync = <T extends schemas.$ZodType>(schema: T, value: unknown, _ctx?: schemas.ParseContext<errors.$ZodIssue>) => Promise<util.SafeParseResult<core.output<T>>>;
+export declare const _safeParseAsync: (_Err: $ZodErrorClass) => $SafeParseAsync;
+export declare const safeParseAsync: $SafeParseAsync;
