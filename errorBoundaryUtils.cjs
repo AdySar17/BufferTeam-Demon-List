@@ -39,7 +39,7 @@ module.exports = __toCommonJS(errorBoundaryUtils_exports);
 var React = __toESM(require("react"), 1);
 var import_query_core = require("@tanstack/query-core");
 var ensurePreventErrorBoundaryRetry = (options, errorResetBoundary, query) => {
-  const throwOnError = (query == null ? void 0 : query.state.error) && typeof options.throwOnError === "function" ? (0, import_query_core.shouldThrowError)(options.throwOnError, [query.state.error, query]) : options.throwOnError;
+  const throwOnError = query?.state.error && typeof options.throwOnError === "function" ? (0, import_query_core.shouldThrowError)(options.throwOnError, [query.state.error, query]) : options.throwOnError;
   if (options.suspense || options.experimental_prefetchInRender || throwOnError) {
     if (!errorResetBoundary.isReset()) {
       options.retryOnMount = false;
