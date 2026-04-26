@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  <title>Leaderboards — BFT Demon List</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: black url('https://iili.io/qnR6Jst.jpg') no-repeat top center fixed;
+      background-size: cover;
+      padding-top: 70px;
+      min-height: 100vh;
+      color: white;
+    }
+
+    /* ===== HEADER (mismo que demonlist) ===== */
+    .top-header {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 15px;
+      z-index: 9999;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(10px);
+    }
+    .left { display: flex; align-items: center; gap: 10px; }
+    .logo-img { width: 38px; height: 38px; }
+    .logo-text { color: white; font-weight: bold; font-size: 1.1rem; }
+    .nav-links { display: flex; gap: 15px; }
+    .nav-links a { color: white; text-decoration: none; font-size: 0.95rem; }
+    .nav-links a:hover { color: #7cfc00; }
+    .menu-toggle {
+      display: none;
+      font-size: 28px; color: white;
+      width: 40px; height: 40px;
+      align-items: center; justify-content: center;
+      cursor: pointer; user-select: none;
+    }
+
+    /* ===== CUADRO OSCURO DE FONDO =====
+       Capa semitransparente sobre el fondo (sin reemplazarlo) para
+       que el texto del leaderboard sea legible sobre el fondo claro. */
+    .page-card {
+      width: 95%;
+      max-width: 1040px;
+      margin: 90px auto 60px;
+      padding: 24px 22px 32px;
+      background: rgba(0,0,0,0.55);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.45);
+    }
+    @media (max-width: 768px) {
+      .page-card { margin: 80px 6px 40px; padding: 18px 8px 24px; width: auto; }
+    }
+
+    /* ===== TÍTULO ===== */
+    .page-title {
+      text-align: center;
+      margin: 20px auto 6px;
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #1a4d1a, #7cfc00, #c7ff3b);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .page-sub {
+      text-align: center;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+      padding: 0 16px;
+    }
+
+    /* ===== SELECTOR DE CATEGORÍAS ===== */
+    .cat-select-wrap {
+      width: 90%; max-width: 980px;
+      margin: 0 auto 20px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 6px;
+    }
+    .cat-select-label {
+      font-size: 0.78rem;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.65);
+    }
+    .cat-select {
+      width: min(420px, 100%);
+      padding: 11px 40px 11px 16px;
+      border-radius: 12px;
+      background-color: rgba(20,20,20,0.75);
+      border: 1.5px solid rgba(124,252,0,0.45);
+      color: white;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='%23c7ff3b'><path d='M6 8 0 0h12z'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 12px 8px;
+      transition: border-color .2s, box-shadow .2s, transform .15s;
+    }
+    .cat-select:hover {
+      border-color: rgba(124,252,0,0.75);
+      transform: translateY(-1px);
+    }
+    .cat-select:focus {
+      border-color: rgba(124,252,0,0.95);
+      box-shadow: 0 0 14px rgba(124,252,0,0.3);
+    }
+    .cat-select option {
+      background: #0d1a0d;
+      color: white;
+      font-weight: 600;
+    }
+
+    /* ===== BUSCADOR ===== */
+    #searchContainer { text-align: center; margin: 4px 0 18px; }
+    #searchBar {
+      width: 80%; max-width: 600px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      border: 2px solid rgba(255,255,255,0.3);
+      background: rgba(20,20,20,0.6);
+      color: white;
+      font-size: 1.05rem;
+      font-family: 'Montserrat', sans-serif;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    #searchBar:focus { border-color: rgba(124,252,0,0.6); }
+
+    /* ===== LISTA ===== */
+    .lb-list {
+      width: 90%; max-width: 800px;
+      margin: 0 auto;
+      display: flex; flex-direction: column;
+      gap: 10px;
+      padding-bottom: 30px;
+    }
+    .lb-row {
+      display: flex; align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      /* Fondo por defecto: si la fila TIENE imagen del nivel más difícil
+         del jugador (background del level), se sobrescribe inline en JS.
+         Si NO la tiene (jugadores sin records), se queda con el gris
+         translúcido de fondo. */
+      background: rgba(18,18,18,0.78);
+      /* La imagen llena toda la fila adoptando su forma (incluidas las
+         esquinas redondeadas gracias a overflow:hidden). */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      border: 1px solid rgba(255,255,255,0.06);
+      backdrop-filter: blur(2px);
+      cursor: pointer;
+      transition: transform .15s, border-color .2s, box-shadow .2s;
+      position: relative;
+      overflow: hidden;
+      /* Viñeta interior fina para asegurar que ningún píxel claro
+         se cuele por las esquinas redondeadas.  El oscurecimiento
+         principal de los bordes lo hace el radial-gradient inline. */
+      box-shadow: inset 0 0 10px 2px rgba(0,0,0,0.55);
+    }
+    .lb-row:hover {
+      border-color: rgba(124,252,0,0.55);
+      transform: translateY(-1px);
+      box-shadow: inset 0 0 10px 2px rgba(0,0,0,0.55),
+                  0 4px 18px rgba(124,252,0,0.18);
+    }
+    .lb-pos {
+      min-width: 56px;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: #c7ff3b;
+      letter-spacing: .5px;
+    }
+    .lb-photo {
+      width: 32px; height: 32px; border-radius: 50%;
+      object-fit: cover; flex-shrink: 0;
+      border: 1.5px solid rgba(199,255,59,0.35);
+      background: rgba(255,255,255,0.06);
+    }
+    .lb-photo-fallback {
+      display:flex; align-items:center; justify-content:center;
+      background: linear-gradient(135deg,#1a4d1a,#7fff3b);
+      color:#0a1500; font-weight:800; font-size:.7rem;
+      text-transform: uppercase;
+    }
+    .lb-flag {
+      width: 24px; height: 18px; border-radius: 3px;
+      object-fit: cover; flex-shrink: 0;
+      background: rgba(255,255,255,0.06);
+    }
+    .lb-name {
+      flex: 1;
+      font-weight: 600;
+      font-size: 1.02rem;
+      color: white;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .lb-value {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #fff;
+      white-space: nowrap;
+    }
+    .lb-value .unit {
+      color: rgba(255,255,255,0.55);
+      font-weight: 500;
+      font-size: 0.85rem;
+      margin-left: 4px;
+    }
+
+    /* ===== PAGINACIÓN ===== */
+    .pager {
+      width: 90%; max-width: 800px;
+      margin: 8px auto 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .pg-btn {
+      padding: 8px 16px;
+      border-radius: 10px;
+      background: rgba(20,20,20,0.7);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: white;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background .2s, border-color .2s, opacity .2s;
+    }
+    .pg-btn:hover:not(:disabled) {
+      background: rgba(124,252,0,0.15);
+      border-color: rgba(124,252,0,0.5);
+    }
+    .pg-btn:disabled {
+      opacity: 0.4; cursor: not-allowed;
+    }
+    .pg-jump {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: white; font-size: 0.95rem;
+    }
+    .pg-jump input {
+      width: 60px;
+      padding: 6px 8px;
+      text-align: center;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(20,20,20,0.7);
+      color: white;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .pg-jump input:focus { border-color: rgba(124,252,0,0.6); }
+
+    /* ===== STATE ===== */
+    #stateMsg {
+      text-align: center;
+      color: rgba(255,255,255,0.7);
+      padding: 30px 16px;
+      font-size: 0.98rem;
+    }
+
+    /* ===== AUTH SLOT (mismo patrón) ===== */
+    .auth-slot { display: flex; align-items: center; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .menu-toggle { display: flex; }
+      .nav-links {
+        display: none; flex-direction: column;
+        position: absolute; top: 60px; right: 10px;
+        background: rgba(0,0,0,0.9);
+        padding: 10px; border-radius: 10px; gap: 8px;
+      }
+      .nav-links.active { display: flex; }
+
+      .page-title { font-size: 1.5rem; }
+      #searchBar { width: 92%; font-size: 0.95rem; }
+      .cat-select { font-size: 0.98rem; padding: 11px 38px 11px 14px; }
+    }
+
+    /* En celular convertimos la fila en una grid de 2 líneas para que
+       el nombre del jugador tenga ancho completo y no se trunque, y los
+       puntos / dificultad queden en su propia línea. La letra se hace
+       más grande para que se lea bien clara. */
+    @media (max-width: 600px) {
+      /* La lista ocupa casi todo el ancho disponible para que las
+         filas sean más anchas y todo entre en una sola línea. */
+      .lb-list { width: 100%; padding-left: 2px; padding-right: 2px; }
+      /* Una sola fila: puesto · foto · bandera · nombre (1fr, ellipsis) · puntos */
+      .lb-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 12px;
+      }
+      .lb-pos {
+        min-width: 0;            /* sin reserva ancha que separe de la foto */
+        padding-right: 0;
+        margin-right: 0;
+        font-size: 0.95rem;
+        flex-shrink: 0;
+      }
+      .lb-photo {
+        width: 34px; height: 34px;
+        margin-left: 2px;        /* casi pegada al puesto */
+        flex-shrink: 0;
+      }
+      .lb-flag {
+        width: 22px; height: 16px;
+        flex-shrink: 0;
+      }
+      /* Nombre: una sola línea con "…" si se pasa, para no romper la fila */
+      .lb-name {
+        flex: 1 1 auto;
+        min-width: 0;
+        font-size: 0.86rem;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .lb-value {
+        font-size: 0.82rem;       /* puntos más pequeños SOLO en celular */
+        font-weight: 700;
+        color: #c7ff3b;
+        flex-shrink: 0;
+        white-space: nowrap;
+      }
+      .lb-value .unit {
+        font-size: 0.7rem;
+        margin-left: 3px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="top-header">
+    <div class="left">
+      <img src="https://iili.io/BN3Yhpp.png" class="logo-img" alt="Logo">
+      <div class="logo-text">BFT Demon List</div>
+    </div>
+    <div style="display:flex; align-items:center; gap:14px;">
+      <nav class="nav-links" id="navLinks">
+        <a href="/">Home</a>
+        <a href="/demonlist.html">Demon List</a>
+        <a href="/leaderboards.html">Leaderboards</a>
+        <a href="/notifications.html">✉ Notificaciones</a>
+        <a href="/submit.html">Enviar Record</a>
+        <a href="/guidelines.html">Guidelines</a>
+        <a href="/panel.html" class="staff-only">Panel de Records</a>
+      </nav>
+      <div class="auth-slot" id="authSlot"></div>
+      <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+    </div>
+  </header>
+
+  <div class="page-card">
+    <h1 class="page-title">Leaderboards</h1>
+    <p class="page-sub">Ranking de jugadores por puntos y demons completados.</p>
+
+    <!-- SELECTOR DE CATEGORÍA -->
+    <div class="cat-select-wrap">
+      <label class="cat-select-label" for="catSelect">Categoría</label>
+      <select id="catSelect" class="cat-select"></select>
+    </div>
+
+    <!-- BUSCADOR -->
+    <div id="searchContainer">
+      <input id="searchBar" type="text" placeholder="Buscar jugador por nombre..." />
+    </div>
+
+    <div id="stateMsg">Cargando leaderboards...</div>
+
+    <div class="lb-list" id="lbList"></div>
+
+    <div class="pager" id="pager" style="display:none;">
+      <button class="pg-btn" id="pgPrev">&lt; Atrás</button>
+      <span class="pg-jump">
+        <input id="pgInput" type="number" min="1" value="1" />
+        / <span id="pgTotal">1</span>
+      </span>
+      <button class="pg-btn" id="pgNext">Siguiente &gt;</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { onAuthChange, db, isStaff, mountAuthUI } from "/auth.js";
+    import { DIFFICULTY_IMAGES } from "/difficulty.js";
+    import { collection, getDocs, doc, getDoc }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const $ = (id) => document.getElementById(id);
+
+    /* ===== Hamburguesa ===== */
+    function toggleMenu() { $("navLinks").classList.toggle("active"); }
+    window.toggleMenu = toggleMenu;
+
+    /* ===== Auth UI + staff link ===== */
+    mountAuthUI("authSlot");
+    onAuthChange(() => {
+      document.body.classList.toggle("is-staff", isStaff());
+      document.querySelectorAll(".staff-only").forEach(el => {
+        el.style.display = isStaff() ? "" : "none";
+      });
+    });
+
+    /* ===== CATEGORÍAS ===== */
+    const CATEGORIES = [
+      { key: "points",        label: "Por Puntos",            unit: "Pts" },
+      { key: "total",         label: "Por Demons completados", unit: "Demons" },
+      { key: "Extreme Demon", label: "Por Extreme Demons",    unit: "Demons", diff: "Extreme Demon" },
+      { key: "Insane Demon",  label: "Por Insane Demons",     unit: "Demons", diff: "Insane Demon"  },
+      { key: "Hard Demon",    label: "Por Hard Demons",       unit: "Demons", diff: "Hard Demon"    },
+      { key: "Medium Demon",  label: "Por Medium Demons",     unit: "Demons", diff: "Medium Demon"  },
+      { key: "Easy Demon",    label: "Por Easy Demons",       unit: "Demons", diff: "Easy Demon"    },
+    ];
+    /* Categoría inicial: SIEMPRE "Por Puntos" al entrar al leaderboard. */
+    let activeCat = "points";
+
+    function renderTabs() {
+      const sel = $("catSelect");
+      sel.innerHTML = "";
+      CATEGORIES.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c.key;
+        opt.textContent = c.label;
+        if (c.key === activeCat) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      sel.value = activeCat;
+    }
+
+    /* Cambio de categoría desde el desplegable */
+    $("catSelect").addEventListener("change", () => {
+      const v = $("catSelect").value;
+      if (!v || v === activeCat) return;
+      activeCat = v;
+      page = 1;
+      renderList();
+    });
+
+    /* ===== DATA ===== */
+    const PAGE_SIZE = 50;
+    let page = 1;
+    let aggregates = [];   // [{uid, name, country, points, total, "Extreme Demon": n, ...}]
+    let levelsCache = new Map();   // id -> {value, difficulty}
+
+    async function loadAll() {
+      try {
+        /* 1) Todos los records aceptados (incluye progresos <100%) */
+        const recsSnap = await getDocs(collection(db, "records"));
+        const records = recsSnap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .filter(r => r.status === "Accepted" && Number(r.percent) > 0);
+
+        /* 2) Levels: traer TODOS de una sola colección (1 sola lectura tipo list) */
+        const lvlSnap = await getDocs(collection(db, "levels"));
+        lvlSnap.forEach(d => levelsCache.set(d.id, d.data()));
+
+        /* 3) Agregar por usuario */
+        const map = new Map();
+        function bump(uid) {
+          if (!uid) return null;
+          if (!map.has(uid)) {
+            map.set(uid, {
+              uid,
+              points: 0, total: 0,
+              "Extreme Demon": 0, "Insane Demon": 0,
+              "Hard Demon": 0, "Medium Demon": 0, "Easy Demon": 0
+            });
+          }
+          return map.get(uid);
+        }
+        records.forEach(r => {
+          const lvl = levelsCache.get(r.levelId);
+          if (!lvl) return;
+          const pct  = Number(r.percent);
+          const base = Number(lvl.value || 0);
+          const earned = pct === 100 ? base : (base / 10);   // <100% → 1/10 puntos
+          const dkey = (lvl.difficulty && [
+            "Extreme Demon","Insane Demon","Hard Demon","Medium Demon","Easy Demon"
+          ].includes(lvl.difficulty)) ? lvl.difficulty : "Extreme Demon";
+          /* Posición del nivel: en una demon-list, posición 1 = el más
+             difícil, posiciones grandes = más fáciles. Lo usamos para
+             saber cuál es el nivel más difícil completado por cada jugador. */
+          const lvlPos = Number(lvl.position);
+          const lvlBg  = (lvl.background || "").trim();
+          [r.userId, r.player2Id].forEach(uid => {
+            if (!uid) return;
+            const u = bump(uid);
+            u.points += earned;
+            u.total  += 1;             // todos los records (100% o progreso) cuentan
+            if (pct === 100) u[dkey] += 1;   // categorías por dificultad: solo 100%
+            /* Solo cuenta como "nivel más difícil completado" si lo
+               completó al 100% y el nivel tiene posición válida + bg. */
+            if (pct === 100 && Number.isFinite(lvlPos) && lvlPos >= 1 && lvlBg) {
+              if (!u._hardestPos || lvlPos < u._hardestPos) {
+                u._hardestPos = lvlPos;
+                u._hardestBg  = lvlBg;
+              }
+            }
+          });
+        });
+
+        /* 4) Cargar TODOS los profiles para nombre y país. Así también
+              entran en la lista jugadores que aún no tienen records
+              (aparecerán al final con puesto "-"). */
+        const profSnap = await getDocs(collection(db, "profiles"));
+        profSnap.forEach(ps => {
+          const uid = ps.id;
+          const d   = ps.data() || {};
+          if (!map.has(uid)) bump(uid);          // crea fila vacía (todos a 0)
+          const u = map.get(uid);
+          u.name     = d.name    || "Sin nombre";
+          u.country  = (d.country  || "").trim().toLowerCase();
+          u.photoURL = (d.photoURL || "").trim();
+        });
+        /* Los uids que sí tenían records pero NO tenían profile doc */
+        map.forEach((u, uid) => {
+          if (u.name == null) {
+            u.name = "Sin nombre";
+            u.country = "";
+          }
+        });
+
+        aggregates = [...map.values()];
+        $("stateMsg").style.display = "none";
+        renderTabs();
+        renderList();
+      } catch (err) {
+        console.error("[leaderboards] loadAll:", err);
+        $("stateMsg").textContent = "Error al cargar leaderboards. " + (err.message || "");
+      }
+    }
+
+    /* ===== RENDER LISTA + PAGINACIÓN ===== */
+    function escapeHtml(s) {
+      return String(s ?? "").replace(/[&<>"']/g, c => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      })[c]);
+    }
+
+    function getCurrentSorted() {
+      const term = ($("searchBar").value || "").trim().toLowerCase();
+      const cat = CATEGORIES.find(c => c.key === activeCat) || CATEGORIES[0];
+      /* En todas las categorías, el `key` coincide con el campo del agregado:
+         "points", "total", "Extreme Demon", "Insane Demon", etc. */
+      const field = cat.key;
+
+      /* IMPORTANTE: rankeamos PRIMERO sobre TODOS los jugadores y
+         luego filtramos por nombre. Así, si Miguel está en el #44
+         globalmente, al buscarlo seguirá saliendo como #44 (en vez
+         de "Top #1" porque sea el único resultado del filtro). */
+      const ranked = aggregates.slice().sort((a, b) => {
+        const va = Number(a[field] || 0);
+        const vb = Number(b[field] || 0);
+        if (vb !== va) return vb - va;
+        return (a.name || "").localeCompare(b.name || "");
+      });
+
+      /* Calculamos el puesto global (basado en valor) ANTES de filtrar.
+         Empates de valor → mismo puesto (1,2,2,4...). Los jugadores con
+         valor 0 en la categoría no reciben puesto (se mostrará "—"). */
+      let lastVal = null, lastRank = 0;
+      ranked.forEach((row, i) => {
+        const v = Number(row[field] || 0);
+        if (v <= 0) { row._rank = null; return; }
+        if (v !== lastVal) { lastRank = i + 1; lastVal = v; }
+        row._rank = lastRank;
+      });
+
+      const rows = !term
+        ? ranked
+        : ranked.filter(a => (a.name || "").toLowerCase().includes(term));
+
+      return { rows, field, unit: cat.unit };
+    }
+
+    function renderList() {
+      const { rows, field, unit } = getCurrentSorted();
+      const list = $("lbList");
+      list.innerHTML = "";
+
+      if (!rows.length) {
+        $("stateMsg").style.display = "block";
+        $("stateMsg").textContent = "No hay jugadores que mostrar en esta categoría.";
+        $("pager").style.display = "none";
+        return;
+      }
+      $("stateMsg").style.display = "none";
+
+      const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+      if (page > totalPages) page = totalPages;
+      if (page < 1) page = 1;
+
+      const start = (page - 1) * PAGE_SIZE;
+      const slice = rows.slice(start, start + PAGE_SIZE);
+
+      slice.forEach((u, i) => {
+        const row = document.createElement("div");
+        row.className = "lb-row";
+        row.addEventListener("click", () => {
+          location.href = `/profile.html?id=${encodeURIComponent(u.uid)}`;
+        });
+
+        /* Fondo: imagen del nivel más difícil completado por el jugador
+           (si tiene), oscurecida con un gradiente para que el texto se
+           lea bien encima. Si no tiene records 100%, se queda con el
+           fondo gris translúcido del CSS. */
+        if (u._hardestBg) {
+          const safeBg = u._hardestBg.replace(/"/g, "%22");
+          /* Viñeta tipo "spotlight":
+             el CENTRO se ve claro y nítido, los BORDES se desvanecen
+             a negro casi opaco.  Así la foto del nivel queda visible
+             en el medio y los lados (donde van el nombre y los
+             puntos) son oscuros para que el texto se lea bien. */
+          row.style.backgroundImage =
+            `radial-gradient(ellipse 100% 130% at center, ` +
+              `rgba(0,0,0,0) 0%, ` +
+              `rgba(0,0,0,0) 28%, ` +
+              `rgba(0,0,0,0.55) 60%, ` +
+              `rgba(0,0,0,0.95) 100%), ` +
+            `url("${safeBg}")`;
+          row.style.textShadow = "0 1px 3px rgba(0,0,0,0.85)";
+        }
+
+        const valNum = Number(u[field] || 0);
+        const valStr = field === "points"
+          ? (Math.round(valNum * 100) / 100).toLocaleString()
+          : valNum.toLocaleString();
+
+        /* Usamos el puesto GLOBAL precalculado en getCurrentSorted(),
+           para que el ranking no cambie al filtrar por nombre.
+           Sin valor en esta categoría → sin puesto (sale "—"). */
+        const posStr = (u._rank && valNum > 0) ? `#${u._rank}` : "—";
+
+        const flagSrc = u.country
+          ? `https://flagcdn.com/w40/${u.country}.png`
+          : "";
+
+        const photoSafe = escapeHtml(u.photoURL || "");
+        const initials  = (u.name || "?").split(" ").map(n => n[0]).slice(0,2).join("").toUpperCase();
+        const photoHtml = photoSafe
+          ? `<img class="lb-photo" src="${photoSafe}" alt="" referrerpolicy="no-referrer" onerror="this.outerHTML='<div class=&quot;lb-photo lb-photo-fallback&quot;>${escapeHtml(initials)}</div>'"/>`
+          : `<div class="lb-photo lb-photo-fallback">${escapeHtml(initials)}</div>`;
+
+        row.innerHTML = `
+          <div class="lb-pos">${posStr}</div>
+          ${photoHtml}
+          ${flagSrc
+            ? `<img class="lb-flag" src="${flagSrc}" alt="${escapeHtml(u.country.toUpperCase())}" onerror="this.style.display='none'"/>`
+            : `<div class="lb-flag" style="background:transparent"></div>`}
+          <div class="lb-name">${escapeHtml(u.name || "Sin nombre")}</div>
+          <div class="lb-value">${valStr}<span class="unit">${escapeHtml(unit)}</span></div>
+        `;
+        list.appendChild(row);
+      });
+
+      /* Pager */
+      $("pager").style.display = "flex";
+      $("pgTotal").textContent = totalPages;
+      $("pgInput").value = page;
+      $("pgInput").max = totalPages;
+      $("pgPrev").disabled = page <= 1;
+      $("pgNext").disabled = page >= totalPages;
+    }
+
+    /* ===== EVENTOS PAGINACIÓN + BÚSQUEDA ===== */
+    $("pgPrev").addEventListener("click", () => {
+      if (page > 1) { page--; renderList(); }
+    });
+    $("pgNext").addEventListener("click", () => {
+      page++; renderList();
+    });
+    $("pgInput").addEventListener("change", () => {
+      const n = parseInt($("pgInput").value, 10);
+      if (!Number.isFinite(n)) return;
+      page = n;
+      renderList();
+    });
+    $("pgInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") $("pgInput").blur();
+    });
+
+    let searchTimer = null;
+    $("searchBar").addEventListener("input", () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => { page = 1; renderList(); }, 150);
+    });
+
+    /* ===== KICK OFF ===== */
+    renderTabs();
+    loadAll();
+  </script>
+</body>
+</html>

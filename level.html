@@ -1,0 +1,916 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Nivel - BFT Demon List</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --accent-start: #c7ff3b;
+    --accent-end:   #7fff3b;
+    --glass-bg:     rgba(10,10,12,0.55);
+    --glass-border: rgba(255,255,255,0.06);
+    --text:         #eaeaea;
+    --muted:        rgba(230,230,230,0.65);
+    --radius:       14px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    min-height: 100%;
+    font-family: 'Montserrat', sans-serif;
+    background: #060606;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Capa de fondo del nivel (URL guardada en levels.background) */
+  #levelBgLayer {
+    position: fixed; inset: 0;
+    background: #060606 center/cover no-repeat;
+    z-index: 0;
+    pointer-events: none;
+    transition: background-image .4s;
+  }
+  #levelBgLayer::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.88));
+  }
+  body > *:not(#levelBgLayer) { position: relative; z-index: 1; }
+
+  /* ===== NAV ===== */
+  .top-header {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 18px;
+    z-index: 9999;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .nav-left  { display: flex; align-items: center; gap: 10px; }
+  .logo-img  { width: 36px; height: 36px; }
+  .logo-text { color: white; font-weight: 700; font-size: 1.05rem; }
+  .nav-links { display: flex; gap: 18px; }
+  .nav-links a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.92rem; transition: color .2s; }
+  .nav-links a:hover { color: var(--accent-start); }
+  .menu-toggle {
+    display: none; font-size: 26px; color: white;
+    width: 38px; height: 38px; align-items: center; justify-content: center;
+    cursor: pointer; user-select: none;
+  }
+  @media (max-width: 680px) {
+    .menu-toggle { display: flex; }
+    .nav-links {
+      display: none; flex-direction: column;
+      position: absolute; top: 60px; right: 10px;
+      background: rgba(0,0,0,0.92); padding: 10px; border-radius: 10px; gap: 8px;
+    }
+    .nav-links.open { display: flex; }
+  }
+
+  /* ===== LOADING / ERROR ===== */
+  #stateMsg {
+    text-align: center;
+    padding: 120px 20px 40px;
+    color: var(--muted);
+    font-size: 1rem;
+  }
+
+  /* ===== PAGE WRAP ===== */
+  .page-wrap {
+    max-width: 1200px;
+    margin: 80px auto 50px;
+    padding: 0 24px;
+    display: none;
+  }
+
+  /* ===== BACK BUTTON ===== */
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    margin-bottom: 20px;
+    padding: 7px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: var(--muted);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.88rem; font-weight: 600;
+    cursor: pointer; text-decoration: none;
+    transition: background .2s, color .2s;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.09); color: var(--text); }
+
+  /* ===== GRID ===== */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
+
+  /* ===== CARD ===== */
+  .card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(0,0,0,0.38));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    padding: 18px;
+    box-shadow: 0 6px 28px rgba(0,0,0,0.55);
+  }
+
+  /* ===== LEFT COLUMN ===== */
+  .left-col { display: flex; flex-direction: column; gap: 16px; }
+
+  .level-header { display: flex; gap: 16px; align-items: center; }
+  .diff-img {
+    width: 90px; height: 90px; border-radius: 12px;
+    object-fit: cover; border: 2px solid rgba(255,255,255,0.1);
+    flex: 0 0 90px;
+  }
+  .level-title { font-size: 1.55rem; font-weight: 700; margin-bottom: 5px; line-height: 1.2; }
+  .level-sub   { color: var(--muted); font-size: 0.92rem; }
+
+  /* Etiquetas (tags) — rectángulos verdes agrupados */
+  .lvl-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .lvl-tags:empty { display: none; }
+  .lvl-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 14px;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    background: linear-gradient(135deg, #1a4d1a 0%, #5aad00 55%, #c7ff3b 100%);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.18);
+  }
+
+  /* Descripción del nivel */
+  .lvl-desc {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.04);
+    border-left: 3px solid #7cfc00;
+    border-radius: 6px;
+    color: #d8d8d8;
+    font-size: 0.94rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+
+  .video-frame {
+    width: 100%; aspect-ratio: 16/9;
+    border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--glass-border);
+    background: #000; padding: 0;
+  }
+  .video-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+  /* ===== RIGHT COLUMN ===== */
+  .right-col { display: flex; flex-direction: column; gap: 16px; }
+
+  /* stats */
+  .stats { display: flex; gap: 14px; align-items: center; }
+  .stat-thumb {
+    width: 72px; height: 72px; border-radius: 10px;
+    object-fit: cover; flex: 0 0 72px;
+    border: 1px solid var(--glass-border);
+  }
+  /* Cuadro de Tier (reemplaza la imagen de dificultad en el panel de stats).
+     Por defecto muestra "—" hasta que el staff lo configure por nivel. */
+  .stat-tier-box {
+    width: 72px; height: 72px;
+    flex: 0 0 72px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(124,252,0,0.45);
+    background: linear-gradient(135deg, rgba(20,40,10,0.85), rgba(0,0,0,0.55));
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 2px;
+    box-shadow: inset 0 0 14px rgba(124,252,0,0.12);
+  }
+  .stat-tier-label {
+    font-size: 0.62rem; letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(199,255,59,0.85);
+    font-weight: 800;
+  }
+  .stat-tier-value {
+    font-size: 1.4rem; line-height: 1;
+    font-weight: 800;
+    color: #fff;
+  }
+  .stat-list { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+  .stat-item {
+    font-weight: 600; font-size: 0.92rem;
+    display: flex; align-items: baseline; gap: 6px;
+  }
+  .stat-val   { color: var(--muted); font-weight: 500; word-break: break-word; }
+
+  /* publisher row */
+  .meta-section { display: flex; flex-direction: column; gap: 10px; }
+  .meta-label { font-size: 0.78rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+  .meta-name  { font-weight: 600; font-size: 0.97rem; }
+  .meta-block { display: flex; flex-direction: column; gap: 3px; }
+
+  /* ===== RECORDS ===== */
+  .records-head {
+    display: flex; justify-content: space-between;
+    align-items: flex-start; gap: 12px; flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .records-title { font-weight: 700; font-size: 0.97rem; }
+  .records-min   { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+  .rec-search {
+    flex: 1; min-width: 160px; max-width: 220px;
+    padding: 8px 11px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.04);
+    color: var(--text);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.85rem;
+    outline: none;
+  }
+  .rec-search:focus { border-color: rgba(199,255,59,0.35); }
+  .rec-search::placeholder { color: rgba(255,255,255,0.3); }
+
+  #recordsList { min-height: 40px; }
+
+  .record {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    gap: 10px; padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.04);
+    margin-bottom: 7px;
+    transition: background .15s;
+  }
+  .record:hover { background: rgba(255,255,255,0.05); }
+
+  .rec-left  { display: flex; align-items: center; gap: 9px; overflow: hidden; }
+  .rec-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+  .rec-flag  { width: 34px; height: 22px; object-fit: cover; border-radius: 3px; flex-shrink: 0; }
+  .rec-name  { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .rec-mobile { width: 18px; height: 18px; object-fit: contain; opacity: .85; }
+  .rec-percent { font-size: 0.88rem; color: var(--text); white-space: nowrap; }
+  .rec-percent.full { font-weight: 700; color: var(--accent-start); }
+
+  /* Records con progreso (<100%): sin negrita en ningún campo */
+  .record.partial,
+  .record.partial .rec-name,
+  .record.partial .rec-percent { font-weight: 400 !important; }
+
+  .rec-play {
+    width: 30px; height: 30px; object-fit: contain;
+    opacity: .85; transition: opacity .15s;
+  }
+  .rec-play:hover { opacity: 1; }
+
+  .rec-empty {
+    text-align: center; padding: 24px 0;
+    color: var(--muted); font-size: 0.9rem;
+  }
+
+  /* pager */
+  .pager {
+    display: flex; gap: 8px; justify-content: center;
+    align-items: center; margin-top: 12px;
+  }
+  .pager-btn {
+    padding: 7px 16px; border-radius: 10px;
+    background: rgba(0,0,0,0.45);
+    border: 1px solid rgba(255,255,255,0.06);
+    color: var(--accent-start);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700; font-size: 0.88rem;
+    cursor: pointer; transition: background .2s;
+  }
+  .pager-btn:hover:not(:disabled) { background: rgba(255,255,255,0.07); }
+  .pager-btn:disabled {
+    opacity: .35; cursor: not-allowed;
+    color: rgba(200,200,200,0.5);
+  }
+  .pager-info { font-size: 0.83rem; color: var(--muted); padding: 0 6px; }
+
+  /* loading skeleton records */
+  .rec-loading { text-align: center; padding: 20px 0; color: var(--muted); font-size: 0.88rem; }
+</style>
+</head>
+<body>
+
+<!-- Capa de fondo del nivel -->
+<div id="levelBgLayer"></div>
+
+<!-- NAV -->
+<header class="top-header">
+  <div class="nav-left">
+    <img src="https://iili.io/BN3Yhpp.png" class="logo-img" alt="Logo">
+    <div class="logo-text">BFT Demon List</div>
+  </div>
+  <div style="display:flex; align-items:center; gap:14px;">
+    <nav class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/demonlist.html">Demon List</a>
+      <a href="/leaderboards.html">Leaderboards</a>
+        <a href="/notifications.html">✉ Notificaciones</a>
+      <a href="/submit.html">Enviar Record</a>
+      <a href="/guidelines.html">Guidelines</a>
+      <a href="/panel.html" class="staff-only">Panel de Records</a>
+    </nav>
+    <div class="auth-slot" id="authSlot"></div>
+    <div class="menu-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')">☰</div>
+  </div>
+</header>
+
+<script type="module">
+  import { mountAuthUI } from "/auth.js";
+  mountAuthUI("authSlot");
+</script>
+
+<!-- ESTADO -->
+<div id="stateMsg">Cargando nivel...</div>
+
+<!-- CONTENIDO PRINCIPAL -->
+<div class="page-wrap" id="pageWrap">
+
+  <a href="/demonlist.html" class="back-btn">&#8592; Volver a la lista</a>
+
+  <div class="grid">
+
+    <!-- IZQUIERDA -->
+    <div class="left-col">
+
+      <!-- Header: ícono dificultad + nombre + autor -->
+      <div class="card">
+        <div class="level-header">
+          <img class="diff-img" id="lvlDiff" src="https://iili.io/KS9tvtI.md.png" alt="Dificultad">
+          <div>
+            <h1 class="level-title" id="lvlName">—</h1>
+            <p class="level-sub"  id="lvlSub">—</p>
+          </div>
+        </div>
+
+        <!-- Etiquetas (rectángulos verdes agrupados) -->
+        <div class="lvl-tags" id="lvlTags"></div>
+
+        <!-- Descripción del nivel -->
+        <p class="lvl-desc" id="lvlDesc" style="display:none;"></p>
+      </div>
+
+      <!-- Video -->
+      <div class="video-frame card" id="videoWrap">
+        <iframe id="lvlIframe" src="" allowfullscreen
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+        </iframe>
+      </div>
+
+    </div>
+
+    <!-- DERECHA -->
+    <aside class="right-col">
+
+      <!-- Stats -->
+      <div class="card">
+        <div class="stats">
+          <!-- Cuadro de TIER (sustituye a la antigua carita de dificultad).
+               El valor real se configurará por nivel más adelante; por ahora
+               siempre muestra "—". -->
+          <div class="stat-tier-box" title="Tier del nivel">
+            <div class="stat-tier-label">Tier</div>
+            <div class="stat-tier-value" id="lvlTier">—</div>
+          </div>
+          <div class="stat-list">
+            <div class="stat-item">Puntos de Lista: <span class="stat-val" id="lvlPoints">—</span></div>
+            <div class="stat-item">Host: <span class="stat-val" id="lvlAuthor">—</span></div>
+            <div class="stat-item">Dificultad: <span class="stat-val" id="lvlDifficulty">Extreme Demon</span></div>
+            <div class="stat-item">ID: <span class="stat-val" id="lvlGdId">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Creadores -->
+      <div class="card meta-section" id="lvlCreatorsCard" style="display:none;">
+        <div class="meta-block">
+          <div class="meta-label">Creadores</div>
+          <div class="meta-name" id="lvlCreators">—</div>
+        </div>
+      </div>
+
+      <!-- Records -->
+      <div class="card">
+        <div class="records-head">
+          <div>
+            <div class="records-title" id="recTitle">RECORDS (0)</div>
+            <div class="records-min" id="recMinPct">Porcentaje mínimo: 100%</div>
+          </div>
+          <input class="rec-search" id="recSearch" placeholder="Buscar jugador...">
+        </div>
+
+        <div id="recordsList">
+          <div class="rec-loading">Cargando records...</div>
+        </div>
+
+        <div class="pager">
+          <button class="pager-btn" id="prevBtn" disabled>Atrás</button>
+          <div class="pager-info" id="pageInfo">1 / 1</div>
+          <button class="pager-btn" id="nextBtn" disabled>Siguiente</button>
+        </div>
+      </div>
+
+      <!-- Historial de posiciones -->
+      <div class="card">
+        <div class="records-head">
+          <div>
+            <div class="records-title">HISTORIAL DE POSICIONES</div>
+            <div class="records-min">Cambios registrados en este nivel</div>
+          </div>
+        </div>
+        <div id="historyList">
+          <div class="rec-loading">Cargando historial...</div>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+</div>
+
+<!-- ESTILOS DEL HISTORIAL -->
+<style>
+  .ph-row {
+    display:grid;
+    grid-template-columns: 1.2fr 0.6fr 0.6fr 2fr;
+    gap:10px; align-items:center;
+    padding:10px 12px;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    font-size:.85rem;
+  }
+  .ph-row.ph-head {
+    color: rgba(199,255,59,0.7);
+    text-transform:uppercase; font-weight:700; font-size:.72rem;
+    letter-spacing:.5px;
+    border-bottom:1px solid rgba(255,255,255,0.12);
+  }
+  .ph-row.ph-up      { background: rgba(124,252,0,0.06); }
+  .ph-row.ph-down    { background: rgba(255,90,90,0.06); }
+  .ph-row.ph-neutral { background: rgba(255,255,255,0.02); }
+  .ph-change       { font-weight:700; }
+  .ph-change.up    { color:#a8ff5b; }
+  .ph-change.down  { color:#ff8a8a; }
+  .ph-change.neutral { color: rgba(230,230,230,0.55); }
+  .ph-newpos       { color:#fff; font-weight:700; }
+  .ph-reason       { color: rgba(230,230,230,0.78); font-size:.83rem; }
+  .ph-date         { color: rgba(230,230,230,0.6); font-size:.78rem; }
+  .ph-empty        { padding:14px; color: rgba(230,230,230,0.55); font-size:.85rem; text-align:center; }
+  @media (max-width:560px){
+    .ph-row { grid-template-columns: 1fr 1fr; }
+    .ph-row .ph-newpos, .ph-row .ph-reason { grid-column: span 2; }
+  }
+</style>
+
+<!-- FIREBASE -->
+<script type="module">
+  import { db } from "/auth.js";
+  import { difficultyImage, difficultyName } from "/difficulty.js";
+  import { doc, getDoc, collection, query, where, getDocs, orderBy }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  /* ── Constantes ─────────────────────────────────────── */
+  const PER_PAGE      = 15;
+  const MOBILE_ICON   = "https://iili.io/fuI3XBR.png";
+  const PLAY_ICON     = "https://iili.io/fuzpjRf.png";
+  const FLAG_BASE     = "https://flagcdn.com/w40/";
+
+  /* ── Estado records ─────────────────────────────────── */
+  let allRecords  = [];
+  let filtered    = [];
+  let currentPage = 1;
+
+  /* ── Helpers ────────────────────────────────────────── */
+  function getParam(key) {
+    return new URLSearchParams(window.location.search).get(key);
+  }
+
+  function toEmbedUrl(url) {
+    if (!url) return "";
+    const short = url.match(/youtu\.be\/([^?&\s]+)/);
+    if (short) return `https://www.youtube.com/embed/${short[1]}`;
+    const long  = url.match(/[?&]v=([^&\s]+)/);
+    if (long)  return `https://www.youtube.com/embed/${long[1]}`;
+    return url;
+  }
+
+  function flagUrl(country) {
+    if (!country) return "";
+    return FLAG_BASE + country.toLowerCase() + ".png";
+  }
+
+  /* ── Render nivel ───────────────────────────────────── */
+  function renderLevel(nivel) {
+    document.title = `${nivel.name} - BFT Demon List`;
+    /* Título: "#85 - Komodo" en vez de "85 - Komodo" */
+    document.getElementById("lvlName").textContent      = (nivel.position ? `#${nivel.position} - ` : "") + (nivel.name || "Sin nombre");
+    document.getElementById("lvlSub").textContent       = `By ${nivel.author || "Desconocido"}`;
+    document.getElementById("lvlPoints").textContent    = nivel.value  ? `${nivel.value}` : "—";
+    document.getElementById("lvlAuthor").textContent    = nivel.author || "—";
+    /* ID de Geometry Dash del nivel (si existe) */
+    const lvlGdIdEl = document.getElementById("lvlGdId");
+    if (lvlGdIdEl) {
+      const gid = (nivel.gdLevelId || "").toString().trim();
+      lvlGdIdEl.textContent = gid || "—";
+    }
+    /* Tier (todavía no configurable; se muestra "—" por ahora) */
+    const lvlTierEl = document.getElementById("lvlTier");
+    if (lvlTierEl) {
+      const tier = (nivel.tier ?? "").toString().trim();
+      lvlTierEl.textContent = tier || "—";
+    }
+
+    /* Dificultad: imagen (cabecera) + texto en stat-list.
+       Nota: ya no hay imagen de dificultad en el panel derecho (la
+       reemplazamos por el cuadro de Tier), solo en el header de la izquierda. */
+    const diffName = difficultyName(nivel.difficulty);
+    const diffSrc  = difficultyImage(nivel.difficulty);
+    const lvlDiffEl  = document.getElementById("lvlDiff");
+    const lvlDiffTxt = document.getElementById("lvlDifficulty");
+    if (lvlDiffEl)  { lvlDiffEl.src  = diffSrc; lvlDiffEl.alt  = diffName; }
+    if (lvlDiffTxt) { lvlDiffTxt.textContent = diffName; }
+
+    /* Porcentaje mínimo del nivel (campo minPercent, default 100) */
+    const minPctEl = document.getElementById("recMinPct");
+    if (minPctEl) {
+      const mp = Number.isFinite(Number(nivel.minPercent)) ? Number(nivel.minPercent) : 100;
+      minPctEl.textContent = `Porcentaje mínimo: ${mp}%`;
+    }
+    /* Guardar el nivel para usarlo más tarde (validar updates, etc.) */
+    window.__currentLevel = nivel;
+
+    /* Fondo del nivel (URL guardada en levels.background) */
+    const bg = (nivel.background || "").trim();
+    const bgLayer = document.getElementById("levelBgLayer");
+    if (bg && bgLayer) {
+      bgLayer.style.backgroundImage = `url("${bg}")`;
+    }
+
+    /* Creadores: campo "creators" → array o string separado por comas */
+    let creators = nivel.creators;
+    if (typeof creators === "string") {
+      creators = creators.split(",").map(s => s.trim()).filter(Boolean);
+    }
+    if (Array.isArray(creators) && creators.length) {
+      document.getElementById("lvlCreators").textContent = creators.join(", ");
+      document.getElementById("lvlCreatorsCard").style.display = "block";
+    }
+
+    /* Etiquetas (tags) — array */
+    const tagsEl = document.getElementById("lvlTags");
+    tagsEl.innerHTML = "";
+    let tags = nivel.tags;
+    if (typeof tags === "string") tags = tags.split(",").map(s => s.trim()).filter(Boolean);
+    if (Array.isArray(tags)) {
+      tags.forEach(t => {
+        const span = document.createElement("span");
+        span.className = "lvl-tag";
+        span.textContent = t;
+        tagsEl.appendChild(span);
+      });
+    }
+
+    /* Descripción */
+    const desc = (nivel.description || "").trim();
+    const descEl = document.getElementById("lvlDesc");
+    if (desc) {
+      descEl.textContent = desc;
+      descEl.style.display = "block";
+    }
+
+    const embedSrc = toEmbedUrl(nivel.video);
+    if (embedSrc) {
+      document.getElementById("lvlIframe").src = embedSrc;
+    } else {
+      document.getElementById("videoWrap").style.display = "none";
+    }
+  }
+
+  /* ── Render records ─────────────────────────────────── */
+  function renderPage() {
+    const listEl = document.getElementById("recordsList");
+    listEl.innerHTML = "";
+
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    const start = (currentPage - 1) * PER_PAGE;
+    const items = filtered.slice(start, start + PER_PAGE);
+
+    if (items.length === 0) {
+      listEl.innerHTML = `<div class="rec-empty">No se encontraron records.</div>`;
+    } else {
+      items.forEach(rec => listEl.appendChild(buildRecordRow(rec)));
+    }
+
+    document.getElementById("pageInfo").textContent = `${currentPage} / ${totalPages}`;
+    document.getElementById("prevBtn").disabled = currentPage === 1;
+    document.getElementById("nextBtn").disabled = currentPage === totalPages;
+  }
+
+  function buildRecordRow(rec) {
+    const row = document.createElement("div");
+    row.className = "record";
+
+    /* IZQUIERDA: bandera + foto + nombre (+ segundo jugador si 2P) */
+    const left = document.createElement("div");
+    left.className = "rec-left";
+    left.style.minWidth = "0";
+    left.style.flex = "1";
+
+    const p1 = rec._profile || {};
+
+    if (p1.country) {
+      const flag = document.createElement("img");
+      flag.className = "rec-flag";
+      flag.src = flagUrl(p1.country);
+      flag.alt = p1.country;
+      flag.onerror = () => { flag.style.display = "none"; };
+      left.appendChild(flag);
+    }
+
+    const nameLink = document.createElement("a");
+    nameLink.className = "rec-name";
+    nameLink.href = `/profile.html?id=${rec.userId || ""}`;
+    nameLink.textContent = p1.name || "Sin nombre";
+    nameLink.style.cssText = "color:inherit;text-decoration:none;";
+    nameLink.onmouseover = () => nameLink.style.color = "#c7ff3b";
+    nameLink.onmouseout  = () => nameLink.style.color = "";
+    left.appendChild(nameLink);
+
+    /* Segundo jugador si 2P */
+    if (rec.mode2P && rec._profile2) {
+      const p2 = rec._profile2;
+      const sep = document.createElement("span");
+      sep.textContent = " + ";
+      sep.style.cssText = "margin: 0 6px; color: rgba(199,255,59,0.7); font-weight:700;";
+      left.appendChild(sep);
+
+      if (p2.country) {
+        const fl2 = document.createElement("img");
+        fl2.className = "rec-flag";
+        fl2.src = flagUrl(p2.country);
+        fl2.alt = p2.country;
+        fl2.onerror = () => { fl2.style.display = "none"; };
+        left.appendChild(fl2);
+      }
+      const n2 = document.createElement("a");
+      n2.href = `/profile.html?id=${rec.player2Id || ""}`;
+      n2.textContent = p2.name || "Sin nombre";
+      n2.style.cssText = "color:inherit;text-decoration:none;font-size:.9em;opacity:.85;";
+      left.appendChild(n2);
+    }
+
+    /* DERECHA: móvil + porcentaje + play */
+    const right = document.createElement("div");
+    right.className = "rec-right";
+
+    if (rec.mobile) {
+      const mob = document.createElement("img");
+      mob.className = "rec-mobile";
+      mob.src = MOBILE_ICON;
+      mob.alt = "Mobile";
+      right.appendChild(mob);
+    }
+
+    const pct = document.createElement("span");
+    pct.className = "rec-percent" + (Number(rec.percent) === 100 ? " full" : "");
+    pct.textContent = Math.round(Number(rec.percent)) + "%";
+    right.appendChild(pct);
+
+    /* Marcar la fila completa como "partial" si el record es <100% (no bold) */
+    if (Number(rec.percent) !== 100) row.classList.add("partial");
+
+    if (rec.video) {
+      const playLink = document.createElement("a");
+      playLink.href   = rec.video;
+      playLink.target = "_blank";
+      const playImg   = document.createElement("img");
+      playImg.className = "rec-play";
+      playImg.src = PLAY_ICON;
+      playImg.alt = "Ver video";
+      playLink.appendChild(playImg);
+      right.appendChild(playLink);
+    }
+
+    row.appendChild(left);
+    row.appendChild(right);
+    return row;
+  }
+
+  /* Cache de perfiles para evitar lecturas duplicadas */
+  const profileCache = new Map();
+  async function fetchProfile(uid) {
+    if (!uid) return null;
+    if (profileCache.has(uid)) return profileCache.get(uid);
+    try {
+      const snap = await getDoc(doc(db, "profiles", uid));
+      const data = snap.exists() ? snap.data() : null;
+      profileCache.set(uid, data);
+      return data;
+    } catch (err) {
+      console.warn("[level] fetchProfile fail:", uid, err);
+      profileCache.set(uid, null);
+      return null;
+    }
+  }
+
+  async function attachProfiles(records) {
+    const uids = new Set();
+    records.forEach(r => {
+      if (r.userId)    uids.add(r.userId);
+      if (r.player2Id) uids.add(r.player2Id);
+    });
+    await Promise.all(Array.from(uids).map(fetchProfile));
+    records.forEach(r => {
+      r._profile  = profileCache.get(r.userId)    || { name: "Jugador" };
+      r._profile2 = profileCache.get(r.player2Id) || null;
+    });
+  }
+
+  /* ── Eventos paginación y búsqueda ──────────────────── */
+  document.getElementById("prevBtn").addEventListener("click", () => {
+    if (currentPage > 1) { currentPage--; renderPage(); }
+  });
+  document.getElementById("nextBtn").addEventListener("click", () => {
+    const total = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+    if (currentPage < total) { currentPage++; renderPage(); }
+  });
+  document.getElementById("recSearch").addEventListener("input", function () {
+    const q = this.value.toLowerCase().trim();
+    filtered = allRecords.filter(r => {
+      const n1 = (r._profile  && r._profile.name)  ? r._profile.name.toLowerCase()  : "";
+      const n2 = (r._profile2 && r._profile2.name) ? r._profile2.name.toLowerCase() : "";
+      return n1.includes(q) || n2.includes(q);
+    });
+    currentPage = 1;
+    renderPage();
+  });
+
+  /* ── Bootstrap ──────────────────────────────────────── */
+  async function init() {
+    const stateMsg = document.getElementById("stateMsg");
+    const pageWrap = document.getElementById("pageWrap");
+    const levelId  = getParam("id");
+
+    if (!levelId) {
+      stateMsg.textContent = "No se especificó ningún nivel.";
+      return;
+    }
+
+    /* 1. Cargar nivel */
+    try {
+      const levelSnap = await getDoc(doc(db, "levels", levelId));
+      if (!levelSnap.exists()) {
+        stateMsg.textContent = "El nivel no existe en la base de datos.";
+        return;
+      }
+      renderLevel({ id: levelSnap.id, ...levelSnap.data() });
+      stateMsg.style.display = "none";
+      pageWrap.style.display = "block";
+    } catch (err) {
+      stateMsg.textContent = "Error al cargar el nivel: " + err.message;
+      console.error(err);
+      return;
+    }
+
+    /* 2. Cargar records (solo Accepted) */
+    try {
+      const q    = query(collection(db, "records"), where("levelId", "==", levelId));
+      const snap = await getDocs(q);
+      snap.forEach(d => {
+        const data = { id: d.id, ...d.data() };
+        /* Aceptamos records sin status (legacy) o con status Accepted */
+        if (!data.status || data.status === "Accepted") {
+          allRecords.push(data);
+        }
+      });
+
+      await attachProfiles(allRecords);
+
+      /* Orden:
+         · Records al 100% primero, ordenados por acceptedAt ASC
+           (más ANTIGUO arriba, más recientes abajo).
+         · Records con progreso (<100%) después, prioridad por % DESC;
+           empate de % → acceptedAt ASC (más antiguo arriba). */
+      const ts = (r) =>
+        (r.acceptedAt && r.acceptedAt.toMillis ? r.acceptedAt.toMillis() : 0) ||
+        (r.updatedAt  && r.updatedAt.toMillis  ? r.updatedAt.toMillis()  : 0) ||
+        (r.createdAt  && r.createdAt.toMillis  ? r.createdAt.toMillis()  : 0);
+      allRecords.sort((a, b) => {
+        const pa = Number(a.percent);
+        const pb = Number(b.percent);
+        const ta = ts(a), tb = ts(b);
+        const fullA = pa === 100, fullB = pb === 100;
+        if (fullA !== fullB) return fullA ? -1 : 1;     // 100% siempre arriba
+        if (fullA && fullB) return ta - tb;             // ambos 100% → fecha asc
+        if (pa !== pb) return pb - pa;                  // ambos <100% → % desc
+        return ta - tb;                                  // empate de % → fecha asc
+      });
+      filtered = [...allRecords];
+
+      document.getElementById("recTitle").textContent =
+        `RECORDS (${allRecords.length})`;
+      renderPage();
+    } catch (err) {
+      document.getElementById("recordsList").innerHTML =
+        `<div class="rec-empty">Error al cargar records: ${err.message}</div>`;
+      console.error(err);
+    }
+
+    /* 3. Cargar historial de posiciones */
+    loadHistory(levelId);
+  }
+
+  /* ── Historial de posiciones ────────────────────────── */
+  async function loadHistory(levelId) {
+    const wrap = document.getElementById("historyList");
+    try {
+      const q    = query(collection(db, "positionHistory"), where("levelId", "==", levelId));
+      const snap = await getDocs(q);
+      const rows = [];
+      snap.forEach(d => rows.push({ id: d.id, ...d.data() }));
+      /* Orden ASC por createdAt: el más antiguo arriba (primer registro = gris) */
+      rows.sort((a, b) => {
+        const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+        const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+        return ta - tb;
+      });
+
+      if (!rows.length) {
+        wrap.innerHTML = `<div class="ph-empty">Sin cambios registrados todavía.</div>`;
+        return;
+      }
+
+      const head = `
+        <div class="ph-row ph-head">
+          <div>Fecha</div>
+          <div>Cambio</div>
+          <div>Nueva pos.</div>
+          <div>Razón</div>
+        </div>`;
+      const body = rows.map((r, i) => renderHistoryRow(r, i === 0)).join("");
+      wrap.innerHTML = head + body;
+    } catch (err) {
+      wrap.innerHTML = `<div class="ph-empty">Error al cargar historial: ${err.message}</div>`;
+      console.error("[level] history fail:", err);
+    }
+  }
+
+  function renderHistoryRow(r, isFirst) {
+    const date = r.createdAt && r.createdAt.toDate
+      ? r.createdAt.toDate().toLocaleDateString("es-ES",
+          { day:"2-digit", month:"2-digit", year:"numeric" })
+      : "—";
+
+    let rowClass = "ph-neutral", changeClass = "neutral", changeTxt = "—";
+    if (isFirst) {
+      changeTxt = (r.change === "NEW") ? "NEW" : (r.change === "REMOVED" ? "REMOVED" : "—");
+    } else if (r.change === "REMOVED") {
+      rowClass = "ph-down"; changeClass = "down"; changeTxt = "REMOVED";
+    } else if (typeof r.change === "number") {
+      if (r.change > 0)      { rowClass = "ph-up";   changeClass = "up";   changeTxt = `▲ ${r.change}`; }
+      else if (r.change < 0) { rowClass = "ph-down"; changeClass = "down"; changeTxt = `▼ ${Math.abs(r.change)}`; }
+      else                   { changeTxt = "—"; }
+    }
+
+    const newPos = r.newPosition ? `#${r.newPosition}` : "—";
+    const reason = (r.reason || "").replace(/[<>]/g, "");
+
+    return `
+      <div class="ph-row ${rowClass}">
+        <div class="ph-date">${date}</div>
+        <div class="ph-change ${changeClass}">${changeTxt}</div>
+        <div class="ph-newpos">${newPos}</div>
+        <div class="ph-reason">${reason}</div>
+      </div>`;
+  }
+
+  init();
+</script>
+
+</body>
+</html>

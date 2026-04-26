@@ -1,0 +1,1772 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Perfil — BFT Demon List</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --accent-start: #1a4d1a;
+    --accent-mid:   #4a8a1a;
+    --accent-end:   #c7ff3b;
+    --glass-bg:     rgba(8,8,8,0.65);
+    --input-bg:     rgba(255,255,255,0.08);
+    --text:         #ffffff;
+    --muted:        rgba(230,230,230,0.65);
+    --border:       rgba(255,255,255,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    min-height: 100%;
+    font-family: 'Montserrat', sans-serif;
+    color: var(--text);
+    background: black url('https://iili.io/qnR6Jst.jpg') no-repeat top center fixed;
+    background-size: cover;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ========== NAV ========== */
+  .top-header {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 18px;
+    z-index: 9999;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .nav-left  { display: flex; align-items: center; gap: 10px; }
+  .logo-img  { width: 36px; height: 36px; }
+  .logo-text { color: white; font-weight: 700; font-size: 1.05rem; }
+  .nav-links { display: flex; gap: 18px; }
+  .nav-links a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.92rem; transition: color .2s; }
+  .nav-links a:hover { color: var(--accent-end); }
+  .menu-toggle {
+    display: none; font-size: 26px; color: white;
+    width: 38px; height: 38px; align-items: center; justify-content: center;
+    cursor: pointer; user-select: none;
+  }
+  @media (max-width: 680px) {
+    .menu-toggle { display: flex; }
+    .nav-links {
+      display: none; flex-direction: column;
+      position: absolute; top: 60px; right: 10px;
+      background: rgba(0,0,0,0.92); padding: 10px; border-radius: 10px; gap: 8px;
+    }
+    .nav-links.open { display: flex; }
+  }
+
+  /* ========== ESTADO / LOADER ========== */
+  .state-msg {
+    text-align: center;
+    margin: 140px auto 0;
+    color: var(--muted);
+    font-size: 1rem;
+  }
+
+  /* ========== PERFIL ========== */
+  .profile-wrap {
+    max-width: 760px;
+    margin: 110px auto 60px;
+    padding: 0 20px;
+  }
+
+  .profile-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 30px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  }
+
+  .profile-head {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  /* Anillo (gradiente) que enmarca la foto */
+  .profile-photo-ring {
+    width: 130px; height: 130px;
+    border-radius: 50%;
+    padding: 5px;
+    background: linear-gradient(135deg, #1a4d1a 0%, #4f9e1a 45%, #c7ff3b 100%);
+    box-shadow: 0 0 22px rgba(124,252,0,0.30);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .profile-photo {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: none;
+    box-shadow: none;
+    background: #0a1a05;
+  }
+  .photo-fallback {
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #1a4d1a, #7fff3b);
+    color: #000; font-weight: 800; font-size: 2rem;
+  }
+  .profile-headinfo { flex: 1; min-width: 220px; }
+
+  /* Fila nombre + badge de rol */
+  .profile-name-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .profile-name {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: #ffffff;
+    word-break: break-word;
+  }
+  .role-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 14px;
+    border-radius: 999px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  }
+  .role-badge.role-mod {
+    background: rgba(0,180,255,0.22);
+    color: #7fd8ff;
+    border-color: rgba(0,180,255,0.55);
+  }
+  .role-badge.role-admin {
+    background: rgba(199,255,59,0.18);
+    color: #c7ff3b;
+    border-color: rgba(199,255,59,0.55);
+  }
+  .role-badge.role-owner {
+    background: linear-gradient(135deg, #1a4d1a 0%, #c7ff3b 60%, #ffd700 100%);
+    color: #0a1a00;
+    border-color: rgba(255,215,0,0.7);
+    text-shadow: 0 1px 0 rgba(255,255,255,0.25);
+  }
+  .role-badge.role-booster {
+    background: linear-gradient(135deg, #b14eff 0%, #ff7ad9 100%);
+    color: #1b0033;
+    border-color: rgba(255,122,217,0.7);
+    text-shadow: 0 1px 0 rgba(255,255,255,0.25);
+  }
+  /* Botón "Cambiar rol" para Admin/Owner */
+  .role-edit-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(199,255,59,0.35);
+    color: #c7ff3b;
+    padding: 5px 12px; border-radius: 8px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72rem; font-weight: 700;
+    letter-spacing: .8px; text-transform: uppercase;
+    cursor: pointer; transition: all .15s;
+  }
+  .role-edit-btn:hover { background: rgba(199,255,59,0.15); border-color: rgba(199,255,59,0.7); }
+  .profile-meta {
+    display: flex; gap: 14px; flex-wrap: wrap;
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+  .profile-meta .country {
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .country-flag {
+    width: 22px; height: 16px; border-radius: 3px;
+    object-fit: cover;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.06);
+  }
+
+  .profile-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 26px;
+  }
+  /* Hardest puede tener nombre largo: damos espacio y truncamos con elipsis */
+  .stat-hardest .stat-value {
+    font-size: 1.05rem;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  @media (max-width: 720px) {
+    .profile-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  }
+  @media (max-width: 520px) {
+    .profile-stats { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .profile-stats .stat-value { font-size: 1.25rem; }
+    .profile-stats .stat-label { font-size: 0.7rem; letter-spacing: .8px; }
+    .profile-stats .stat-box   { padding: 12px 8px; }
+    .stat-hardest .stat-value  { font-size: 0.95rem; }
+  }
+
+  /* Icono de YouTube al lado del nombre */
+  .yt-icon-link {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: #ff0000;
+    color: #fff;
+    text-decoration: none;
+    transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+    box-shadow: 0 4px 12px rgba(255,0,0,0.35);
+  }
+  .yt-icon-link:hover {
+    transform: scale(1.1);
+    background: #ff2424;
+    box-shadow: 0 6px 18px rgba(255,0,0,0.55);
+  }
+  .yt-icon-link svg { width: 18px; height: 18px; display: block; }
+  .stat-box {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    padding: 16px;
+    border-radius: 12px;
+    text-align: center;
+  }
+  .stat-value {
+    font-size: 1.6rem; font-weight: 800;
+    background: linear-gradient(90deg, var(--accent-mid), var(--accent-end));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .stat-label {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .profile-section { margin-top: 26px; }
+  .section-label {
+    color: rgba(199,255,59,0.85);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    margin-bottom: 8px;
+  }
+  .profile-bio {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    padding: 14px 16px;
+    border-radius: 10px;
+    color: rgba(230,230,230,0.85);
+    font-size: 0.93rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 50px;
+  }
+  .profile-bio.empty { color: rgba(180,180,180,0.45); font-style: italic; }
+
+  /* ========== BOTONES ========== */
+  .btn-row {
+    margin-top: 26px;
+    display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform .15s, opacity .2s, background .2s;
+  }
+  .btn-primary {
+    background: linear-gradient(90deg, var(--accent-start), var(--accent-mid), var(--accent-end));
+    color: #fff;
+    border: none;
+  }
+  .btn-primary:hover:not(:disabled) {
+    transform: scale(1.02);
+    box-shadow: 0 6px 18px rgba(199,255,59,0.22);
+  }
+  .btn-secondary {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.12);
+    color: #fff;
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.12); }
+  .btn-danger {
+    background: rgba(255,70,70,0.16);
+    border-color: rgba(255,80,80,0.42);
+    color: #ff9a9a;
+  }
+  .btn-danger:hover { background: rgba(255,70,70,0.28); color: #ffd0d0; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* ========== FORM EDIT ========== */
+  .edit-form {
+    display: none;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 18px;
+    padding: 18px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(199,255,59,0.16);
+    border-radius: 12px;
+  }
+  .edit-form.open { display: flex; }
+  .edit-form label {
+    color: #dfeee0;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .edit-form .input,
+  .edit-form .textarea {
+    width: 100%;
+    padding: 11px 13px;
+    border-radius: 9px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: var(--input-bg);
+    color: var(--text);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .2s, background .2s;
+    resize: vertical;
+  }
+  .edit-form .textarea { min-height: 100px; max-height: 280px; }
+  .edit-form .input:focus,
+  .edit-form .textarea:focus {
+    border-color: rgba(199,255,59,0.4);
+    background: rgba(255,255,255,0.12);
+  }
+  .field-help { color: var(--muted); font-size: 0.74rem; margin-top: 2px; }
+
+  .msg {
+    margin-top: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    display: none;
+  }
+  .msg-ok  { background: rgba(20,80,20,0.45); border: 1px solid rgba(124,252,0,0.2); color: #dfffbe; }
+  .msg-err { background: rgba(120,30,30,0.4); border: 1px solid rgba(255,80,80,0.2); color: #ff9a9a; }
+
+  /* ========== RECORDS — LEVEL CARDS ========== */
+  .records-grid {
+    display: grid; grid-template-columns: 1fr; gap: 14px;
+    margin-top: 10px;
+  }
+  .records-empty {
+    text-align: center; padding: 30px;
+    color: rgba(230,230,230,0.5); font-style: italic;
+  }
+  .lvl-card {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.07);
+    background: #181818;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.45);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .lvl-card:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(0,0,0,0.6); }
+  .lvl-card-bg {
+    position: absolute; inset: 0;
+    background-size: cover; background-position: center;
+    filter: brightness(.45) saturate(1.1);
+    z-index: 0;
+  }
+  .lvl-card-bg::after {
+    content:""; position:absolute; inset:0;
+    background: linear-gradient(90deg, rgba(0,0,0,0.7), rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.85));
+  }
+  .lvl-card-content {
+    position: relative; z-index: 1;
+    display: grid;
+    grid-template-columns: 90px 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 14px;
+  }
+  .lvl-thumb {
+    width: 90px; height: 60px;
+    object-fit: cover; border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: #000;
+  }
+  .lvl-info { min-width: 0; }
+  .lvl-title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .lvl-name {
+    font-weight: 800; font-size: 1.05rem;
+    color: #fff;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .lvl-author { font-size: .82rem; color: rgba(230,230,230,0.7); margin-top: 2px; }
+  .lvl-meta {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px;
+    font-size: .75rem; color: rgba(230,230,230,0.65);
+  }
+  .lvl-meta b { color: #fff; font-weight: 700; }
+  .badge-2p {
+    display: inline-block; padding: 2px 7px; border-radius: 5px;
+    background: rgba(199,255,59,0.18); color: #c7ff3b;
+    font-size: .65rem; font-weight: 800; letter-spacing: .5px;
+  }
+
+  .lvl-aside {
+    display: flex; flex-direction: column; gap: 6px; align-items: flex-end;
+  }
+  .lvl-points {
+    font-size: 1.25rem; font-weight: 800;
+    color: #fff;
+    line-height: 1;
+  }
+  .lvl-points-label {
+    font-size: .65rem; letter-spacing: 1px;
+    color: rgba(230,230,230,0.55); text-transform: uppercase;
+  }
+  .lvl-percent {
+    font-size: .85rem; font-weight: 800;
+    color: #fff;
+    background: rgba(255,255,255,0.08);
+    padding: 3px 9px; border-radius: 999px;
+    margin-top: 2px;
+  }
+  .lvl-percent.full { background: rgba(199,255,59,0.2); color: #c7ff3b; }
+
+  .lvl-card-footer {
+    position: relative; z-index: 1;
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: rgba(0,0,0,0.55);
+    border-top: 1px solid rgba(255,255,255,0.05);
+    flex-wrap: wrap;
+  }
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 11px; border-radius: 999px;
+    font-size: .72rem; font-weight: 800; letter-spacing: .8px;
+    text-transform: uppercase;
+  }
+  .status-badge.pending  { background: rgba(255,200,0,0.16); color: #ffd95a; border: 1px solid rgba(255,200,0,0.28); }
+  .status-badge.accepted { background: rgba(124,252,0,0.16); color: #c7ff3b; border: 1px solid rgba(124,252,0,0.32); }
+  .status-badge.rejected { background: rgba(255,70,70,0.18); color: #ff9a9a; border: 1px solid rgba(255,80,80,0.32); }
+  .status-date {
+    font-size: .72rem; color: rgba(230,230,230,0.55);
+  }
+  .lvl-card-footer .btn {
+    padding: 7px 13px; font-size: .78rem;
+  }
+  .lvl-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .lvl-link {
+    color: rgba(199,255,59,0.85); text-decoration: none; font-size: .78rem; font-weight: 600;
+  }
+  .lvl-link:hover { text-decoration: underline; }
+
+  /* ========== DIFFICULTY BREAKDOWN ========== */
+  .diff-stats-wrap {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .diff-stat-box {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 12px 6px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: transform .15s, border-color .2s, box-shadow .2s;
+  }
+  .diff-stat-box:hover {
+    transform: translateY(-2px);
+    border-color: rgba(199,255,59,0.35);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+  }
+  .diff-stat-img {
+    width: 56px; height: 56px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
+  }
+  .diff-stat-count {
+    font-family: 'Montserrat', sans-serif;
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+  .diff-stat-label {
+    font-family: 'Montserrat', sans-serif;
+    color: rgba(255,255,255,0.55);
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    text-align: center;
+  }
+  @media (max-width: 600px) {
+    .diff-stats-wrap { grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .diff-stat-box   { padding: 8px 2px 6px; }
+    .diff-stat-img   { width: 40px; height: 40px; }
+    .diff-stat-count { font-size: 1rem; }
+    .diff-stat-label { font-size: 0.55rem; letter-spacing: 0.4px; }
+  }
+
+  /* ========== UPDATE RECORD MODAL ========== */
+  .modal-back {
+    position: fixed; inset: 0; z-index: 99998;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(4px);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-back.open { display: flex; }
+  .modal-card {
+    width: 100%; max-width: 520px;
+    max-height: 90vh; overflow-y: auto;
+    background: rgba(15,15,18,0.97);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 26px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+  }
+  .modal-card h2 {
+    font-size: 1.2rem; margin-bottom: 4px;
+    background: linear-gradient(90deg, var(--accent-mid), var(--accent-end));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .modal-sub { color: var(--muted); font-size: .82rem; margin-bottom: 14px; }
+  .warning-box {
+    background: rgba(255,200,0,0.1);
+    border: 1px solid rgba(255,200,0,0.25);
+    color: #ffd95a;
+    padding: 10px 12px; border-radius: 9px;
+    font-size: .82rem; line-height: 1.45;
+    margin-bottom: 12px;
+  }
+  .modal-row { margin-bottom: 12px; }
+  .modal-row label {
+    display:block; font-size:.75rem; font-weight:700;
+    color:#dfeee0; text-transform:uppercase; letter-spacing:1px; margin-bottom:5px;
+  }
+  .modal-row .input,
+  .modal-row .textarea {
+    width:100%; padding:10px 12px;
+    background: var(--input-bg);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:9px; color:#fff; font-family:inherit; font-size:14px;
+    outline:none; transition: border-color .2s;
+  }
+  .modal-row .textarea { resize:vertical; min-height:70px; max-height:200px; }
+  .modal-row .input:focus, .modal-row .textarea:focus { border-color: rgba(199,255,59,0.4); }
+  .modal-checkbox {
+    display:flex; align-items:center; gap:10px;
+    padding:10px 12px;
+    border:1px solid rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.03);
+    border-radius:9px; margin-bottom:8px;
+    cursor:pointer; user-select:none; font-size:.85rem;
+  }
+  .modal-checkbox input { width:18px; height:18px; accent-color:#c7ff3b; }
+  .modal-actions {
+    display:flex; gap:10px; justify-content:flex-end; margin-top:16px;
+  }
+  @media (max-width: 720px) {
+    .lvl-card-content { grid-template-columns: 70px 1fr; }
+    .lvl-aside { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: center; }
+    .lvl-thumb { width: 70px; height: 50px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<header class="top-header">
+  <div class="nav-left">
+    <img src="https://iili.io/BN3Yhpp.png" class="logo-img" alt="Logo">
+    <div class="logo-text">BFT Demon List</div>
+  </div>
+  <div style="display:flex; align-items:center; gap:14px;">
+    <nav class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/demonlist.html">Demon List</a>
+      <a href="/leaderboards.html">Leaderboards</a>
+        <a href="/notifications.html">✉ Notificaciones</a>
+      <a href="/submit.html">Enviar Record</a>
+      <a href="/guidelines.html">Guidelines</a>
+      <a href="/panel.html" class="staff-only">Panel de Records</a>
+    </nav>
+    <div class="auth-slot" id="authSlot"></div>
+    <div class="menu-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')">☰</div>
+  </div>
+</header>
+
+<div id="state" class="state-msg">Cargando perfil...</div>
+
+<div id="profileWrap" class="profile-wrap" style="display:none;">
+  <div class="profile-card">
+
+    <!-- HEAD -->
+    <div class="profile-head">
+      <div class="profile-photo-ring">
+        <img id="pPhoto" src="" alt="" class="profile-photo" style="display:none;">
+        <div id="pPhotoFallback" class="profile-photo photo-fallback" style="display:none;"></div>
+      </div>
+      <div class="profile-headinfo">
+        <div class="profile-name-row">
+          <div id="pName" class="profile-name"></div>
+          <a id="pYoutube" class="yt-icon-link" href="#" target="_blank" rel="noopener" title="Canal de YouTube" style="display:none;" aria-label="YouTube">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.6 3.6 12 3.6 12 3.6s-7.6 0-9.4.5A3 3 0 0 0 .5 6.2C0 8 0 12 0 12s0 4 .5 5.8a3 3 0 0 0 2.1 2.1c1.8.5 9.4.5 9.4.5s7.6 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 16 24 12 24 12s0-4-.5-5.8zM9.6 15.6V8.4L15.8 12l-6.2 3.6z"/>
+            </svg>
+          </a>
+          <span id="pRoleBadge" class="role-badge" style="display:none;"></span>
+          <button id="pRoleEditBtn" class="role-edit-btn" style="display:none;" type="button">Cambiar rol</button>
+        </div>
+        <div class="profile-meta">
+          <span id="pCountryWrap" class="country" style="display:none;">
+            <img id="pCountryFlag" class="country-flag" alt="" src="">
+            <span id="pCountryText"></span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="profile-stats">
+      <div class="stat-box">
+        <div id="pPoints" class="stat-value">0</div>
+        <div class="stat-label">Puntos</div>
+      </div>
+      <div class="stat-box">
+        <div id="pRecords" class="stat-value">0</div>
+        <div class="stat-label">Records</div>
+      </div>
+      <div class="stat-box">
+        <div id="pRank" class="stat-value">—</div>
+        <div class="stat-label">Ranking</div>
+      </div>
+      <div class="stat-box stat-hardest" title="Nivel más difícil completado al 100%">
+        <div id="pHardest" class="stat-value">—</div>
+        <div class="stat-label">Hardest</div>
+      </div>
+    </div>
+
+    <!-- BIO -->
+    <div class="profile-section">
+      <div class="section-label">Biografía</div>
+      <div id="pBio" class="profile-bio"></div>
+    </div>
+
+    <!-- ACCIONES (solo el dueño) -->
+    <div id="ownerActions" class="btn-row" style="display:none;">
+      <button id="btnEdit" class="btn btn-primary">Editar perfil</button>
+    </div>
+
+    <!-- FORM EDIT -->
+    <div id="editForm" class="edit-form">
+      <div>
+        <label for="editName">Nombre</label>
+        <input id="editName" class="input" maxlength="40" placeholder="Cómo quieres que te llamen" autocomplete="off">
+        <div class="field-help">Máx. 40 caracteres. Aparece en perfiles, records y panel.</div>
+      </div>
+      <div>
+        <label for="editPhoto">URL de foto de perfil</label>
+        <input id="editPhoto" class="input" type="url" placeholder="https://iili.io/...jpg" autocomplete="off">
+        <div class="field-help">
+          Para cambiar tu foto, sube una imagen en
+          <a href="https://freeimage.host/es" target="_blank" rel="noopener" style="color:#c7ff3b;text-decoration:underline;">freeimage.host/es</a>
+          y pega aquí el <b>link directo</b> (que termine en .jpg / .png / .webp).
+          Déjalo vacío para usar tu foto de Google.
+        </div>
+      </div>
+      <div>
+        <label for="editCountry">País (código ISO de 2 letras)</label>
+        <input id="editCountry" class="input" maxlength="2" placeholder="Ej: ES, MX, AR, US..." autocomplete="off">
+        <div class="field-help">Usa el código de 2 letras. Ejemplos: ES España · MX México · AR Argentina · CL Chile · US Estados Unidos.</div>
+      </div>
+      <div>
+        <label for="editYoutube">Canal de YouTube (opcional)</label>
+        <input id="editYoutube" class="input" type="url" maxlength="200" placeholder="https://www.youtube.com/@tu-canal" autocomplete="off">
+        <div class="field-help">Si lo rellenas, aparecerá un icono de YouTube al lado de tu nombre. Déjalo vacío para ocultarlo.</div>
+      </div>
+      <div>
+        <label for="editBio">Biografía</label>
+        <textarea id="editBio" class="textarea" maxlength="500" placeholder="Cuenta algo sobre ti..."></textarea>
+        <div class="field-help">Máx. 500 caracteres.</div>
+      </div>
+      <div class="btn-row" style="margin:0;">
+        <button id="btnSave"   class="btn btn-primary">Guardar</button>
+        <button id="btnCancel" class="btn btn-secondary">Cancelar</button>
+      </div>
+      <div id="msgOk"  class="msg msg-ok">Perfil actualizado correctamente.</div>
+      <div id="msgErr" class="msg msg-err"></div>
+    </div>
+  </div>
+
+  <!-- RECORDS DEL USUARIO -->
+  <div class="profile-card" id="recordsCard" style="display:none; margin-top:18px;">
+    <div class="section-label" style="margin-bottom:14px;">
+      Niveles completados por dificultad
+    </div>
+    <div class="diff-stats-wrap" id="diffStats">
+      <div class="diff-stat-box"><img class="diff-stat-img" data-diff="Extreme Demon" alt="Extreme Demon"><div class="diff-stat-count" data-diff-count="Extreme Demon">0</div><div class="diff-stat-label">Extreme</div></div>
+      <div class="diff-stat-box"><img class="diff-stat-img" data-diff="Insane Demon"  alt="Insane Demon"><div class="diff-stat-count" data-diff-count="Insane Demon">0</div><div class="diff-stat-label">Insane</div></div>
+      <div class="diff-stat-box"><img class="diff-stat-img" data-diff="Hard Demon"    alt="Hard Demon"><div class="diff-stat-count" data-diff-count="Hard Demon">0</div><div class="diff-stat-label">Hard</div></div>
+      <div class="diff-stat-box"><img class="diff-stat-img" data-diff="Medium Demon"  alt="Medium Demon"><div class="diff-stat-count" data-diff-count="Medium Demon">0</div><div class="diff-stat-label">Medium</div></div>
+      <div class="diff-stat-box"><img class="diff-stat-img" data-diff="Easy Demon"    alt="Easy Demon"><div class="diff-stat-count" data-diff-count="Easy Demon">0</div><div class="diff-stat-label">Easy</div></div>
+    </div>
+
+    <div class="section-label" style="margin-bottom:14px;">
+      Records — <span id="recordsCount" style="color:#c7ff3b">0</span>
+    </div>
+    <div id="recordsState" class="records-empty">Cargando records...</div>
+    <div id="recordsList" class="records-grid"></div>
+  </div>
+</div>
+
+<!-- MODAL: CAMBIAR ROL (Admin / Owner) -->
+<div class="modal-back" id="roleModalBack" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); align-items:center; justify-content:center; z-index:99998; backdrop-filter:blur(4px);">
+  <div style="background:#0d130d; border:1px solid rgba(199,255,59,0.25); border-radius:14px; padding:24px; width:min(420px,92vw); box-shadow:0 20px 60px rgba(0,0,0,0.7);">
+    <h3 style="margin:0 0 6px; font-size:1.2rem; color:#fff;">Cambiar rol del usuario</h3>
+    <p style="margin:0 0 14px; color:rgba(230,230,230,0.65); font-size:0.86rem;">
+      Rol actual: <b id="roleModalCurrent" style="color:#c7ff3b;">Default</b>
+    </p>
+    <label style="display:block; color:rgba(230,230,230,0.7); font-size:0.78rem; margin-bottom:6px; text-transform:uppercase; letter-spacing:.5px;">Nuevo rol</label>
+    <select id="roleModalSelect" style="width:100%; padding:10px 12px; border-radius:9px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); color:#fff; font-family:'Montserrat',sans-serif; font-size:0.9rem; outline:none;"></select>
+    <div id="roleModalErr" style="display:none; margin-top:10px; padding:9px 12px; background:rgba(255,80,80,0.12); border:1px solid rgba(255,80,80,0.35); border-radius:8px; color:#ffb0b0; font-size:0.84rem;"></div>
+    <div style="display:flex; gap:10px; margin-top:16px; justify-content:flex-end;">
+      <button id="roleModalCancel" type="button" style="padding:10px 16px; border:none; border-radius:9px; background:rgba(255,255,255,0.08); color:#fff; font-family:'Montserrat',sans-serif; font-weight:700; font-size:0.85rem; cursor:pointer;">Cancelar</button>
+      <button id="roleModalSave" type="button" style="padding:10px 16px; border:none; border-radius:9px; background:linear-gradient(90deg,#1a4d1a,#7fff3b); color:#0a1500; font-family:'Montserrat',sans-serif; font-weight:700; font-size:0.85rem; cursor:pointer;">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ACTUALIZAR RECORD -->
+<div class="modal-back" id="updModal">
+  <div class="modal-card">
+    <h2 id="updTitle">Actualizar Record</h2>
+    <p class="modal-sub" id="updSub">Modifica los datos del record. Será revisado nuevamente por el staff.</p>
+
+    <div id="updWarn" class="warning-box" style="display:none;">
+      ⚠️ Si actualizas el récord deberá pasar nuevamente por revisión.
+    </div>
+
+    <form id="updForm" onsubmit="return false;">
+      <div class="modal-row">
+        <label>Porcentaje</label>
+        <input type="number" min="1" max="100" class="input" id="updPercent">
+      </div>
+      <div class="modal-row">
+        <label>Link del video</label>
+        <input type="url" class="input" id="updVideo">
+      </div>
+
+      <div class="modal-row" id="updVideo2Wrap" style="display:none;">
+        <label>Video del segundo jugador</label>
+        <input type="url" class="input" id="updVideo2">
+      </div>
+
+      <label class="modal-checkbox">
+        <input type="checkbox" id="updMobile">
+        <span>Jugado en móvil</span>
+      </label>
+      <label class="modal-checkbox" id="updMobile2PWrap" style="display:none;">
+        <input type="checkbox" id="updMobile2P">
+        <span>Segundo jugador en móvil</span>
+      </label>
+      <label class="modal-checkbox" id="updSameDeviceWrap" style="display:none;">
+        <input type="checkbox" id="updSameDevice">
+        <span>Mismo dispositivo (1 solo video)</span>
+      </label>
+
+      <div class="modal-row">
+        <label>Raw Footage <span style="color:rgba(255,255,255,0.4);font-weight:400;text-transform:none;letter-spacing:0;">(opcional)</span></label>
+        <input type="url" class="input" id="updRaw">
+      </div>
+      <div class="modal-row">
+        <label>Notas extra <span style="color:rgba(255,255,255,0.4);font-weight:400;text-transform:none;letter-spacing:0;">(opcional)</span></label>
+        <textarea class="textarea" id="updNotes" maxlength="500"></textarea>
+      </div>
+
+      <div id="updMsgErr" class="msg msg-err"></div>
+      <div class="modal-actions">
+        <button type="button" id="updCancel" class="btn btn-secondary">Cancelar</button>
+        <button type="button" id="updSave"   class="btn btn-primary">Guardar cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- AUTH widget -->
+<script type="module">
+  import { mountAuthUI } from "/auth.js";
+  mountAuthUI("authSlot");
+</script>
+
+<!-- LÓGICA DEL PERFIL -->
+<script type="module">
+  import { db, onAuthChange, refreshProfile } from "/auth.js";
+  import { DIFFICULTY_IMAGES } from "/difficulty.js";
+  import { doc, getDoc, setDoc, updateDoc, deleteDoc, serverTimestamp,
+           collection, query, where, getDocs }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const $ = (id) => document.getElementById(id);
+
+  /* UID destino: ?id=UID; si no, perfil propio cuando logueado */
+  const params = new URLSearchParams(location.search);
+  let targetUid = params.get("id");
+
+  let isOwner = false;
+  let profileData = null;
+  let currentUser = null;
+  let profileLoaded = false;     // ya intentamos cargar el perfil al menos una vez
+  let recordsLoaded = false;
+  const levelsCache = new Map();   // id -> {id,name,author,value,is2P,thumbnail,position,difficulty}
+  const profilesCache = new Map(); // id -> {name, country}
+  let myRecords = [];              // records where I'm involved (after status filter)
+  let editingRecord = null;        // current record in update modal
+
+  function escapeHtml(s) {
+    return String(s ?? "").replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    })[c]);
+  }
+  function initials(name) {
+    return (name || "?").split(" ").map(n => n[0]).slice(0,2).join("").toUpperCase();
+  }
+
+  function renderProfile(d) {
+    profileData = d;
+    $("state").style.display = "none";
+    $("profileWrap").style.display = "block";
+
+    $("pName").textContent = d.name || "Sin nombre";
+
+    if (d.photoURL) {
+      const img = $("pPhoto");
+      img.src = d.photoURL;
+      img.alt = d.name || "";
+      img.referrerPolicy = "no-referrer";
+      img.style.display = "block";
+    } else {
+      const f = $("pPhotoFallback");
+      f.textContent = initials(d.name);
+      f.style.display = "flex";
+    }
+
+    if (d.country && d.country.trim()) {
+      const code = d.country.trim().toLowerCase();
+      $("pCountryFlag").src = `https://flagcdn.com/w40/${code}.png`;
+      $("pCountryFlag").onerror = () => { $("pCountryFlag").style.display = "none"; };
+      $("pCountryText").textContent = d.country.toUpperCase();
+      $("pCountryWrap").style.display = "inline-flex";
+    }
+
+    /* Icono de YouTube al lado del nombre (sólo si rellenó link) */
+    const yt = (d.youtube || "").trim();
+    const ytEl = $("pYoutube");
+    if (ytEl) {
+      if (yt && /^https?:\/\//i.test(yt)) {
+        ytEl.href = yt;
+        ytEl.style.display = "inline-flex";
+      } else {
+        ytEl.style.display = "none";
+      }
+    }
+
+    /* Stats SIEMPRE se calculan en vivo desde records (loadRecords → recomputeStats).
+       No usamos d.points / d.recordsCount porque pueden estar desactualizados. */
+    $("pPoints").textContent  = "…";
+    $("pRecords").textContent = "…";
+
+    const bioEl = $("pBio");
+    if (d.bio && d.bio.trim()) {
+      bioEl.textContent = d.bio;
+      bioEl.classList.remove("empty");
+    } else {
+      bioEl.textContent = "Este usuario aún no ha escrito una biografía.";
+      bioEl.classList.add("empty");
+    }
+  }
+
+  let targetUserRole = "Default";   // rol actual del perfil mostrado
+
+  async function loadRoleBadge(uid) {
+    const badge = $("pRoleBadge");
+    if (!badge) return;
+    badge.style.display = "none";
+    badge.className = "role-badge";
+    try {
+      const userSnap = await getDoc(doc(db, "users", uid));
+      const role = userSnap.exists() ? (userSnap.data().role || "Default") : "Default";
+      targetUserRole = role;
+      const map = {
+        Owner:   "role-owner",
+        Admin:   "role-admin",
+        Mod:     "role-mod",
+        Booster: "role-booster"
+      };
+      const cls = map[role];
+      if (cls) {
+        badge.classList.add(cls);
+        badge.textContent = role;
+        badge.style.display = "inline-flex";
+      }
+      updateRoleEditButton();
+    } catch (e) {
+      console.warn("[profile] loadRoleBadge error:", e);
+    }
+  }
+
+  /* Botón "Cambiar rol":
+   *  - Solo visible para Admin u Owner (currentUserRole).
+   *  - Admin NO puede cambiar el rol del Owner (targetUserRole === "Owner").
+   *  - Admin NO puede cambiar SU PROPIO rol (targetUid === currentUser.uid).
+   *  - Owner puede cambiar cualquier rol, incluso el suyo. */
+  let currentUserRole = "Default";
+
+  function updateRoleEditButton() {
+    const btn = $("pRoleEditBtn");
+    if (!btn || !targetUid) return;
+    btn.style.display = "none";
+    if (!currentUser) return;
+    const meIsOwner = currentUserRole === "Owner";
+    const meIsAdmin = currentUserRole === "Admin";
+    if (!meIsOwner && !meIsAdmin) return;
+    /* Admin: bloqueado si target es Owner o si es uno mismo */
+    if (meIsAdmin) {
+      if (targetUserRole === "Owner") return;
+      if (targetUid === currentUser.uid) return;
+    }
+    btn.style.display = "inline-flex";
+  }
+
+  async function loadProfile(uid) {
+    if (!uid) {
+      $("state").textContent = "Inicia sesión para ver tu perfil, o abre el enlace de un usuario.";
+      return;
+    }
+    profileLoaded = true;
+    console.log("[profile] loadProfile uid=", uid);
+    try {
+      const snap = await getDoc(doc(db, "profiles", uid));
+      if (!snap.exists()) {
+        $("state").textContent = "Perfil no encontrado.";
+        console.warn("[profile] profiles/", uid, "no existe");
+        return;
+      }
+      renderProfile(snap.data());
+      loadRoleBadge(uid);
+    } catch (err) {
+      console.error("[profile] loadProfile error:", err);
+      $("state").textContent = "Error al cargar el perfil. " +
+        (err.code === "permission-denied"
+           ? "El sitio no tiene permisos de lectura en Firestore. Revisa las reglas."
+           : (err.message || ""));
+    }
+  }
+
+  /* === Kick-off independiente de auth ===
+     loadProfile y loadRecords son independientes y se lanzan en paralelo:
+     los records se muestran aunque el doc profiles/{uid} no exista. */
+  function kickOff(uid) {
+    if (profileLoaded) return;
+    profileLoaded = true;
+    recordsLoaded = true;
+    loadProfile(uid);
+    loadRecords(uid);
+    loadRanking(uid);
+  }
+  if (targetUid) kickOff(targetUid);
+
+  /* ===== RANKING POR PUNTOS =====
+     Carga todos los records aceptados al 100% + todos los niveles,
+     agrupa puntos por uid (incluye player2Id) y muestra la posición
+     de targetUid. Sólo cuenta el ranking por PUNTOS. */
+  async function loadRanking(uid) {
+    const el = $("pRank");
+    if (!el) return;
+    try {
+      const [recsSnap, lvlSnap] = await Promise.all([
+        getDocs(collection(db, "records")),
+        getDocs(collection(db, "levels"))
+      ]);
+      const lvlMap = new Map();
+      lvlSnap.forEach(d => lvlMap.set(d.id, d.data()));
+
+      const points = new Map();   // uid -> total points
+      recsSnap.forEach(d => {
+        const r = d.data();
+        if (r.status !== "Accepted") return;
+        const lvl = lvlMap.get(r.levelId);
+        if (!lvl) return;
+        const pct = Number(r.percent);
+        if (!Number.isFinite(pct) || pct <= 0) return;
+        const base = Number(lvl.value || 0);
+        const v = pct === 100 ? base : (base / 10);   // <100% otorga 1/10 de los puntos
+        [r.userId, r.player2Id].forEach(u => {
+          if (!u) return;
+          points.set(u, (points.get(u) || 0) + v);
+        });
+      });
+
+      const myPts = points.get(uid) || 0;
+      if (myPts <= 0) { el.textContent = "—"; return; }
+
+      const arr = [...points.entries()]
+        .filter(([, v]) => v > 0)
+        .sort((a, b) => b[1] - a[1]);
+      const idx = arr.findIndex(([u]) => u === uid);
+      if (idx < 0) { el.textContent = "—"; return; }
+      el.textContent = `#${idx + 1}`;
+    } catch (e) {
+      console.warn("[profile] loadRanking error:", e);
+      el.textContent = "—";
+    }
+  }
+
+  /* Reaccionar al estado de auth para saber si es el dueño y para auto-redirigir */
+  onAuthChange(async (user) => {
+    currentUser = user;
+    currentUserRole = "Default";
+    /* Cargar el rol del usuario logueado para gating de UI */
+    if (user) {
+      try {
+        const meSnap = await getDoc(doc(db, "users", user.uid));
+        if (meSnap.exists()) currentUserRole = meSnap.data().role || "Default";
+      } catch (e) { /* sin permisos = no es staff */ }
+    }
+    /* Si la URL no tiene ?id, abrir perfil propio si está logueado */
+    if (!targetUid && user) {
+      targetUid = user.uid;
+      const url = new URL(location.href);
+      url.searchParams.set("id", targetUid);
+      history.replaceState(null, "", url.toString());
+    }
+
+    isOwner = !!user && !!targetUid && user.uid === targetUid;
+    /* El rol Owner también puede editar perfiles ajenos */
+    const canEditProfile = isOwner || currentUserRole === "Owner";
+    $("ownerActions").style.display = canEditProfile ? "flex" : "none";
+
+    /* Si la URL trae ?id sólo después de saber el uid, lanzar la carga ahora */
+    if (targetUid) kickOff(targetUid);
+
+    updateRoleEditButton();
+
+    /* Re-render para mostrar/ocultar el botón "Actualizar" */
+    if (myRecords.length) renderRecords();
+  });
+
+  /* ====== ROLE CHANGER MODAL ====== */
+  $("pRoleEditBtn").onclick = () => openRoleModal();
+
+  function openRoleModal() {
+    if (!currentUser || !targetUid) return;
+    const meIsOwner = currentUserRole === "Owner";
+    const meIsAdmin = currentUserRole === "Admin";
+    if (!meIsOwner && !meIsAdmin) return;
+    if (meIsAdmin && (targetUserRole === "Owner" || targetUid === currentUser.uid)) return;
+
+    /* Roles que el actor puede asignar:
+     *   Admin → Default / Mod / Booster (NO Admin/Owner)
+     *   Owner → Default / Mod / Booster / Admin / Owner
+     */
+    const allowed = meIsOwner
+      ? ["Default", "Mod", "Admin", "Owner", "Booster"]
+      : ["Default", "Mod", "Booster"];
+
+    $("roleModalCurrent").textContent = targetUserRole;
+    const sel = $("roleModalSelect");
+    sel.innerHTML = "";
+    allowed.forEach(r => {
+      const opt = document.createElement("option");
+      opt.value = r; opt.textContent = r;
+      if (r === targetUserRole) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    $("roleModalErr").style.display = "none";
+    $("roleModalBack").style.display = "flex";
+  }
+  function closeRoleModal() { $("roleModalBack").style.display = "none"; }
+  $("roleModalCancel").onclick = closeRoleModal;
+  $("roleModalBack").addEventListener("click", e => {
+    if (e.target === $("roleModalBack")) closeRoleModal();
+  });
+  $("roleModalSave").onclick = async () => {
+    if (!currentUser || !targetUid) return;
+    const newRole = $("roleModalSelect").value;
+    const meIsOwner = currentUserRole === "Owner";
+    const meIsAdmin = currentUserRole === "Admin";
+
+    /* Validación cliente (las reglas Firestore son la fuente final de verdad) */
+    if (!["Default","Mod","Admin","Owner","Booster"].includes(newRole)) {
+      $("roleModalErr").textContent = "Rol inválido."; $("roleModalErr").style.display = "block"; return;
+    }
+    if (meIsAdmin && (newRole === "Admin" || newRole === "Owner")) {
+      $("roleModalErr").textContent = "Solo el Owner puede asignar Admin u Owner.";
+      $("roleModalErr").style.display = "block"; return;
+    }
+    if (meIsAdmin && targetUserRole === "Owner") {
+      $("roleModalErr").textContent = "No puedes modificar al Owner.";
+      $("roleModalErr").style.display = "block"; return;
+    }
+    if (meIsAdmin && targetUid === currentUser.uid) {
+      $("roleModalErr").textContent = "No puedes cambiar tu propio rol.";
+      $("roleModalErr").style.display = "block"; return;
+    }
+
+    $("roleModalSave").disabled = true;
+    $("roleModalSave").textContent = "Guardando...";
+    try {
+      await updateDoc(doc(db, "users", targetUid), { role: newRole });
+      targetUserRole = newRole;
+      await loadRoleBadge(targetUid);
+      closeRoleModal();
+    } catch (err) {
+      console.error("[profile] role change error:", err);
+      $("roleModalErr").textContent = "Error: " + (err.message || "no se pudo cambiar el rol.");
+      $("roleModalErr").style.display = "block";
+    } finally {
+      $("roleModalSave").disabled = false;
+      $("roleModalSave").textContent = "Guardar";
+    }
+  };
+
+  /* ====== RECORDS ====== */
+  function fmtDate(ts) {
+    if (!ts) return "—";
+    const d = ts.toDate ? ts.toDate() : (ts instanceof Date ? ts : new Date(ts));
+    if (isNaN(d.getTime())) return "—";
+    return d.toLocaleDateString("es-ES", { day:"2-digit", month:"short", year:"numeric" });
+  }
+
+  async function loadRecords(uid) {
+    $("recordsCard").style.display = "block";
+    $("recordsState").style.display = "block";
+    $("recordsState").textContent = "Cargando records...";
+    $("recordsList").innerHTML = "";
+
+    try {
+      /* 1) records donde es jugador 1 */
+      const q1 = await getDocs(query(collection(db, "records"), where("userId", "==", uid)));
+      /* 2) records donde es jugador 2 */
+      const q2 = await getDocs(query(collection(db, "records"), where("player2Id", "==", uid)));
+
+      const map = new Map();
+      q1.forEach(d => map.set(d.id, { id: d.id, ...d.data() }));
+      q2.forEach(d => map.set(d.id, { id: d.id, ...d.data() }));
+      myRecords = [...map.values()];
+
+      /* Cargar levels involucrados */
+      const lvlIds = [...new Set(myRecords.map(r => r.levelId).filter(Boolean))];
+      await Promise.all(lvlIds.map(async id => {
+        if (levelsCache.has(id)) return;
+        try {
+          const ls = await getDoc(doc(db, "levels", id));
+          if (ls.exists()) levelsCache.set(id, { id, ...ls.data() });
+        } catch (e) { console.warn("level load fail", id, e); }
+      }));
+
+      /* Cargar profiles del compañero (player1 si soy player2, o viceversa) */
+      const otherIds = new Set();
+      myRecords.forEach(r => {
+        if (r.userId    && r.userId    !== uid) otherIds.add(r.userId);
+        if (r.player2Id && r.player2Id !== uid) otherIds.add(r.player2Id);
+      });
+      await Promise.all([...otherIds].map(async id => {
+        if (profilesCache.has(id)) return;
+        try {
+          const ps = await getDoc(doc(db, "profiles", id));
+          if (ps.exists()) profilesCache.set(id, ps.data());
+        } catch (e) {}
+      }));
+
+      /* Recalcular stats desde Accepted */
+      recomputeStats(uid);
+
+      /* Ordenar: pending arriba, luego accepted por acceptedAt desc, luego rejected por createdAt desc */
+      myRecords.sort((a,b) => {
+        const order = { Pending: 0, Accepted: 1, Rejected: 2 };
+        const oa = order[a.status] ?? 3, ob = order[b.status] ?? 3;
+        if (oa !== ob) return oa - ob;
+        const ta = (a.acceptedAt?.toMillis?.() || a.updatedAt?.toMillis?.() || a.createdAt?.toMillis?.() || 0);
+        const tb = (b.acceptedAt?.toMillis?.() || b.updatedAt?.toMillis?.() || b.createdAt?.toMillis?.() || 0);
+        return tb - ta;
+      });
+
+      renderRecords();
+    } catch (err) {
+      console.error("[profile] loadRecords:", err);
+      $("recordsState").textContent = "Error al cargar los records.";
+    }
+  }
+
+  function recomputeStats(uid) {
+    let points = 0, count = 0;
+    const diffCounts = {
+      "Extreme Demon": 0, "Insane Demon": 0, "Hard Demon": 0,
+      "Medium Demon": 0, "Easy Demon": 0
+    };
+    let hardestLvl = null;       // nivel con menor `position` completado al 100%
+    let hardestPos = Infinity;
+    myRecords.forEach(r => {
+      if (r.status !== "Accepted") return;
+      const pct = Number(r.percent);
+      if (!Number.isFinite(pct) || pct <= 0) return;
+      const lvl = levelsCache.get(r.levelId);
+      if (!lvl) return;
+      const base = Number(lvl.value || 0);
+      points += pct === 100 ? base : (base / 10);   // <100% otorga 1/10
+      count++;                                      // cuenta como record igual
+      if (pct === 100) {
+        const d = (lvl.difficulty && diffCounts.hasOwnProperty(lvl.difficulty))
+          ? lvl.difficulty
+          : "Extreme Demon";
+        diffCounts[d]++;
+        const pos = Number(lvl.position);
+        if (Number.isFinite(pos) && pos > 0 && pos < hardestPos) {
+          hardestPos = pos;
+          hardestLvl = lvl;
+        }
+      }
+    });
+    $("pPoints").textContent  = Math.round(points * 100) / 100;
+    $("pRecords").textContent = count;
+    const hEl = $("pHardest");
+    if (hEl) {
+      if (hardestLvl) {
+        hEl.textContent = hardestLvl.name || "—";
+        hEl.title = `${hardestLvl.name || ""} (#${hardestPos})`;
+      } else {
+        hEl.textContent = "—";
+        hEl.title = "Aún no ha completado ningún nivel al 100%";
+      }
+    }
+    renderDiffStats(diffCounts);
+  }
+
+  function renderDiffStats(counts) {
+    document.querySelectorAll("#diffStats .diff-stat-img").forEach(img => {
+      const d = img.dataset.diff;
+      img.src = DIFFICULTY_IMAGES[d] || DIFFICULTY_IMAGES["Extreme Demon"];
+    });
+    document.querySelectorAll("#diffStats [data-diff-count]").forEach(el => {
+      const d = el.dataset.diffCount;
+      el.textContent = counts[d] || 0;
+    });
+  }
+  // Inicializar imágenes aunque aún no haya records
+  renderDiffStats({});
+
+  function renderRecords() {
+    const list = $("recordsList");
+    list.innerHTML = "";
+
+    const isViewerOwner = !!(currentUser && currentUser.uid === targetUid);
+    /* Default y Booster NO pueden ver records Pendientes ni Rechazados
+       de otros perfiles. Solo Mod/Admin/Owner ven todo en perfiles ajenos.
+       En el propio perfil siempre se ve todo. */
+    const isViewerStaff = ["Mod", "Admin", "Owner"].includes(currentUserRole);
+    const visibleRecords = (isViewerOwner || isViewerStaff)
+      ? myRecords
+      : myRecords.filter(r => r.status === "Accepted");
+
+    $("recordsCount").textContent = visibleRecords.length;
+
+    if (!visibleRecords.length) {
+      $("recordsState").textContent = "Este usuario aún no tiene records.";
+      $("recordsState").style.display = "block";
+      return;
+    }
+    $("recordsState").style.display = "none";
+
+    visibleRecords.forEach(rec => {
+      const lvl = levelsCache.get(rec.levelId) || {};
+      const card = document.createElement("article");
+      card.className = "lvl-card";
+
+      /* Background del card = campo "background" del nivel (con fallback a imageURL) */
+      const bgUrl = lvl.background || lvl.imageURL || lvl.thumbnail || "";
+      if (bgUrl) {
+        const bgEl = document.createElement("div");
+        bgEl.className = "lvl-card-bg";
+        bgEl.style.backgroundImage = `url("${bgUrl}")`;
+        card.appendChild(bgEl);
+      }
+
+      /* Content */
+      const content = document.createElement("div");
+      content.className = "lvl-card-content";
+
+      /* Carita de dificultad (reemplaza la antigua miniatura).
+         Si el nivel no existe (reclamo Pending de "Nuevo nivel"),
+         usamos la dificultad que el usuario eligió en el reclamo
+         para que la imagen sea coherente con lo que pidió. */
+      const claimDiff = rec.claimedLevelDifficulty;
+      const diffKey =
+        (lvl.difficulty   && DIFFICULTY_IMAGES[lvl.difficulty])  ? lvl.difficulty :
+        (claimDiff        && DIFFICULTY_IMAGES[claimDiff])       ? claimDiff
+                                                                 : "Extreme Demon";
+      const thumb = document.createElement("img");
+      thumb.className = "lvl-thumb";
+      thumb.alt = diffKey;
+      thumb.title = diffKey;
+      thumb.src = DIFFICULTY_IMAGES[diffKey];
+      thumb.style.objectFit = "contain";
+      thumb.style.background = "transparent";
+      thumb.onerror = () => { thumb.style.opacity = "0.3"; };
+      content.appendChild(thumb);
+
+      const info = document.createElement("div");
+      info.className = "lvl-info";
+      const titleRow = document.createElement("div");
+      titleRow.className = "lvl-title-row";
+
+      const nameLink = document.createElement("a");
+      nameLink.className = "lvl-name";
+      /* Para reclamos pendientes de Nuevo nivel, usamos el nombre que
+         el propio usuario indicó en lugar de "(Nivel desconocido)". */
+      const claimName = rec.claimedLevelName;
+      nameLink.textContent = lvl.name || claimName || "(Nivel desconocido)";
+      nameLink.href = lvl.id ? `/level.html?id=${encodeURIComponent(lvl.id)}` : "#";
+      nameLink.style.textDecoration = "none";
+      titleRow.appendChild(nameLink);
+
+      if (rec.mode2P || lvl.is2P) {
+        const b = document.createElement("span");
+        b.className = "badge-2p";
+        b.textContent = "2P";
+        titleRow.appendChild(b);
+      }
+      info.appendChild(titleRow);
+
+      const author = document.createElement("div");
+      author.className = "lvl-author";
+      author.textContent = lvl.author ? `por ${lvl.author}` : "";
+      info.appendChild(author);
+
+      /* Compañero 2P */
+      const partnerId = rec.userId === targetUid ? rec.player2Id
+                       : rec.player2Id === targetUid ? rec.userId : null;
+      if (partnerId) {
+        const partner = profilesCache.get(partnerId);
+        const partnerEl = document.createElement("div");
+        partnerEl.className = "lvl-meta";
+        partnerEl.innerHTML = `Con: <a href="/profile.html?id=${partnerId}" style="color:#fff;text-decoration:none;font-weight:700;">${escapeHtml(partner?.name || "Jugador")}</a>`;
+        info.appendChild(partnerEl);
+      }
+
+      /* Mobile flag */
+      if (rec.mobile || rec.mobile2P) {
+        const m = document.createElement("div");
+        m.className = "lvl-meta";
+        m.innerHTML = `📱 <b>Móvil</b>`;
+        info.appendChild(m);
+      }
+      content.appendChild(info);
+
+      /* Aside: points + percent */
+      const aside = document.createElement("div");
+      aside.className = "lvl-aside";
+
+      if (rec.status === "Accepted" && Number(rec.percent) > 0 && lvl.value) {
+        const base = Number(lvl.value);
+        const earned = Number(rec.percent) === 100 ? base : (base / 10);
+        const pts = document.createElement("div");
+        pts.className = "lvl-points";
+        pts.textContent = "+" + (Math.round(earned * 100) / 100);
+        aside.appendChild(pts);
+        const lab = document.createElement("div");
+        lab.className = "lvl-points-label";
+        lab.textContent = "puntos";
+        aside.appendChild(lab);
+      } else if (lvl.position) {
+        const pos = document.createElement("div");
+        pos.className = "lvl-points-label";
+        pos.textContent = `#${lvl.position}`;
+        aside.appendChild(pos);
+      }
+
+      const pct = document.createElement("div");
+      pct.className = "lvl-percent" + (Number(rec.percent) === 100 ? " full" : "");
+      pct.textContent = (rec.percent ?? "?") + "%";
+      aside.appendChild(pct);
+      content.appendChild(aside);
+
+      card.appendChild(content);
+
+      /* Footer */
+      const footer = document.createElement("div");
+      footer.className = "lvl-card-footer";
+
+      const left = document.createElement("div");
+      left.className = "lvl-actions";
+      const badge = document.createElement("span");
+      const stKey = (rec.status || "Pending").toLowerCase();
+      badge.className = "status-badge " + stKey;
+      const labels = { pending: "Pendiente", accepted: "Aceptado", rejected: "Rechazado" };
+      badge.textContent = labels[stKey] || rec.status;
+      left.appendChild(badge);
+
+      const dateEl = document.createElement("span");
+      dateEl.className = "status-date";
+      if (rec.status === "Accepted")      dateEl.textContent = "Aceptado: " + fmtDate(rec.acceptedAt);
+      else if (rec.status === "Rejected") dateEl.textContent = "Rechazado: " + fmtDate(rec.updatedAt || rec.createdAt);
+      else                                 dateEl.textContent = "Enviado: "  + fmtDate(rec.createdAt);
+      left.appendChild(dateEl);
+      footer.appendChild(left);
+
+      const right = document.createElement("div");
+      right.className = "lvl-actions";
+
+      if (rec.video) {
+        const vidLink = document.createElement("a");
+        vidLink.className = "lvl-link";
+        vidLink.href = rec.video; vidLink.target = "_blank"; vidLink.rel = "noopener";
+        vidLink.textContent = "Ver video ▶";
+        right.appendChild(vidLink);
+      }
+
+      /* Puede actualizar/editar el record:
+       *   - su propio dueño (jugador 1) en su propio perfil, o
+       *   - cualquier usuario con rol Owner (puede corregir records ajenos). */
+      const meIsOwnerRole = currentUserRole === "Owner";
+      const canEditThisRecord =
+        (isViewerOwner && rec.userId === currentUser.uid) ||
+        (meIsOwnerRole && currentUser);
+      if (canEditThisRecord) {
+        const btn = document.createElement("button");
+        btn.className = "btn btn-secondary";
+        btn.textContent = "Actualizar";
+        btn.onclick = () => openUpdateModal(rec);
+        right.appendChild(btn);
+
+        /* Eliminar:
+         *   - Dueño del record: sólo si NO está Accepted.
+         *   - Rol Owner: cualquier record, en cualquier estado. */
+        const isMyRec  = currentUser && rec.userId === currentUser.uid;
+        const canDelete = (meIsOwnerRole)
+          || (isMyRec && rec.status !== "Accepted");
+        if (canDelete) {
+          const delBtn = document.createElement("button");
+          delBtn.className = "btn btn-danger";
+          delBtn.textContent = "Eliminar";
+          delBtn.onclick = () => deleteOwnRecord(rec);
+          right.appendChild(delBtn);
+        }
+
+        /* Solo el rol Owner: re-enviar un record Aceptado/Rechazado a revisión */
+        if (meIsOwnerRole && rec.status !== "Pending") {
+          const reBtn = document.createElement("button");
+          reBtn.className = "btn btn-secondary";
+          reBtn.textContent = "↩ Mandar a revisión";
+          reBtn.onclick = () => resendForReview(rec);
+          right.appendChild(reBtn);
+        }
+      }
+      footer.appendChild(right);
+      card.appendChild(footer);
+
+      list.appendChild(card);
+    });
+  }
+
+  /* ====== Re-enviar a revisión (sólo Owner role) ====== *
+   *  Pone status="Pending" y limpia acceptedAt para que vuelva a aparecer
+   *  en el panel de moderación. No toca el resto de campos del record.   */
+  async function resendForReview(rec) {
+    if (currentUserRole !== "Owner") return;
+    if (rec.status === "Pending") return;
+    const lvl = levelsCache.get(rec.levelId) || {};
+    const ok = confirm(
+      `¿Mandar este record (${lvl.name || "nivel"} - ${Math.round(Number(rec.percent) || 0)}%) `
+      + `de vuelta a revisión?\nCambiará su estado a "Pendiente".`
+    );
+    if (!ok) return;
+    try {
+      await updateDoc(doc(db, "records", rec.id), {
+        status:      "Pending",
+        acceptedAt:  null,
+        moderatedAt: null,
+        moderatedBy: null,
+        updatedAt:   serverTimestamp(),
+      });
+      Object.assign(rec, {
+        status: "Pending",
+        acceptedAt: null,
+        moderatedAt: null,
+        moderatedBy: null,
+      });
+      recomputeStats(targetUid);
+      renderRecords();
+    } catch (err) {
+      console.error("[profile] resend-for-review error:", err);
+      alert("No se pudo mandar a revisión: " + (err.message || err.code || "desconocido"));
+    }
+  }
+
+  /* ====== ELIMINAR RECORD ====== *
+   *  - Dueño del record: sólo si NO está Accepted.
+   *  - Rol Owner: cualquier record, en cualquier estado y de cualquier
+   *    usuario (esto ya lo permiten las reglas v12 vía isStaff()).      */
+  async function deleteOwnRecord(rec) {
+    if (!currentUser) return;
+    const isMyRec  = rec.userId === currentUser.uid;
+    const ownerOk  = currentUserRole === "Owner";
+
+    if (!isMyRec && !ownerOk) return;
+    if (isMyRec && !ownerOk && rec.status === "Accepted") {
+      alert("No puedes eliminar un record aceptado.");
+      return;
+    }
+
+    const lvl = levelsCache.get(rec.levelId) || {};
+    const who = isMyRec ? "tu record" : "este record";
+    const warn = (!isMyRec && rec.status === "Accepted")
+      ? "\n\n⚠ Atención: este record está ACEPTADO y vas a borrarlo de forma permanente."
+      : "";
+    const ok = confirm(
+      `¿Eliminar ${who} en "${lvl.name || "este nivel"}"?\n`
+      + `Esta acción no se puede deshacer.` + warn
+    );
+    if (!ok) return;
+
+    try {
+      await deleteDoc(doc(db, "records", rec.id));
+      myRecords = myRecords.filter(r => r.id !== rec.id);
+      recomputeStats(targetUid);
+      renderRecords();
+    } catch (err) {
+      console.error("[profile] delete record error:", err);
+      alert("Error al eliminar: " + (err.message || err));
+    }
+  }
+
+  /* ====== UPDATE MODAL ====== */
+  function openUpdateModal(rec) {
+    editingRecord = rec;
+    const lvl = levelsCache.get(rec.levelId) || {};
+    $("updTitle").textContent = `Actualizar: ${lvl.name || "Record"}`;
+    $("updWarn").style.display = (rec.status === "Accepted") ? "block" : "none";
+    $("updMsgErr").style.display = "none";
+
+    $("updPercent").value = rec.percent ?? "";
+    $("updVideo").value   = rec.video   || "";
+    $("updVideo2").value  = rec.video2  || "";
+    $("updRaw").value     = rec.rawFootage || "";
+    $("updNotes").value   = rec.extraNotes || "";
+    $("updMobile").checked     = !!rec.mobile;
+    $("updMobile2P").checked   = !!rec.mobile2P;
+    $("updSameDevice").checked = (rec.mode2P === "same-device");
+
+    const is2P = !!(rec.mode2P || lvl.is2P);
+    $("updVideo2Wrap").style.display     = is2P ? "block" : "none";
+    $("updMobile2PWrap").style.display   = is2P ? "flex"  : "none";
+    $("updSameDeviceWrap").style.display = is2P ? "flex"  : "none";
+
+    $("updModal").classList.add("open");
+  }
+
+  function closeUpdateModal() {
+    $("updModal").classList.remove("open");
+    editingRecord = null;
+  }
+
+  $("updCancel").onclick = closeUpdateModal;
+  $("updModal").addEventListener("click", e => {
+    if (e.target === $("updModal")) closeUpdateModal();
+  });
+
+  $("updSave").onclick = async () => {
+    if (!editingRecord || !currentUser) return;
+    const rec = editingRecord;
+    const lvl = levelsCache.get(rec.levelId) || {};
+    const is2P = !!(rec.mode2P || lvl.is2P);
+
+    const percent = parseInt($("updPercent").value, 10);
+    if (!percent || percent < 1 || percent > 100) {
+      $("updMsgErr").textContent = "Porcentaje inválido (1–100).";
+      $("updMsgErr").style.display = "block"; return;
+    }
+    const minPct = Number.isFinite(Number(lvl.minPercent)) ? Number(lvl.minPercent) : 100;
+    if (percent < minPct) {
+      $("updMsgErr").textContent = `Error, el % mínimo de este nivel es ${minPct}%`;
+      $("updMsgErr").style.display = "block"; return;
+    }
+    const video = $("updVideo").value.trim();
+    if (!video) {
+      $("updMsgErr").textContent = "El link del video es obligatorio.";
+      $("updMsgErr").style.display = "block"; return;
+    }
+    const sameDevice = is2P && $("updSameDevice").checked;
+    const video2 = is2P && !sameDevice ? $("updVideo2").value.trim() : "";
+    if (is2P && !sameDevice && !video2) {
+      $("updMsgErr").textContent = "El video del segundo jugador es obligatorio (o marca 'Mismo dispositivo').";
+      $("updMsgErr").style.display = "block"; return;
+    }
+
+    /* Si el editor es el rol Owner y el record NO es suyo, conservamos el
+       status y el acceptedAt actuales (corrección manual sin re-moderación).
+       Si es el dueño del record quien edita, el record vuelve a Pending. */
+    const editingForeignAsOwnerRole =
+      currentUserRole === "Owner" && rec.userId !== currentUser.uid;
+
+    const payload = {
+      percent,
+      video,
+      video2,
+      mobile:    $("updMobile").checked,
+      mobile2P:  is2P ? $("updMobile2P").checked : false,
+      mode2P:    is2P ? (sameDevice ? "same-device" : "separate") : null,
+      rawFootage: $("updRaw").value.trim(),
+      extraNotes: $("updNotes").value.trim().slice(0, 500),
+      updatedAt: serverTimestamp(),
+    };
+    if (!editingForeignAsOwnerRole) {
+      payload.status     = "Pending";
+      payload.acceptedAt = null;
+    }
+
+    $("updSave").disabled = true;
+    $("updSave").textContent = "Guardando...";
+
+    try {
+      await updateDoc(doc(db, "records", rec.id), payload);
+      /* Refrescar local */
+      Object.assign(rec, payload);
+      if (!editingForeignAsOwnerRole) rec.acceptedAt = null;
+      recomputeStats(targetUid);
+      renderRecords();
+      closeUpdateModal();
+    } catch (err) {
+      console.error(err);
+      $("updMsgErr").textContent = "Error al guardar: " + (err.message || err.code || "desconocido");
+      $("updMsgErr").style.display = "block";
+    } finally {
+      $("updSave").disabled = false;
+      $("updSave").textContent = "Guardar cambios";
+    }
+  };
+
+  /* ── EDITAR ── */
+  $("btnEdit").onclick = () => {
+    $("editName").value    = profileData?.name     || "";
+    $("editPhoto").value   = profileData?.photoURL || "";
+    $("editCountry").value = profileData?.country  || "";
+    $("editYoutube").value = profileData?.youtube  || "";
+    $("editBio").value     = profileData?.bio      || "";
+    $("editForm").classList.add("open");
+    $("msgOk").style.display  = "none";
+    $("msgErr").style.display = "none";
+    $("btnEdit").disabled = true;
+  };
+  $("btnCancel").onclick = () => {
+    $("editForm").classList.remove("open");
+    $("btnEdit").disabled = false;
+  };
+
+  $("btnSave").onclick = async () => {
+    /* Permite editar al dueño del perfil o a cualquier usuario con rol Owner. */
+    if (!isOwner && currentUserRole !== "Owner") return;
+    const name     = $("editName").value.trim().slice(0,40);
+    const photoURL = $("editPhoto").value.trim();
+    const country  = $("editCountry").value.trim().toLowerCase().slice(0,2);
+    const youtube  = $("editYoutube").value.trim().slice(0,200);
+    const bio      = $("editBio").value.trim().slice(0,500);
+
+    if (!name) {
+      $("msgErr").textContent = "El nombre no puede estar vacío.";
+      $("msgErr").style.display = "block";
+      return;
+    }
+    if (photoURL && !/^https?:\/\//i.test(photoURL)) {
+      $("msgErr").textContent = "La URL de la foto debe empezar con http(s)://";
+      $("msgErr").style.display = "block";
+      return;
+    }
+    if (youtube && !/^https?:\/\/(www\.)?youtu(be\.com|\.be)\//i.test(youtube)) {
+      $("msgErr").textContent = "El link de YouTube debe empezar con https://youtube.com/ o https://youtu.be/";
+      $("msgErr").style.display = "block";
+      return;
+    }
+
+    $("btnSave").disabled    = true;
+    $("btnCancel").disabled  = true;
+    $("btnSave").textContent = "Guardando...";
+    $("msgErr").style.display = "none";
+    $("msgOk").style.display  = "none";
+
+    /* Si está vacía la URL: si edita su propio perfil → cae a la foto de
+       Google del propio user; si Owner edita un perfil ajeno → conserva la
+       photoURL existente del perfil para no pisarla con su propia foto. */
+    const finalPhoto = photoURL
+      || (isOwner ? (currentUser?.photoURL || "") : (profileData?.photoURL || ""));
+
+    const payload = {
+      name,
+      photoURL: finalPhoto,
+      country,
+      youtube,
+      bio,
+      updatedAt: serverTimestamp()
+    };
+
+    console.log("[profile] guardando perfil", targetUid, payload);
+
+    try {
+      /* setDoc + merge: crea el doc si no existe y siempre persiste los cambios */
+      await setDoc(doc(db, "profiles", targetUid), payload, { merge: true });
+      profileData = { ...profileData, ...payload };
+      renderProfile(profileData);
+
+      /* Refrescar el header global (avatar/nombre del menú) */
+      try { await refreshProfile(); }
+      catch (e) { console.warn("[profile] refreshProfile fail:", e); }
+
+      $("msgOk").style.display = "block";
+      setTimeout(() => {
+        $("editForm").classList.remove("open");
+        $("btnEdit").disabled = false;
+      }, 900);
+    } catch (err) {
+      console.error("[profile] guardar perfil falló:", err);
+      $("msgErr").textContent =
+        (err.code === "permission-denied"
+          ? "Permiso denegado por Firestore. Revisa las reglas (debe permitir update a profiles/{uid} si request.auth.uid == uid)."
+          : "Error al guardar: " + (err.message || err.code || "desconocido"));
+      $("msgErr").style.display = "block";
+    } finally {
+      $("btnSave").disabled    = false;
+      $("btnCancel").disabled  = false;
+      $("btnSave").textContent = "Guardar";
+    }
+  };
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demon List - BufferTeam</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: black url('https://iili.io/qnR6Jst.jpg') no-repeat top center fixed;
+      background-size: cover;
+      padding-top: 70px;
+    }
+
+    /* ===== HEADER ===== */
+    .top-header {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 15px;
+      z-index: 9999;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(10px);
+    }
+    .left { display: flex; align-items: center; gap: 10px; }
+    .logo-img { width: 38px; height: 38px; }
+    .logo-text { color: white; font-weight: bold; font-size: 1.1rem; }
+    .nav-links { display: flex; gap: 15px; }
+    .nav-links a { color: white; text-decoration: none; font-size: 0.95rem; }
+    .nav-links a:hover { color: #7cfc00; }
+    .menu-toggle {
+      display: none;
+      font-size: 28px; color: white;
+      width: 40px; height: 40px;
+      align-items: center; justify-content: center;
+      cursor: pointer; user-select: none;
+    }
+
+    /* ===== SEARCH ===== */
+    #searchContainer { text-align: center; margin: 30px 0 20px; }
+    #searchBar {
+      width: 80%; max-width: 600px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      border: 2px solid rgba(255,255,255,0.3);
+      background: rgba(20,20,20,0.6);
+      color: white;
+      font-size: 1.1rem;
+      font-family: 'Montserrat', sans-serif;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    #searchBar:focus { border-color: rgba(124,252,0,0.6); }
+
+    /* ===== ADD BUTTON ===== */
+    .add-btn {
+      display: block;
+      margin: 10px auto 20px;
+      padding: 12px 22px;
+      border-radius: 12px;
+      border: none;
+      background: rgba(0,180,255,0.25);
+      color: white;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+      box-shadow: 0 0 10px rgba(0,180,255,0.2);
+    }
+    .add-btn:hover {
+      background: rgba(0,180,255,0.6);
+      box-shadow: 0 0 20px rgba(0,180,255,0.8);
+      transform: scale(1.05);
+    }
+
+    /* ===== LEVEL LIST ===== */
+    .level-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      padding-bottom: 50px;
+    }
+
+    /* ===== CARD ===== */
+    .level-card {
+      width: 80%; max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+      border-radius: 20px;
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    /* Antes había un overlay oscuro sobre todo el fondo: lo quitamos para
+       que el background del nivel se vea al 100%. La legibilidad ahora
+       depende de los "shadow boxes" detrás de la miniatura y del texto. */
+    .level-card::before { content: none; }
+    .level-card:hover { transform: scale(1.02); cursor: pointer; }
+    .level-card.glow-celeste:hover       { box-shadow: 0 0 35px rgba(0,180,255,0.8); }
+    .level-card.glow-rojo-naranja:hover  { box-shadow: 0 0 35px rgba(255,80,0,0.8); }
+    .level-card.glow-rojo:hover          { box-shadow: 0 0 35px rgba(255,60,60,0.8); }
+    .level-card.glow-verde:hover         { box-shadow: 0 0 35px rgba(124,252,0,0.8); }
+    .level-card.glow-azul:hover          { box-shadow: 0 0 35px rgba(0,100,255,0.85); }
+    .level-card.glow-naranja:hover       { box-shadow: 0 0 35px rgba(255,140,0,0.85); }
+    .level-card.glow-amarillo:hover      { box-shadow: 0 0 35px rgba(255,230,0,0.85); }
+    .level-card.glow-rosa:hover          { box-shadow: 0 0 35px rgba(255,105,180,0.85); }
+    .level-card.glow-morado:hover        { box-shadow: 0 0 35px rgba(155,89,182,0.85); }
+    .level-card.glow-magenta:hover       { box-shadow: 0 0 35px rgba(255,0,200,0.85); }
+    .level-card.glow-turquesa:hover      { box-shadow: 0 0 35px rgba(0,206,209,0.85); }
+    .level-card.glow-dorado:hover        { box-shadow: 0 0 35px rgba(255,215,0,0.85); }
+    .level-card.glow-plateado:hover      { box-shadow: 0 0 35px rgba(180,180,210,0.8); }
+    .level-card.glow-blanco:hover        { box-shadow: 0 0 35px rgba(255,255,255,0.75); }
+    .level-card.glow-indigo:hover        { box-shadow: 0 0 35px rgba(100,60,220,0.85); }
+    .level-card.glow-coral:hover         { box-shadow: 0 0 35px rgba(255,100,72,0.85); }
+    .level-card.glow-lima:hover          { box-shadow: 0 0 35px rgba(140,255,0,0.85); }
+    .level-card.glow-menta:hover         { box-shadow: 0 0 35px rgba(62,180,137,0.85); }
+    .level-card.glow-lavanda:hover       { box-shadow: 0 0 35px rgba(160,130,255,0.85); }
+    .level-card.glow-salmon:hover        { box-shadow: 0 0 35px rgba(250,128,114,0.85); }
+    .level-card.glow-aguamarina:hover    { box-shadow: 0 0 35px rgba(127,255,212,0.85); }
+    .level-card.glow-violeta:hover       { box-shadow: 0 0 35px rgba(148,0,255,0.85); }
+    .level-card.glow-carmesi:hover       { box-shadow: 0 0 35px rgba(220,20,60,0.85); }
+    .level-card.glow-cian:hover          { box-shadow: 0 0 35px rgba(0,255,255,0.85); }
+    .level-card.glow-esmeralda:hover     { box-shadow: 0 0 35px rgba(80,200,120,0.85); }
+    .level-card.glow-rubi:hover          { box-shadow: 0 0 35px rgba(224,17,95,0.85); }
+    .level-card.glow-zafiro:hover        { box-shadow: 0 0 35px rgba(26,95,204,0.85); }
+    .level-card.glow-bronce:hover        { box-shadow: 0 0 35px rgba(205,127,50,0.85); }
+    .level-card.glow-ambar:hover         { box-shadow: 0 0 35px rgba(255,191,0,0.85); }
+    .level-card.glow-fucsia:hover        { box-shadow: 0 0 35px rgba(255,20,147,0.85); }
+    .level-card.glow-marino:hover        { box-shadow: 0 0 35px rgba(0,80,160,0.85); }
+    .level-card.glow-electrico:hover     { box-shadow: 0 0 40px rgba(0,210,255,0.9); }
+    .level-card.glow-neon-verde:hover    { box-shadow: 0 0 40px rgba(57,255,20,0.9); }
+    .level-card.glow-neon-naranja:hover  { box-shadow: 0 0 40px rgba(255,100,0,0.9); }
+
+    /* ===== GLOW ARCOÍRIS =====
+       Solo se activa al pasar el cursor / dedo encima, así no
+       gasta CPU/GPU cuando no se está mirando la carta.
+       7 colores × 1 s = 7 s por ciclo, en bucle infinito. */
+    @keyframes rainbowGlowHover {
+        0%   { box-shadow: 0 0 45px 8px rgba(255,  0,   0, 0.95); }
+       14.28%{ box-shadow: 0 0 45px 8px rgba(255,140,   0, 0.95); }
+       28.57%{ box-shadow: 0 0 45px 8px rgba(255,235,   0, 0.95); }
+       42.85%{ box-shadow: 0 0 45px 8px rgba( 60,255,  60, 0.95); }
+       57.14%{ box-shadow: 0 0 45px 8px rgba(  0,210, 255, 0.95); }
+       71.42%{ box-shadow: 0 0 45px 8px rgba( 60, 80, 255, 0.95); }
+       85.71%{ box-shadow: 0 0 45px 8px rgba(180, 60, 255, 0.95); }
+      100%   { box-shadow: 0 0 45px 8px rgba(255,  0,   0, 0.95); }
+    }
+    .level-card.glow-arcoiris:hover,
+    .level-card.glow-arcoiris:focus-within {
+      animation: rainbowGlowHover 7s linear infinite;
+    }
+
+    /* ===== ADMIN BUTTONS (editar / eliminar) ===== */
+    .card-admin {
+      position: absolute;
+      top: 10px; right: 12px;
+      display: none;
+      gap: 6px;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    body.is-admin .card-admin { display: flex; }
+    .level-card:hover .card-admin { opacity: 1; }
+
+    /* Por seguridad, solo el Owner puede borrar niveles.
+       Los Admin/Mod siguen viendo "Editar" pero NO "Eliminar". */
+    .btn-delete { display: none; }
+    body.is-owner .btn-delete { display: inline-block; }
+
+    /* "+ Añadir nivel" solo para admins */
+    #openFormBtn { display: none; }
+    body.is-admin #openFormBtn { display: block; }
+
+    .btn-edit, .btn-delete {
+      padding: 5px 11px;
+      border-radius: 8px;
+      border: none;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-edit {
+      background: rgba(0,180,255,0.35);
+      color: white;
+    }
+    .btn-edit:hover {
+      background: rgba(0,180,255,0.75);
+      transform: scale(1.05);
+    }
+    .btn-delete {
+      background: rgba(255,60,60,0.35);
+      color: white;
+    }
+    .btn-delete:hover {
+      background: rgba(255,60,60,0.8);
+      transform: scale(1.05);
+    }
+
+    /* ===== THUMBNAIL =====
+       drop-shadow se adapta a la forma real de la imagen (incluyendo
+       sus esquinas redondeadas y su transparencia), a diferencia de
+       box-shadow que dibujaría siempre un rectángulo. */
+    .level-thumbnail {
+      width: 180px;
+      border-radius: 12px;
+      position: relative; z-index: 2;
+      display: block;
+      background: transparent;
+      padding: 0;
+      filter:
+        drop-shadow(0 4px 10px rgba(0,0,0,0.85))
+        drop-shadow(0 0 4px rgba(0,0,0,0.9));
+    }
+
+    /* ===== CONTENT ===== */
+    .level-content {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      position: relative; z-index: 2;
+      flex: 1;
+    }
+    /* Sin caja oscura — la legibilidad se logra con varias capas de
+       text-shadow que envuelven cada letra, así el "sombreado" se
+       adapta a la forma de las letras y no se ve un rectángulo feo. */
+    .level-info {
+      color: white;
+      flex: 1;
+      background: transparent;
+      padding: 0;
+      box-shadow: none;
+    }
+    .level-title {
+      font-size: 1.3rem; font-weight: bold; margin-bottom: 4px;
+      text-shadow:
+        0 0 4px rgba(0,0,0,0.98),
+        0 0 8px rgba(0,0,0,0.92),
+        0 2px 5px rgba(0,0,0,0.98),
+        -1.5px -1.5px 0 rgba(0,0,0,0.85),
+         1.5px -1.5px 0 rgba(0,0,0,0.85),
+        -1.5px  1.5px 0 rgba(0,0,0,0.85),
+         1.5px  1.5px 0 rgba(0,0,0,0.85);
+    }
+    .level-author {
+      opacity: 1; font-size: 0.95rem;
+      text-shadow:
+        0 0 4px rgba(0,0,0,0.98),
+        0 0 7px rgba(0,0,0,0.9),
+        0 1px 4px rgba(0,0,0,0.98),
+        -1.5px -1.5px 0 rgba(0,0,0,0.8),
+         1.5px -1.5px 0 rgba(0,0,0,0.8),
+        -1.5px  1.5px 0 rgba(0,0,0,0.8),
+         1.5px  1.5px 0 rgba(0,0,0,0.8);
+    }
+    .level-diff {
+      width: 55px; height: 55px;
+      object-fit: contain;
+      flex-shrink: 0;
+      display: block;
+    }
+
+    /* ===== VER NIVEL BUTTON ===== */
+    .level-button {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 7px 18px;
+      background: rgba(255,255,255,0.18);
+      border-radius: 10px;
+      color: white;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+    .level-button:hover { background: rgba(255,255,255,0.35); }
+
+    /* ===== MODALES (base compartida) =====
+       El backdrop ahora SCROLLEA: en móvil los formularios largos
+       (Añadir / Editar nivel) ya no quedan recortados sin poder
+       acceder a los campos de arriba. */
+    .modal {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.82);
+      display: none;
+      justify-content: center;
+      align-items: flex-start;     /* arranca desde arriba para que se pueda scrollear */
+      z-index: 10000;
+      overflow-y: auto;            /* scroll vertical en el backdrop */
+      -webkit-overflow-scrolling: touch;
+      padding: 24px 12px;          /* aire arriba/abajo + márgenes laterales */
+    }
+    .modal.open { display: flex; }
+    .modal-content {
+      background: rgba(18,18,18,0.97);
+      padding: 32px;
+      border-radius: 20px;
+      width: 90%; max-width: 440px;
+      text-align: center;
+      color: white;
+      border: 1px solid rgba(255,255,255,0.1);
+      margin: auto;                /* centrado vertical cuando cabe en pantalla */
+    }
+    @media (max-width: 600px) {
+      .modal { padding: 14px 10px; }
+      .modal-content { padding: 22px 18px; }
+    }
+    .modal-content h2 { margin-bottom: 18px; font-size: 1.3rem; }
+    .modal-content input {
+      display: block;
+      width: 100%;
+      margin: 7px 0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.07);
+      color: white;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.92rem;
+    }
+    .modal-content input::placeholder { color: rgba(255,255,255,0.35); }
+    .modal-checkbox-row {
+      display: flex; align-items: center; gap: 10px;
+      margin: 12px 0 4px;
+      color: #fff; font-size: 0.9rem; font-weight: 500;
+      cursor: pointer; user-select: none;
+    }
+    .modal-checkbox-row input {
+      width: 18px; height: 18px; margin: 0;
+      accent-color: #c7ff3b; cursor: pointer; flex-shrink: 0;
+    }
+    .modal-content select {
+      display: block;
+      width: 100%;
+      margin: 7px 0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.07);
+      color: white;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.92rem;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23ffffff88' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+    .modal-content select option {
+      background: #141414;
+      color: white;
+    }
+    .modal-content textarea {
+      display: block;
+      width: 100%;
+      margin: 7px 0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.07);
+      color: white;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.92rem;
+      resize: vertical;
+      min-height: 70px;
+    }
+    .modal-content textarea::placeholder { color: rgba(255,255,255,0.35); }
+
+    /* ===== Tag editor (modales) ===== */
+    .tag-picker { margin: 12px 0 4px; text-align: left; }
+    .tag-picker-label {
+      color: #c7ff3b;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+    .tag-input-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .tag-input-row input {
+      flex: 1;
+      margin: 0;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.07);
+      color: #fff;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    .tag-input-row input:focus { border-color: rgba(124,252,0,0.6); }
+    .btn-add-tag {
+      padding: 9px 16px;
+      border-radius: 8px;
+      border: none;
+      background: linear-gradient(135deg, #1a4d1a 0%, #5aad00 100%);
+      color: #fff;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: filter 0.2s, transform 0.15s;
+    }
+    .btn-add-tag:hover { filter: brightness(1.15); transform: scale(1.04); }
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-height: 4px;
+    }
+    .tag-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px 5px 12px;
+      border-radius: 8px;
+      border: none;
+      color: #ffffff;
+      background: linear-gradient(135deg, #1a4d1a 0%, #5aad00 55%, #c7ff3b 100%);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.18);
+    }
+    .tag-pill .tag-remove {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0,0,0,0.35);
+      color: #fff;
+      font-size: 0.85rem;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0;
+      transition: background 0.18s;
+    }
+    .tag-pill .tag-remove:hover { background: rgba(0,0,0,0.65); }
+    .modal-btns { display: flex; gap: 10px; margin-top: 18px; }
+    .modal-btns button {
+      flex: 1; padding: 10px;
+      border-radius: 10px; border: none;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.95rem; font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-save   { background: rgba(0,180,255,0.4); color: white; }
+    .btn-save:hover { background: rgba(0,180,255,0.75); }
+    .btn-update { background: rgba(124,252,0,0.35); color: white; }
+    .btn-update:hover { background: rgba(124,252,0,0.65); }
+    .btn-cancel { background: rgba(255,255,255,0.1); color: white; }
+    .btn-cancel:hover { background: rgba(255,255,255,0.22); }
+
+    /* ===== BOTÓN OCUPADO ===== */
+    .btn-busy {
+      opacity: 0.45;
+      cursor: not-allowed !important;
+      pointer-events: none;
+      filter: grayscale(0.4);
+    }
+
+    /* ===== CONFIRM MODAL ===== */
+    #confirmModal .modal-content { max-width: 360px; }
+    #confirmModal p { color: rgba(255,255,255,0.7); margin-bottom: 8px; font-size: 0.95rem; }
+    #confirmModal strong { color: white; }
+    .btn-danger { background: rgba(255,60,60,0.45); color: white; }
+    .btn-danger:hover { background: rgba(255,60,60,0.8); }
+
+    /* ===== NIVEL DETAIL PANEL ===== */
+    #detailPanel {
+      display: none;
+      position: fixed; inset: 0;
+      justify-content: center;
+      align-items: center;
+      z-index: 9000;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(6px);
+      padding: 24px;
+    }
+    #detailPanel.open { display: flex; }
+    #detailBox {
+      width: 100%; max-width: 800px;
+      min-height: 420px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 24px;
+      background: transparent;
+      position: relative;
+    }
+    #detailClose {
+      position: absolute;
+      top: 14px; right: 18px;
+      background: none; border: none;
+      color: rgba(255,255,255,0.6);
+      font-size: 1.5rem;
+      cursor: pointer; line-height: 1;
+      transition: color 0.2s;
+    }
+    #detailClose:hover { color: white; }
+
+    /* ===== LOADING ===== */
+    #loadingMsg {
+      text-align: center;
+      color: rgba(255,255,255,0.5);
+      padding: 40px; font-size: 1rem;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .menu-toggle { display: flex; }
+      .nav-links {
+        display: none; flex-direction: column;
+        position: absolute; top: 60px; right: 10px;
+        background: rgba(0,0,0,0.9);
+        padding: 10px; border-radius: 10px; gap: 8px;
+      }
+      .nav-links.active { display: flex; }
+
+      .level-card {
+        flex-direction: column; text-align: center;
+        width: 90%; gap: 12px; padding: 16px;
+        align-items: center;
+      }
+      .level-thumbnail {
+        width: 100%; max-width: 320px;
+        height: auto; border-radius: 10px;
+        display: block; margin: 0 auto;
+      }
+      .level-content { flex-direction: column; align-items: center; gap: 8px; width: 100%; }
+      .level-diff { width: 40px; height: 40px; }
+      .level-info { width: 100%; text-align: center; }
+      .level-title { font-size: 1rem; }
+      .level-author { font-size: 0.85rem; }
+      .level-button { display: inline-block; margin-top: 8px; }
+      #searchBar { width: 90%; font-size: 0.9rem; }
+      .card-admin { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="top-header">
+    <div class="left">
+      <img src="https://iili.io/BN3Yhpp.png" class="logo-img" alt="Logo">
+      <div class="logo-text">BFT Demon List</div>
+    </div>
+    <div style="display:flex; align-items:center; gap:14px;">
+      <nav class="nav-links" id="navLinks">
+        <a href="/">Home</a>
+        <a href="/demonlist.html">Demon List</a>
+        <a href="/leaderboards.html">Leaderboards</a>
+        <a href="/notifications.html">✉ Notificaciones</a>
+        <a href="/submit.html">Enviar Record</a>
+        <a href="/guidelines.html">Guidelines</a>
+        <a href="/panel.html" class="staff-only">Panel de Records</a>
+      </nav>
+      <div class="auth-slot" id="authSlot"></div>
+      <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+    </div>
+  </header>
+
+  <!-- LISTA -->
+  <div id="listView">
+    <div id="searchContainer">
+      <input type="text" id="searchBar" placeholder="🔍 Buscar nivel...">
+    </div>
+    <button id="openFormBtn" class="add-btn">+ Añadir nivel</button>
+    <div id="loadingMsg">Cargando niveles...</div>
+    <div class="level-container" id="levelContainer"></div>
+  </div>
+
+  <!-- PANEL DETALLE -->
+  <div id="detailPanel">
+    <div id="detailBox">
+      <button id="detailClose" onclick="cerrarDetalle()">✕</button>
+    </div>
+  </div>
+
+  <!-- MODAL: AÑADIR NIVEL -->
+  <div id="formModal" class="modal">
+    <div class="modal-content">
+      <h2>Añadir nivel</h2>
+      <input id="inp-name"       placeholder="Nombre del nivel">
+      <input id="inp-author"     placeholder="Publisher">
+      <input id="inp-creators"   placeholder="Creadores (separados por coma)">
+      <input id="inp-gdLevelId"  placeholder="ID de Geometry Dash (único, evita reclamos duplicados)" inputmode="numeric" maxlength="20">
+      <input id="inp-position"   placeholder="Posición (1 = top)" type="number" min="1">
+      <div id="inp-points-preview" style="font-size:.85rem;color:#9bdc4d;margin:-6px 0 8px 4px;">
+        Puntos automáticos: —
+      </div>
+      <input id="inp-thumbnail"  placeholder="URL Thumbnail">
+      <input id="inp-background" placeholder="URL Fondo de la card">
+      <input id="inp-video"      placeholder="URL Video">
+      <select id="inp-difficulty">
+        <option value="Extreme Demon">Extreme Demon</option>
+        <option value="Insane Demon">Insane Demon</option>
+        <option value="Hard Demon">Hard Demon</option>
+        <option value="Medium Demon">Medium Demon</option>
+        <option value="Easy Demon">Easy Demon</option>
+      </select>
+      <input id="inp-min-percent" type="number" min="1" max="100" placeholder="% mínimo requerido (1–100, default 100)">
+      <select id="inp-glow">
+        <option value="">Sin glow</option>
+        <optgroup label="— Originales —">
+          <option value="glow-celeste">Celeste</option>
+          <option value="glow-rojo">Rojo</option>
+          <option value="glow-verde">Verde</option>
+          <option value="glow-rojo-naranja">Rojo Naranja</option>
+        </optgroup>
+        <optgroup label="— 30 colores nuevos —">
+          <option value="glow-azul">Azul</option>
+          <option value="glow-naranja">Naranja</option>
+          <option value="glow-amarillo">Amarillo</option>
+          <option value="glow-rosa">Rosa</option>
+          <option value="glow-morado">Morado</option>
+          <option value="glow-magenta">Magenta</option>
+          <option value="glow-turquesa">Turquesa</option>
+          <option value="glow-dorado">Dorado</option>
+          <option value="glow-plateado">Plateado</option>
+          <option value="glow-blanco">Blanco</option>
+          <option value="glow-indigo">Índigo</option>
+          <option value="glow-coral">Coral</option>
+          <option value="glow-lima">Lima</option>
+          <option value="glow-menta">Menta</option>
+          <option value="glow-lavanda">Lavanda</option>
+          <option value="glow-salmon">Salmón</option>
+          <option value="glow-aguamarina">Aguamarina</option>
+          <option value="glow-violeta">Violeta</option>
+          <option value="glow-carmesi">Carmesí</option>
+          <option value="glow-cian">Cian</option>
+          <option value="glow-esmeralda">Esmeralda</option>
+          <option value="glow-rubi">Rubí</option>
+          <option value="glow-zafiro">Zafiro</option>
+          <option value="glow-bronce">Bronce</option>
+          <option value="glow-ambar">Ámbar</option>
+          <option value="glow-fucsia">Fucsia</option>
+          <option value="glow-marino">Azul Marino</option>
+          <option value="glow-electrico">Azul Eléctrico</option>
+          <option value="glow-neon-verde">Verde Neón</option>
+          <option value="glow-neon-naranja">Naranja Neón</option>
+          <option value="glow-arcoiris">🌈 Arcoíris (animado)</option>
+        </optgroup>
+      </select>
+      <label class="modal-checkbox-row">
+        <input type="checkbox" id="inp-is2P">
+        <span>Es nivel <b style="color:#c7ff3b">2 Players (Dual)</b></span>
+      </label>
+
+      <textarea id="inp-description" rows="3"
+                placeholder="Descripción del nivel (opcional)"></textarea>
+
+      <div class="tag-picker">
+        <div class="tag-picker-label">Etiquetas</div>
+        <div class="tag-input-row">
+          <input type="text" id="inp-tag-input" placeholder="Escribe un tag y pulsa Añadir" maxlength="40">
+          <button type="button" class="btn-add-tag" onclick="addTag('inp')">+ Añadir</button>
+        </div>
+        <div class="tag-list" id="inp-tag-list"></div>
+      </div>
+
+      <div class="modal-btns">
+        <button class="btn-save"   onclick="agregarNivel()">Guardar</button>
+        <button class="btn-cancel" onclick="cerrarModal('formModal')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: EDITAR NIVEL -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <h2>Editar nivel</h2>
+      <input type="hidden" id="edit-id">
+      <input id="edit-name"       placeholder="Nombre del nivel">
+      <input id="edit-author"     placeholder="Publisher">
+      <input id="edit-creators"   placeholder="Creadores (separados por coma)">
+      <input id="edit-gdLevelId"  placeholder="ID de Geometry Dash (único, evita reclamos duplicados)" inputmode="numeric" maxlength="20">
+      <input id="edit-position"   placeholder="Posición (1 = top)" type="number" min="1">
+      <div id="edit-points-preview" style="font-size:.85rem;color:#9bdc4d;margin:-6px 0 8px 4px;">
+        Puntos automáticos: —
+      </div>
+      <input id="edit-thumbnail"  placeholder="URL Thumbnail">
+      <input id="edit-background" placeholder="URL Fondo de la card">
+      <input id="edit-video"      placeholder="URL Video">
+      <select id="edit-difficulty">
+        <option value="Extreme Demon">Extreme Demon</option>
+        <option value="Insane Demon">Insane Demon</option>
+        <option value="Hard Demon">Hard Demon</option>
+        <option value="Medium Demon">Medium Demon</option>
+        <option value="Easy Demon">Easy Demon</option>
+      </select>
+      <input id="edit-min-percent" type="number" min="1" max="100" placeholder="% mínimo requerido (1–100, default 100)">
+      <select id="edit-glow">
+        <option value="">Sin glow</option>
+        <optgroup label="— Originales —">
+          <option value="glow-celeste">Celeste</option>
+          <option value="glow-rojo">Rojo</option>
+          <option value="glow-verde">Verde</option>
+          <option value="glow-rojo-naranja">Rojo Naranja</option>
+        </optgroup>
+        <optgroup label="— 30 colores nuevos —">
+          <option value="glow-azul">Azul</option>
+          <option value="glow-naranja">Naranja</option>
+          <option value="glow-amarillo">Amarillo</option>
+          <option value="glow-rosa">Rosa</option>
+          <option value="glow-morado">Morado</option>
+          <option value="glow-magenta">Magenta</option>
+          <option value="glow-turquesa">Turquesa</option>
+          <option value="glow-dorado">Dorado</option>
+          <option value="glow-plateado">Plateado</option>
+          <option value="glow-blanco">Blanco</option>
+          <option value="glow-indigo">Índigo</option>
+          <option value="glow-coral">Coral</option>
+          <option value="glow-lima">Lima</option>
+          <option value="glow-menta">Menta</option>
+          <option value="glow-lavanda">Lavanda</option>
+          <option value="glow-salmon">Salmón</option>
+          <option value="glow-aguamarina">Aguamarina</option>
+          <option value="glow-violeta">Violeta</option>
+          <option value="glow-carmesi">Carmesí</option>
+          <option value="glow-cian">Cian</option>
+          <option value="glow-esmeralda">Esmeralda</option>
+          <option value="glow-rubi">Rubí</option>
+          <option value="glow-zafiro">Zafiro</option>
+          <option value="glow-bronce">Bronce</option>
+          <option value="glow-ambar">Ámbar</option>
+          <option value="glow-fucsia">Fucsia</option>
+          <option value="glow-marino">Azul Marino</option>
+          <option value="glow-electrico">Azul Eléctrico</option>
+          <option value="glow-neon-verde">Verde Neón</option>
+          <option value="glow-neon-naranja">Naranja Neón</option>
+          <option value="glow-arcoiris">🌈 Arcoíris (animado)</option>
+        </optgroup>
+      </select>
+      <label class="modal-checkbox-row">
+        <input type="checkbox" id="edit-is2P">
+        <span>Es nivel <b style="color:#c7ff3b">2 Players (Dual)</b></span>
+      </label>
+
+      <textarea id="edit-description" rows="3"
+                placeholder="Descripción del nivel (opcional)"></textarea>
+
+      <div class="tag-picker">
+        <div class="tag-picker-label">Etiquetas</div>
+        <div class="tag-input-row">
+          <input type="text" id="edit-tag-input" placeholder="Escribe un tag y pulsa Añadir" maxlength="40">
+          <button type="button" class="btn-add-tag" onclick="addTag('edit')">+ Añadir</button>
+        </div>
+        <div class="tag-list" id="edit-tag-list"></div>
+      </div>
+
+      <div class="modal-btns">
+        <button class="btn-update" onclick="guardarEdicion()">Guardar cambios</button>
+        <button class="btn-cancel" onclick="cerrarModal('editModal')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIRMAR ELIMINAR -->
+  <div id="confirmModal" class="modal">
+    <div class="modal-content">
+      <h2>Eliminar nivel</h2>
+      <p>¿Estás seguro de que quieres eliminar <strong id="confirm-name"></strong>?</p>
+      <p>Esta acción no se puede deshacer.</p>
+      <input type="hidden" id="confirm-id">
+      <div class="modal-btns">
+        <button class="btn-danger"  onclick="confirmarEliminar()">Sí, eliminar</button>
+        <button class="btn-cancel"  onclick="cerrarModal('confirmModal')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTH -->
+  <script type="module">
+    import { mountAuthUI, onAuthChange, isAdmin, isOwner } from "/auth.js";
+    mountAuthUI("authSlot");
+    onAuthChange(() => {
+      document.body.classList.toggle("is-admin", isAdmin());
+      document.body.classList.toggle("is-owner", isOwner());
+    });
+  </script>
+
+  <!-- FIREBASE -->
+  <script type="module">
+    import { db } from "/auth.js";
+    import { computePoints } from "/points.js";
+    import { difficultyImage } from "/difficulty.js";
+    import {
+      collection, getDocs, addDoc, deleteDoc, doc, updateDoc,
+      writeBatch, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    /* Cache local de la lista ordenada (lo último cargado de Firestore) */
+    let nivelesActuales = [];
+
+    /* ========== HELPERS DE REORGANIZACIÓN ========== */
+
+    /* Devuelve los niveles actuales ordenados por position (los sin position
+       quedan al final, ordenados por value descendente como respaldo).      */
+    function ordenarNiveles(arr) {
+      return [...arr].sort((a, b) => {
+        const pa = Number(a.position) || Infinity;
+        const pb = Number(b.position) || Infinity;
+        if (pa !== pb) return pa - pb;
+        return Number(b.value || 0) - Number(a.value || 0);
+      });
+    }
+
+    /* Construye texto-razón "Moved above X and below Y" a partir
+       de la lista ya reordenada (newOrder) y la newPosition (1-index). */
+    function buildReason(newOrder, newPosition, levelName) {
+      const idx = newPosition - 1;
+      const above = newOrder[idx - 1];   /* el que quedará arriba (mejor pos) */
+      const below = newOrder[idx + 1];   /* el que quedará abajo  (peor  pos) */
+      if (above && below)  return `Moved above "${below.name}" and below "${above.name}"`;
+      if (!above && below) return `Moved to #1, above "${below.name}"`;
+      if (above && !below) return `Moved to last, below "${above.name}"`;
+      return "First level on the list";
+    }
+
+    /* writeBatch tiene límite de 500 ops; chunkeamos en lotes seguros. */
+    async function commitInChunks(updates) {
+      const CHUNK = 450;
+      for (let i = 0; i < updates.length; i += CHUNK) {
+        const batch = writeBatch(db);
+        updates.slice(i, i + CHUNK).forEach(({ ref, data }) => batch.update(ref, data));
+        await batch.commit();
+      }
+    }
+
+    /* Recalcula position+value para todos los niveles del arr (1..N) y
+       devuelve sólo los que cambiaron respecto al estado original. */
+    function diffReorder(originalById, finalOrder) {
+      const updates = [];
+      finalOrder.forEach((lvl, i) => {
+        const newPos    = i + 1;
+        const newValue  = computePoints(newPos);
+        const original  = originalById.get(lvl.id) || {};
+        if (Number(original.position) !== newPos || Number(original.value) !== newValue) {
+          updates.push({
+            id:   lvl.id,
+            ref:  doc(db, "levels", lvl.id),
+            data: { position: newPos, value: newValue },
+            oldPosition: Number(original.position) || null,
+            newPosition: newPos
+          });
+        }
+      });
+      return updates;
+    }
+
+    /* ========== CARGAR NIVELES ========== */
+    async function cargarNiveles() {
+      const container  = document.getElementById("levelContainer");
+      const loadingMsg = document.getElementById("loadingMsg");
+
+      try {
+        const snapshot = await getDocs(collection(db, "levels"));
+        let niveles = [];
+        snapshot.forEach(docSnap => niveles.push({ id: docSnap.id, ...docSnap.data() }));
+        niveles = ordenarNiveles(niveles);
+        nivelesActuales = niveles;
+
+        loadingMsg.style.display = "none";
+        container.innerHTML = "";
+
+        if (niveles.length === 0) {
+          loadingMsg.textContent = "No hay niveles aún. ¡Añade el primero!";
+          loadingMsg.style.display = "block";
+          return;
+        }
+
+        niveles.forEach((nivel, index) => {
+          const pos  = Number(nivel.position) || (index + 1);
+          const card = document.createElement("div");
+          card.className = "level-card " + (nivel.glow || "");
+          card.style.backgroundImage = nivel.background ? `url('${nivel.background}')` : "";
+
+          card.innerHTML = `
+            <div class="card-admin">
+              <button class="btn-edit"   data-id="${nivel.id}">Editar</button>
+              <button class="btn-delete" data-id="${nivel.id}" data-name="${nivel.name}">Eliminar</button>
+            </div>
+
+            <a href="${nivel.video || '#'}" target="_blank" style="z-index:2;position:relative;">
+              <img class="level-thumbnail" src="${nivel.thumbnail || ''}" alt="${nivel.name}">
+            </a>
+
+            <div class="level-content">
+              <img class="level-diff" src="${difficultyImage(nivel.difficulty)}" alt="${nivel.difficulty || 'Extreme Demon'}">
+              <div class="level-info">
+                <div class="level-title">#${pos} - ${nivel.name}</div>
+                <div class="level-author">By ${nivel.author} · ${nivel.value || computePoints(pos)} pts</div>
+                <a href="level.html?id=${nivel.id}" class="level-button">Ver nivel</a>
+              </div>
+            </div>
+          `;
+
+          /* Ver nivel */
+          card.querySelector(".level-button").addEventListener("click", (e) => {
+            e.preventDefault(); e.stopPropagation();
+            window.location.href = `/level.html?id=${nivel.id}`;
+          });
+
+          /* Editar */
+          card.querySelector(".btn-edit").addEventListener("click", (e) => {
+            e.stopPropagation();
+            abrirEdicion(nivel);
+          });
+
+          /* Eliminar */
+          card.querySelector(".btn-delete").addEventListener("click", (e) => {
+            e.stopPropagation();
+            abrirConfirmar(nivel.id, nivel.name);
+          });
+
+          container.appendChild(card);
+        });
+
+        aplicarBuscador();
+      } catch (err) {
+        loadingMsg.textContent = "Error al cargar: " + err.message;
+        loadingMsg.style.display = "block";
+        console.error(err);
+      }
+    }
+
+    /* ---- utilidad: poner botón en modo ocupado / libre ---- */
+    function setBusy(btn, busy, labelNormal) {
+      if (busy) {
+        btn.dataset.label = btn.textContent;
+        btn.textContent   = "Guardando...";
+        btn.classList.add("btn-busy");
+      } else {
+        btn.textContent = labelNormal || btn.dataset.label || btn.textContent;
+        btn.classList.remove("btn-busy");
+      }
+    }
+
+    /* ========== HISTORIAL ========== */
+    async function logHistory(entries) {
+      /* entries = [{ levelId, oldPosition, newPosition, change, reason }] */
+      await Promise.all(entries.map(e =>
+        addDoc(collection(db, "positionHistory"), {
+          ...e,
+          createdAt: serverTimestamp()
+        })
+      ));
+    }
+
+    /* Preview de puntos en vivo cuando se escribe la posición */
+    function bindPointsPreview(inpId, previewId) {
+      const inp = document.getElementById(inpId);
+      const out = document.getElementById(previewId);
+      const upd = () => {
+        const p = Number(inp.value);
+        out.textContent = p > 0
+          ? `Puntos automáticos: ${computePoints(p)} (posición #${p})`
+          : "Puntos automáticos: —";
+      };
+      inp.addEventListener("input", upd);
+      inp.addEventListener("focus", upd);
+      return upd;
+    }
+    bindPointsPreview("inp-position",  "inp-points-preview");
+    bindPointsPreview("edit-position", "edit-points-preview");
+
+    /* ========== AÑADIR ========== */
+    window.agregarNivel = async function () {
+      const btn = document.querySelector("#formModal .btn-save");
+      if (btn.classList.contains("btn-busy")) return;
+
+      const name       = document.getElementById("inp-name").value.trim();
+      const author     = document.getElementById("inp-author").value.trim();
+      const creators   = document.getElementById("inp-creators").value
+                            .split(",").map(s => s.trim()).filter(Boolean);
+      /* ID de Geometry Dash (numérico, único). Sirve para evitar
+         que los usuarios reclamen este nivel como "Nuevo" en submit. */
+      const gdLevelId  = document.getElementById("inp-gdLevelId").value.trim();
+      const reqPos     = Math.max(1, Math.floor(Number(document.getElementById("inp-position").value) || 0));
+      const thumbnail  = document.getElementById("inp-thumbnail").value.trim();
+      const background = document.getElementById("inp-background").value.trim();
+      const video      = document.getElementById("inp-video").value.trim();
+      const glow       = document.getElementById("inp-glow").value.trim();
+      const is2P       = document.getElementById("inp-is2P").checked;
+      const description = document.getElementById("inp-description").value.trim();
+      const difficulty = document.getElementById("inp-difficulty").value || "Extreme Demon";
+      const minPercentRaw = parseInt(document.getElementById("inp-min-percent").value, 10);
+      const minPercent = Number.isFinite(minPercentRaw)
+        ? Math.min(100, Math.max(1, minPercentRaw))
+        : 100;
+      const tags = getTags("inp");
+
+      if (!name || !author) { alert("Nombre y host son obligatorios."); return; }
+      if (!reqPos)           { alert("Debes indicar una posición (≥ 1)."); return; }
+
+      setBusy(btn, true);
+      try {
+        /* 1. Insertar el nuevo nivel temporal en memoria, en la posición pedida */
+        const originalById = new Map(nivelesActuales.map(l => [l.id, { position: l.position, value: l.value }]));
+        const ordered      = ordenarNiveles(nivelesActuales);
+        const insertAt     = Math.min(reqPos, ordered.length + 1);
+        const placeholder  = { id: "__NEW__", name, author };
+        ordered.splice(insertAt - 1, 0, placeholder);
+
+        /* 2. Crear el doc en Firestore con la posición y value calculados */
+        const newPos   = insertAt;
+        const newValue = computePoints(newPos);
+        const _addPayload = {
+          name, author, creators, position: newPos, value: newValue,
+          thumbnail, background, video, glow, is2P,
+          description, difficulty, minPercent, tags
+        };
+        if (gdLevelId) _addPayload.gdLevelId = String(gdLevelId);
+        const newRef   = await addDoc(collection(db, "levels"), _addPayload);
+        placeholder.id = newRef.id;
+
+        /* 3. Reordenar y persistir cambios de los demás (shift down) */
+        const updates = diffReorder(originalById, ordered).filter(u => u.id !== newRef.id);
+        await commitInChunks(updates);
+
+        /* 4. Historial: entrada NEW + entradas para los desplazados */
+        const reason = buildReason(ordered, newPos, name);
+        const history = [{
+          levelId: newRef.id, oldPosition: null, newPosition: newPos,
+          change: "NEW", reason
+        }];
+        updates.forEach(u => {
+          history.push({
+            levelId: u.id,
+            oldPosition: u.oldPosition,
+            newPosition: u.newPosition,
+            change: (u.oldPosition || 0) - u.newPosition,   /* positivo = subió */
+            reason: `Auto-shifted by new entry "${name}" at #${newPos}`
+          });
+        });
+        await logHistory(history);
+
+        cerrarModal("formModal");
+        cargarNiveles();
+      } catch (err) {
+        alert("Error al guardar: " + err.message);
+        console.error(err);
+      } finally {
+        setBusy(btn, false, "Guardar");
+      }
+    };
+
+    /* ========== ABRIR EDICIÓN ========== */
+    window.abrirEdicion = function(nivel) {
+      document.getElementById("edit-id").value         = nivel.id;
+      document.getElementById("edit-name").value       = nivel.name       || "";
+      document.getElementById("edit-author").value     = nivel.author     || "";
+      document.getElementById("edit-creators").value   = Array.isArray(nivel.creators)
+                                                          ? nivel.creators.join(", ")
+                                                          : (nivel.creators || "");
+      document.getElementById("edit-gdLevelId").value  = nivel.gdLevelId  || "";
+      document.getElementById("edit-position").value   = nivel.position   || "";
+      document.getElementById("edit-thumbnail").value  = nivel.thumbnail  || "";
+      document.getElementById("edit-background").value = nivel.background || "";
+      document.getElementById("edit-video").value      = nivel.video      || "";
+      document.getElementById("edit-glow").value       = nivel.glow       || "";
+      document.getElementById("edit-difficulty").value = nivel.difficulty || "Extreme Demon";
+      document.getElementById("edit-min-percent").value = Number.isFinite(Number(nivel.minPercent))
+        ? Number(nivel.minPercent) : "";
+      document.getElementById("edit-is2P").checked     = !!nivel.is2P;
+      document.getElementById("edit-description").value = nivel.description || "";
+
+      /* Cargar las etiquetas existentes en el editor */
+      const existingTags = Array.isArray(nivel.tags)
+        ? nivel.tags.map(String)
+        : (typeof nivel.tags === "string"
+            ? nivel.tags.split(",").map(s => s.trim()).filter(Boolean)
+            : []);
+      setTags("edit", existingTags);
+      document.getElementById("edit-points-preview").textContent =
+        nivel.position
+          ? `Puntos automáticos: ${computePoints(nivel.position)} (posición #${nivel.position})`
+          : "Puntos automáticos: —";
+      document.getElementById("editModal").classList.add("open");
+    };
+
+    /* ========== GUARDAR EDICIÓN ========== */
+    window.guardarEdicion = async function () {
+      const btn = document.querySelector("#editModal .btn-update");
+      if (btn.classList.contains("btn-busy")) return;
+
+      const id         = document.getElementById("edit-id").value;
+      const name       = document.getElementById("edit-name").value.trim();
+      const author     = document.getElementById("edit-author").value.trim();
+      const creators   = document.getElementById("edit-creators").value
+                            .split(",").map(s => s.trim()).filter(Boolean);
+      const gdLevelId  = document.getElementById("edit-gdLevelId").value.trim();
+      const reqPos     = Math.max(1, Math.floor(Number(document.getElementById("edit-position").value) || 0));
+      const thumbnail  = document.getElementById("edit-thumbnail").value.trim();
+      const background = document.getElementById("edit-background").value.trim();
+      const video      = document.getElementById("edit-video").value.trim();
+      const glow       = document.getElementById("edit-glow").value.trim();
+      const is2P       = document.getElementById("edit-is2P").checked;
+      const description = document.getElementById("edit-description").value.trim();
+      const difficulty = document.getElementById("edit-difficulty").value || "Extreme Demon";
+      const minPercentRaw = parseInt(document.getElementById("edit-min-percent").value, 10);
+      const minPercent = Number.isFinite(minPercentRaw)
+        ? Math.min(100, Math.max(1, minPercentRaw))
+        : 100;
+      const tags = getTags("edit");
+
+      if (!name || !author) { alert("Nombre y host son obligatorios."); return; }
+      if (!reqPos)           { alert("Debes indicar una posición (≥ 1)."); return; }
+
+      setBusy(btn, true);
+      try {
+        const original = nivelesActuales.find(l => l.id === id);
+        const oldPos   = Number(original && original.position) || null;
+        const positionChanged = oldPos !== reqPos;
+
+        /* 1. Si SÓLO cambian campos no-posicionales: update simple, sin historial */
+        if (!positionChanged) {
+          const _editPayload = {
+            name, author, creators, thumbnail, background, video, glow, is2P,
+            description, difficulty, minPercent, tags,
+            gdLevelId: gdLevelId ? String(gdLevelId) : ""
+          };
+          await updateDoc(doc(db, "levels", id), _editPayload);
+          cerrarModal("editModal");
+          cargarNiveles();
+          return;
+        }
+
+        /* 2. Cambia posición → reorganizar todos */
+        const originalById = new Map(nivelesActuales.map(l => [l.id, { position: l.position, value: l.value }]));
+        const ordered      = ordenarNiveles(nivelesActuales).filter(l => l.id !== id);
+        const insertAt     = Math.min(reqPos, ordered.length + 1);
+        const movingLevel  = { ...original, name, author };
+        ordered.splice(insertAt - 1, 0, movingLevel);
+
+        /* Persistir el doc movido con todos sus campos editados + nueva pos/value */
+        const newValue = computePoints(insertAt);
+        await updateDoc(doc(db, "levels", id), {
+          name, author, creators, thumbnail, background, video, glow, is2P,
+          description, difficulty, minPercent, tags,
+          gdLevelId: gdLevelId ? String(gdLevelId) : "",
+          position: insertAt, value: newValue
+        });
+
+        /* Persistir todos los demás que se desplazaron */
+        const updates = diffReorder(originalById, ordered).filter(u => u.id !== id);
+        await commitInChunks(updates);
+
+        /* Historial: entrada principal + auto-shift de vecinos */
+        const reason = buildReason(ordered, insertAt, name);
+        const history = [{
+          levelId: id, oldPosition: oldPos, newPosition: insertAt,
+          change: (oldPos || 0) - insertAt, reason
+        }];
+        updates.forEach(u => {
+          history.push({
+            levelId: u.id,
+            oldPosition: u.oldPosition,
+            newPosition: u.newPosition,
+            change: (u.oldPosition || 0) - u.newPosition,
+            reason: `Auto-shifted by move of "${name}" to #${insertAt}`
+          });
+        });
+        await logHistory(history);
+
+        /* Aviso al webhook de Discord — vecinos en el orden ya reordenado.
+             "por encima de" = top con número MAYOR (más fácil),
+             "por debajo de" = top con número MENOR (más difícil). */
+        try {
+          const idxNow = ordered.findIndex(l => l.id === id);
+          const harderNeighbor = idxNow > 0 ? ordered[idxNow - 1] : null;            // top insertAt-1
+          const easierNeighbor = idxNow >= 0 && idxNow < ordered.length - 1
+                               ? ordered[idxNow + 1] : null;                         // top insertAt+1
+          const isFirst = insertAt === 1;
+          const isLast  = !easierNeighbor;
+          let msg;
+          if (isFirst) {
+            msg = `**${name}** ha sido movido al Top **#1**, siendo el nuevo Hardest del Servidor.`;
+          } else if (isLast) {
+            msg = `**${name}** ha sido movido a la última posición (Top **#${insertAt}**) por debajo de **${harderNeighbor.name}** (#${insertAt - 1}).`;
+          } else {
+            const easierTxt = `**${easierNeighbor.name}** (#${insertAt + 1})`;
+            const harderTxt = `**${harderNeighbor.name}** (#${insertAt - 1})`;
+            msg = `**${name}** ha sido movido al top **#${insertAt}** por encima de ${easierTxt} y por debajo de ${harderTxt}.`;
+          }
+          const { notifyDiscord } = await import("/discord-notify.js");
+          await notifyDiscord(msg);
+        } catch (e) { console.warn("[demonlist] discord notify fail:", e); }
+
+        cerrarModal("editModal");
+        cargarNiveles();
+      } catch (err) {
+        alert("Error al actualizar: " + err.message);
+        console.error(err);
+      } finally {
+        setBusy(btn, false, "Guardar cambios");
+      }
+    };
+
+    /* ========== ABRIR CONFIRMAR ELIMINAR ========== */
+    window.abrirConfirmar = function(id, name) {
+      document.getElementById("confirm-id").value    = id;
+      document.getElementById("confirm-name").textContent = name;
+      document.getElementById("confirmModal").classList.add("open");
+    };
+
+    /* ========== CONFIRMAR ELIMINAR ========== */
+    window.confirmarEliminar = async function () {
+      const btn = document.querySelector("#confirmModal .btn-danger");
+      if (btn.classList.contains("btn-busy")) return;
+
+      const id = document.getElementById("confirm-id").value;
+
+      setBusy(btn, true);
+      try {
+        const removed     = nivelesActuales.find(l => l.id === id);
+        const removedPos  = Number(removed && removed.position) || null;
+        const removedName = (removed && removed.name) || "?";
+
+        /* Contar records de este nivel ANTES de borrar (para el aviso de Discord) */
+        let recordsCount = 0;
+        try {
+          const { collection: col, query: q, where: w, getDocs: gd } =
+            await import("https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js");
+          const recsSnap = await gd(q(col(db, "records"), w("levelId", "==", id)));
+          recordsCount = recsSnap.size;
+        } catch (e) { console.warn("[demonlist] no se pudo contar records:", e); }
+
+        /* 1. Eliminar el doc */
+        await deleteDoc(doc(db, "levels", id));
+
+        /* 2. Reordenar el resto y persistir */
+        const originalById = new Map(nivelesActuales.filter(l => l.id !== id)
+          .map(l => [l.id, { position: l.position, value: l.value }]));
+        const ordered      = ordenarNiveles(nivelesActuales).filter(l => l.id !== id);
+        const updates      = diffReorder(originalById, ordered);
+        await commitInChunks(updates);
+
+        /* 3. Historial: entrada REMOVED + auto-shifts */
+        const history = [{
+          levelId: id, oldPosition: removedPos, newPosition: null,
+          change: "REMOVED",
+          reason: `Level "${removedName}" removed from the list`
+        }];
+        updates.forEach(u => {
+          history.push({
+            levelId: u.id,
+            oldPosition: u.oldPosition,
+            newPosition: u.newPosition,
+            change: (u.oldPosition || 0) - u.newPosition,
+            reason: `Auto-shifted by removal of "${removedName}"`
+          });
+        });
+        await logHistory(history);
+
+        /* Aviso al webhook de Discord */
+        try {
+          const { notifyDiscord } = await import("/discord-notify.js");
+          await notifyDiscord(
+            `**${removedName}** ha sido eliminado de la Lista con un total de **${recordsCount}** record${recordsCount === 1 ? "" : "s"}.`
+          );
+        } catch (e) { console.warn("[demonlist] discord notify fail:", e); }
+
+        cerrarModal("confirmModal");
+        cargarNiveles();
+      } catch (err) {
+        alert("Error al eliminar: " + err.message);
+        console.error(err);
+      } finally {
+        setBusy(btn, false, "Sí, eliminar");
+      }
+    };
+
+    /* ========== DETALLE ========== */
+    window.abrirDetalle = function(id) {
+      document.getElementById("listView").style.display = "none";
+      document.getElementById("detailPanel").classList.add("open");
+    };
+    window.cerrarDetalle = function() {
+      document.getElementById("detailPanel").classList.remove("open");
+      document.getElementById("listView").style.display = "block";
+    };
+
+    cargarNiveles();
+  </script>
+
+  <!-- SCRIPTS NO-MODULE -->
+  <script>
+    /* MODAL GENÉRICO */
+    function cerrarModal(id) {
+      document.getElementById(id).classList.remove("open");
+    }
+    window.cerrarModal = cerrarModal;
+
+    document.getElementById("openFormBtn").addEventListener("click", () => {
+      /* Reset descripción + tags al abrir */
+      const descEl = document.getElementById("inp-description");
+      if (descEl) descEl.value = "";
+      setTags("inp", []);
+      document.getElementById("formModal").classList.add("open");
+    });
+
+    /* ============== TAG EDITOR (modales Añadir/Editar) ============== */
+    /* State por scope. scope = "inp" (modal añadir) | "edit" (modal editar) */
+    const tagState = { inp: [], edit: [] };
+
+    function renderTagList(scope) {
+      const list = document.getElementById(`${scope}-tag-list`);
+      if (!list) return;
+      list.innerHTML = "";
+      tagState[scope].forEach((tag, idx) => {
+        const pill = document.createElement("span");
+        pill.className = "tag-pill";
+        pill.innerHTML =
+          `<span></span>` +
+          `<button type="button" class="tag-remove" aria-label="Quitar tag">&times;</button>`;
+        pill.firstChild.textContent = tag;
+        pill.querySelector(".tag-remove").addEventListener("click", () => {
+          removeTag(scope, idx);
+        });
+        list.appendChild(pill);
+      });
+    }
+
+    function addTag(scope) {
+      const input = document.getElementById(`${scope}-tag-input`);
+      if (!input) return;
+      const raw = (input.value || "").trim();
+      if (!raw) return;
+      /* Evitar duplicados (case-insensitive) */
+      const lower = raw.toLowerCase();
+      if (tagState[scope].some(t => t.toLowerCase() === lower)) {
+        input.value = "";
+        return;
+      }
+      tagState[scope].push(raw);
+      input.value = "";
+      renderTagList(scope);
+      input.focus();
+    }
+    window.addTag = addTag;
+
+    function removeTag(scope, idx) {
+      tagState[scope].splice(idx, 1);
+      renderTagList(scope);
+    }
+    window.removeTag = removeTag;
+
+    function getTags(scope) {
+      return [...tagState[scope]];
+    }
+    window.getTags = getTags;
+
+    function setTags(scope, arr) {
+      tagState[scope] = Array.isArray(arr) ? arr.filter(Boolean).map(String) : [];
+      renderTagList(scope);
+    }
+    window.setTags = setTags;
+
+    /* Enter dentro del input añade el tag */
+    ["inp", "edit"].forEach(scope => {
+      const input = document.getElementById(`${scope}-tag-input`);
+      if (input) {
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            addTag(scope);
+          }
+        });
+      }
+    });
+
+    /* MENÚ MÓVIL */
+    function toggleMenu() {
+      document.getElementById("navLinks").classList.toggle("active");
+    }
+    window.toggleMenu = toggleMenu;
+
+    /* BUSCADOR */
+    function aplicarBuscador() {
+      const bar = document.getElementById("searchBar");
+      bar.addEventListener("input", () => {
+        const f = bar.value.toLowerCase();
+        document.querySelectorAll(".level-card").forEach(card => {
+          const t = card.querySelector(".level-title")?.textContent.toLowerCase()  || "";
+          const a = card.querySelector(".level-author")?.textContent.toLowerCase() || "";
+          card.style.display = (t.includes(f) || a.includes(f)) ? "flex" : "none";
+        });
+      });
+    }
+    window.aplicarBuscador = aplicarBuscador;
+  </script>
+
+</body>
+</html>

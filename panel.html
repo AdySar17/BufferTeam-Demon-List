@@ -1,0 +1,1538 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Panel de Records - BFT Demon List</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    min-height: 100%;
+    font-family: 'Montserrat', sans-serif;
+    color: #fff;
+    background: #050a05 url('https://iili.io/qnR6Jst.jpg') no-repeat top center fixed;
+    background-size: cover;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV — igual al resto */
+  .top-header {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 18px;
+    z-index: 9999;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .nav-left  { display: flex; align-items: center; gap: 10px; }
+  .logo-img  { width: 36px; height: 36px; }
+  .logo-text { color: white; font-weight: 700; font-size: 1.05rem; }
+  .nav-links { display: flex; gap: 18px; }
+  .nav-links a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.92rem; transition: color .2s; }
+  .nav-links a:hover { color: #c7ff3b; }
+  .menu-toggle {
+    display: none; font-size: 26px; color: white;
+    width: 38px; height: 38px; align-items: center; justify-content: center;
+    cursor: pointer; user-select: none;
+  }
+  @media (max-width: 680px) {
+    .menu-toggle { display: flex; }
+    .nav-links {
+      display: none; flex-direction: column;
+      position: absolute; top: 60px; right: 10px;
+      background: rgba(0,0,0,0.92); padding: 10px; border-radius: 10px; gap: 8px;
+    }
+    .nav-links.open { display: flex; }
+  }
+
+  .page-wrap {
+    max-width: 1100px; margin: 95px auto 60px;
+    padding: 22px 26px 30px;
+    /* Cuadro oscuro semitransparente para que el texto se lea bien
+       sobre el fondo claro del sitio (sin reemplazar ese fondo). */
+    background: rgba(0,0,0,0.55);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 18px 50px rgba(0,0,0,0.45);
+  }
+  @media (max-width: 720px) {
+    .page-wrap { margin: 80px 12px 40px; padding: 18px 16px 24px; }
+  }
+  .page-title {
+    font-size: 2rem; font-weight: 700;
+    background: linear-gradient(90deg, #4a8a1a, #c7ff3b);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    margin-bottom: 6px;
+  }
+  .page-sub { color: rgba(230,230,230,0.6); font-size: .9rem; margin-bottom: 22px; }
+
+  .card {
+    background: rgba(8,8,8,0.65);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 16px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.45);
+  }
+
+  .state-msg {
+    text-align: center; padding: 40px 20px;
+    color: rgba(230,230,230,0.65);
+    font-size: 0.95rem;
+  }
+  .state-msg.error { color: #ff9a9a; }
+
+  /* RECORD CARD */
+  .record-card { display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: start; }
+  .record-card .left { min-width: 0; }
+  .record-card .right { display: flex; flex-direction: column; gap: 8px; align-items: stretch; min-width: 175px; }
+
+  /* === RECLAMAR REVISIÓN ===
+     Botoncito pequeño en la cabecera de la columna derecha,
+     encima de Aceptar / Rechazar. Usa Montserrat como el resto
+     del panel y respeta la paleta verde-amarilla del sitio. */
+  .claim-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+    margin-bottom: 4px;
+    width: 100%;
+  }
+  .btn-claim {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: .35px;
+    text-transform: uppercase;
+    padding: 5px 11px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 215, 0, 0.55);
+    background: linear-gradient(135deg, rgba(255,215,0,0.18), rgba(255,235,59,0.28));
+    color: #ffe45a;
+    cursor: pointer;
+    line-height: 1.1;
+    white-space: nowrap;
+    transition: background .15s, border-color .15s, color .15s, transform .1s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.35);
+  }
+  .btn-claim:hover {
+    background: linear-gradient(135deg, rgba(255,215,0,0.32), rgba(255,235,59,0.42));
+    border-color: #ffd700;
+    color: #fff8c8;
+  }
+  .btn-claim:active { transform: scale(0.96); }
+  .btn-claim.mine {
+    background: linear-gradient(135deg, rgba(127,255,59,0.22), rgba(199,255,59,0.32));
+    border-color: rgba(127,255,59,0.65);
+    color: #c7ff8a;
+  }
+  .btn-claim.mine:hover {
+    background: linear-gradient(135deg, rgba(127,255,59,0.36), rgba(199,255,59,0.46));
+    color: #f0ffd0;
+  }
+  .btn-claim.locked {
+    background: rgba(80, 60, 0, 0.45);
+    border-color: rgba(255, 170, 60, 0.45);
+    color: #ffba7a;
+    cursor: not-allowed;
+    opacity: .85;
+  }
+  .btn-claim.locked:hover {
+    background: rgba(80, 60, 0, 0.55);
+    color: #ffba7a;
+  }
+  .claim-tag {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.62rem;
+    line-height: 1.15;
+    text-align: center;
+    color: #ffba7a;
+    letter-spacing: .25px;
+    max-width: 165px;
+  }
+  .claim-tag b { color: #ffd07a; font-weight: 700; }
+  .claim-tag.mine { color: #c7ff8a; }
+  .claim-tag.mine b { color: #d8ffa0; }
+
+  .rc-level {
+    font-weight: 700; font-size: 1.1rem;
+    margin-bottom: 12px;
+    background: linear-gradient(90deg, #7fff3b, #c7ff3b);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+
+  .rc-players { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+  .rc-player {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px 6px 6px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    text-decoration: none; color: #fff;
+    font-size: 0.85rem;
+    transition: background .15s, border-color .15s;
+  }
+  .rc-player:hover { background: rgba(199,255,59,0.1); border-color: rgba(199,255,59,0.3); }
+  .rc-player img {
+    width: 26px; height: 26px; border-radius: 50%; object-fit: cover; background: #222;
+  }
+  .rc-player .flag { width: 18px; height: auto; vertical-align: middle; margin-left: 2px; }
+  .rc-player.p2-tag::before {
+    content: "2P"; font-size: .65rem; font-weight: 800;
+    background: rgba(199,255,59,0.18); color: #c7ff3b;
+    padding: 2px 6px; border-radius: 6px; margin-right: 4px;
+  }
+
+  .rc-meta { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.82rem; color: rgba(230,230,230,0.7); }
+  .rc-meta b { color: #fff; font-weight: 700; }
+  .rc-meta .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 6px;
+    background: rgba(255,255,255,0.06);
+    font-size: 0.7rem; font-weight: 700; letter-spacing: .5px;
+    text-transform: uppercase;
+  }
+  .rc-meta .badge.mobile { background: rgba(0,180,255,0.15); color: #7fd8ff; }
+  .rc-meta .badge.full   { background: rgba(199,255,59,0.18); color: #c7ff3b; }
+
+  .rc-video {
+    display: inline-block; margin-top: 10px;
+    color: #7fd8ff; font-size: 0.85rem; word-break: break-all;
+    text-decoration: none;
+  }
+  .rc-video:hover { text-decoration: underline; }
+
+  .rc-time { font-size: 0.72rem; color: rgba(230,230,230,0.4); margin-top: 8px; }
+
+  .btn {
+    padding: 10px 14px;
+    border: none; border-radius: 9px;
+    font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.85rem;
+    cursor: pointer;
+    transition: transform .12s, opacity .15s;
+    color: #fff;
+  }
+  .btn:hover:not(:disabled) { transform: translateY(-1px); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-accept { background: linear-gradient(90deg, #1a4d1a, #4a8a1a, #7fff3b); color:#0a1500; }
+  .btn-reject { background: linear-gradient(90deg, #7a1a1a, #c43a3a); }
+
+  .empty {
+    text-align: center; padding: 60px 20px;
+    color: rgba(230,230,230,0.55);
+  }
+  .empty-icon { font-size: 3rem; margin-bottom: 10px; opacity: .5; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: rgba(20,80,20,0.92);
+    border: 1px solid rgba(124,252,0,0.35);
+    color: #dfffbe;
+    padding: 12px 22px;
+    border-radius: 10px;
+    font-size: 0.9rem; font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    opacity: 0; pointer-events: none;
+    transition: opacity .25s, transform .25s;
+    z-index: 99999;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+  .toast.error { background: rgba(120,30,30,0.92); border-color: rgba(255,80,80,0.35); color: #ffd0d0; }
+
+  @media (max-width: 720px) {
+    .record-card { grid-template-columns: 1fr; }
+    /* En móvil: la columna derecha pasa a ocupar todo el ancho.
+       El recuadro de "Reclamar revisión" se queda en su propia
+       fila ARRIBA (full width) y los botones Aceptar/Rechazar
+       quedan justo debajo, compartiendo una fila. */
+    .record-card .right {
+      min-width: 0;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .record-card .right .claim-wrap { flex: 1 0 100%; }
+    .record-card .right .btn        { flex: 1 1 0;    min-width: 0; }
+  }
+
+  /* Secciones de prioridad */
+  .priority-section { margin: 28px 0 12px; }
+  .priority-section:first-child { margin-top: 0; }
+  .priority-title {
+    font-size: 1.05rem; font-weight: 800;
+    letter-spacing: 1.2px; text-transform: uppercase;
+    padding: 8px 14px; border-radius: 9px;
+    display: inline-block;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+  }
+  .priority-title.priority-staff   { background: linear-gradient(90deg,#7fff3b,#ffd700); color:#0a1a00; }
+  .priority-title.priority-booster { background: linear-gradient(90deg,#b14eff,#ff7ad9); color:#1b0033; }
+  .priority-title.priority-none    { background: rgba(255,255,255,0.08); color:#cfcfcf; border:1px solid rgba(255,255,255,0.15); }
+  .priority-sub {
+    margin-top: 6px; font-size: 0.78rem;
+    color: rgba(230,230,230,0.55);
+  }
+  .priority-empty {
+    text-align: center; padding: 22px;
+    color: rgba(230,230,230,0.45);
+    font-size: 0.86rem;
+  }
+
+  /* Inputs del modal "Añadir nivel" */
+  .al-input {
+    width: 100%; padding: 10px 12px; border-radius: 9px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #fff; font-family: 'Montserrat', sans-serif;
+    font-size: 0.9rem; outline: none; box-sizing: border-box;
+    transition: border-color .15s, background .15s;
+  }
+  .al-input:focus {
+    border-color: rgba(199,255,59,0.55);
+    background: rgba(255,255,255,0.08);
+  }
+  .al-input::placeholder { color: rgba(255,255,255,0.3); }
+  select.al-input { appearance: none; cursor: pointer; padding-right: 32px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23ffffff88' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+  }
+  select.al-input option { background:#141414; color:#fff; }
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="nav-left">
+    <img src="https://iili.io/BN3Yhpp.png" class="logo-img" alt="Logo">
+    <div class="logo-text">BFT Demon List</div>
+  </div>
+  <div style="display:flex; align-items:center; gap:14px;">
+    <nav class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/demonlist.html">Demon List</a>
+      <a href="/leaderboards.html">Leaderboards</a>
+        <a href="/notifications.html">✉ Notificaciones</a>
+      <a href="/submit.html">Enviar Record</a>
+      <a href="/guidelines.html">Guidelines</a>
+      <a href="/panel.html" class="staff-only">Panel de Records</a>
+    </nav>
+    <div class="auth-slot" id="authSlot"></div>
+    <div class="menu-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')">☰</div>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <h1 class="page-title">Panel de Records</h1>
+  <p class="page-sub">Modera los records pendientes enviados por la comunidad.</p>
+
+  <div id="stateBox">
+    <div class="card state-msg">Cargando sesión...</div>
+  </div>
+
+  <!-- Sólo Owner: recalcular los puntos de TODOS los niveles con la
+       fórmula actual de points.js. Se inyecta dinámicamente. -->
+  <div id="ownerToolsBox" style="display:none; margin: 18px 0 22px;">
+    <div class="card" style="padding:16px 18px; border:1px solid rgba(199,255,59,0.30);">
+      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:240px;">
+          <div style="font-weight:700; color:#c7ff3b; margin-bottom:2px;">
+            🛠 Herramientas de Owner
+          </div>
+          <div style="font-size:.86rem; color:rgba(230,230,230,0.7); line-height:1.4;">
+            Recalcula el campo <code>value</code> (puntos) de cada nivel de la
+            lista usando la fórmula actual <code>computePoints(position)</code>.
+            Útil cuando cambias la curva de puntos.
+          </div>
+        </div>
+        <button id="btnRecalcPoints" class="btn"
+                style="background:linear-gradient(90deg,#7fff3b,#ffd700); color:#0a1a00; font-weight:700;">
+          Recalcular puntos de toda la lista
+        </button>
+      </div>
+      <div id="recalcStatus" style="margin-top:10px; font-size:.85rem; color:rgba(230,230,230,0.75);"></div>
+    </div>
+  </div>
+
+  <div id="listBox" style="display:none;"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Modal: AÑADIR NIVEL al aceptar un reclamo "Nuevo nivel" -->
+<div id="alBackdrop" style="
+  position:fixed; inset:0; background:rgba(0,0,0,0.78);
+  display:none; align-items:flex-start; justify-content:center;
+  z-index:99999; backdrop-filter:blur(5px); padding:24px 12px; overflow-y:auto;">
+  <div style="
+    background:#0d130d; border:1px solid rgba(199,255,59,0.35);
+    border-radius:14px; padding:22px; width:min(540px,96vw);
+    box-shadow:0 24px 70px rgba(0,0,0,0.75); margin:auto;">
+    <h3 style="margin:0 0 4px; color:#c7ff3b; font-size:1.15rem;">+ Añadir nivel y aceptar récord</h3>
+    <p style="margin:0 0 10px; color:rgba(230,230,230,0.65); font-size:.84rem; line-height:1.45;">
+      Completa los datos del nuevo nivel. Al guardar, se añadirá a la lista en la
+      posición indicada y el récord del usuario quedará automáticamente como <b style="color:#c7ff3b;">Aceptado</b>.
+    </p>
+    <div id="alClaimInfo" style="
+      display:none; margin:0 0 14px; padding:9px 12px; border-radius:9px;
+      background:rgba(199,255,59,0.08); border:1px solid rgba(199,255,59,0.3);
+      color:#dfffbe; font-size:.84rem;">
+    </div>
+
+    <div style="margin:0 0 12px;">
+      <label style="display:block; font-size:.75rem; color:rgba(230,230,230,0.7); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px;">
+        ID de Geometry Dash <span style="text-transform:none; letter-spacing:0; color:rgba(230,230,230,0.5);">(prellenado con el del usuario, edítalo si es incorrecto)</span>
+      </label>
+      <input id="alGdLevelId" type="text" inputmode="numeric" maxlength="20" class="al-input" placeholder="Ej: 70682040">
+    </div>
+
+    <div style="display:grid; gap:10px;">
+      <div>
+        <label style="display:block; font-size:.75rem; color:rgba(230,230,230,0.7); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px;">Nombre del nivel *</label>
+        <input id="alName" type="text" maxlength="80" class="al-input">
+      </div>
+      <div>
+        <label style="display:block; font-size:.75rem; color:rgba(230,230,230,0.7); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px;">Autor / Publisher *</label>
+        <input id="alAuthor" type="text" maxlength="60" class="al-input">
+      </div>
+      <div>
+        <label style="display:block; font-size:.75rem; color:rgba(230,230,230,0.7); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px;">Creadores (separados por coma)</label>
+        <input id="alCreators" type="text" class="al-input" placeholder="Opcional">
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div>
+          <label style="display:block; font-size:.75rem; color:rgba(230,230,230,0.7); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px;">Posición * (1 = top)</label>
+          <input id="alPosition" type="number" min="1" class="al-input">
+          <div id="alPointsPreview" style="font-size:.78rem; color:#9bdc4d; margin-top:4px;">Puntos automáticos: —</div>
+        </div>
+        <div>
+          <label style="display:block; font-size:.75rem; color:rgba(230,230,230,0.7); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px;">% mínimo (default 100)</label>
+          <input id="alMinPercent" type="number" min="1" max="100" class="al-input" placeholder="100">
+        </div>
+      </div>
+      <div>
+        <label style="display:block; font-size:.75rem; color:rgba(230,230,230,0.7); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px;">Dificultad</label>
+        <select id="alDifficulty" class="al-input">
+          <option value="Extreme Demon">Extreme Demon</option>
+          <option value="Insane Demon">Insane Demon</option>
+          <option value="Hard Demon">Hard Demon</option>
+          <option value="Medium Demon">Medium Demon</option>
+          <option value="Easy Demon">Easy Demon</option>
+        </select>
+      </div>
+      <div>
+        <label style="display:block; font-size:.75rem; color:rgba(230,230,230,0.7); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px;">URL del vídeo del verificador</label>
+        <input id="alVideo" type="url" class="al-input" placeholder="https://youtu.be/...">
+      </div>
+      <div>
+        <label style="display:block; font-size:.75rem; color:rgba(230,230,230,0.7); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px;">URL Thumbnail</label>
+        <input id="alThumbnail" type="url" class="al-input" placeholder="Opcional">
+      </div>
+      <div>
+        <label style="display:block; font-size:.75rem; color:rgba(230,230,230,0.7); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px;">URL Fondo (card)</label>
+        <input id="alBackground" type="url" class="al-input" placeholder="Opcional">
+      </div>
+      <div>
+        <label style="display:block; font-size:.75rem; color:rgba(230,230,230,0.7); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px;">Glow de la carta</label>
+        <select id="alGlow" class="al-input">
+          <option value="">Sin glow</option>
+          <option value="glow-celeste">Celeste</option>
+          <option value="glow-rojo">Rojo</option>
+          <option value="glow-verde">Verde</option>
+          <option value="glow-rojo-naranja">Rojo Naranja</option>
+          <option value="glow-azul">Azul</option>
+          <option value="glow-naranja">Naranja</option>
+          <option value="glow-amarillo">Amarillo</option>
+          <option value="glow-rosa">Rosa</option>
+          <option value="glow-morado">Morado</option>
+          <option value="glow-magenta">Magenta</option>
+          <option value="glow-turquesa">Turquesa</option>
+          <option value="glow-dorado">Dorado</option>
+          <option value="glow-plateado">Plateado</option>
+          <option value="glow-blanco">Blanco</option>
+          <option value="glow-indigo">Índigo</option>
+          <option value="glow-coral">Coral</option>
+          <option value="glow-lima">Lima</option>
+          <option value="glow-menta">Menta</option>
+          <option value="glow-lavanda">Lavanda</option>
+          <option value="glow-salmon">Salmón</option>
+          <option value="glow-aguamarina">Aguamarina</option>
+          <option value="glow-violeta">Violeta</option>
+          <option value="glow-carmesi">Carmesí</option>
+          <option value="glow-cian">Cian</option>
+          <option value="glow-esmeralda">Esmeralda</option>
+          <option value="glow-rubi">Rubí</option>
+          <option value="glow-zafiro">Zafiro</option>
+          <option value="glow-bronce">Bronce</option>
+          <option value="glow-ambar">Ámbar</option>
+          <option value="glow-fucsia">Fucsia</option>
+          <option value="glow-marino">Azul Marino</option>
+          <option value="glow-electrico">Azul Eléctrico</option>
+          <option value="glow-neon-verde">Verde Neón</option>
+          <option value="glow-neon-naranja">Naranja Neón</option>
+          <option value="glow-arcoiris">🌈 Arcoíris (animado)</option>
+        </select>
+      </div>
+      <div>
+        <label style="display:block; font-size:.75rem; color:rgba(230,230,230,0.7); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px;">Tags <span style="text-transform:none; letter-spacing:0; color:rgba(230,230,230,0.5);">(opcional, separados por comas)</span></label>
+        <input id="alTags" type="text" class="al-input" placeholder="Ej: Layout, Bugfix, Memoria">
+      </div>
+      <div>
+        <label style="display:block; font-size:.75rem; color:rgba(230,230,230,0.7); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px;">Descripción (opcional)</label>
+        <textarea id="alDescription" rows="2" class="al-input" style="resize:vertical;"></textarea>
+      </div>
+      <div>
+        <label style="display:block; font-size:.75rem; color:rgba(230,230,230,0.7); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px;">Nota para el jugador (opcional, máx 500)</label>
+        <textarea id="alStaffNotes" rows="2" maxlength="500" class="al-input" style="resize:vertical;" placeholder="Aparecerá en sus notificaciones..."></textarea>
+      </div>
+    </div>
+
+    <div id="alErr" style="display:none; margin-top:12px; padding:10px 13px; background:rgba(255,80,80,0.12); border:1px solid rgba(255,80,80,0.4); border-radius:8px; color:#ffb0b0; font-size:.86rem;"></div>
+
+    <div style="display:flex; gap:10px; margin-top:18px; justify-content:flex-end; flex-wrap:wrap;">
+      <button id="alCancel" class="btn" style="background:rgba(255,255,255,0.08);">Cancelar</button>
+      <button id="alConfirm" class="btn btn-accept">+ Añadir nivel y aceptar récord</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de moderación: pide notas opcionales antes de aceptar/rechazar -->
+<div id="modBackdrop" style="
+  position:fixed; inset:0; background:rgba(0,0,0,0.7);
+  display:none; align-items:center; justify-content:center;
+  z-index:99998; backdrop-filter:blur(4px);">
+  <div style="
+    background:#0d130d; border:1px solid rgba(199,255,59,0.25);
+    border-radius:14px; padding:24px; width:min(480px,92vw);
+    box-shadow:0 20px 60px rgba(0,0,0,0.7);">
+    <h3 id="modTitle" style="
+      margin:0 0 6px; font-size:1.2rem; color:#fff;">Confirmar acción</h3>
+    <p style="
+      margin:0 0 14px; color:rgba(230,230,230,0.65); font-size:0.86rem;">
+      Puedes dejar una nota opcional para el jugador (máx. 500 caracteres).
+    </p>
+    <textarea id="modNotes" maxlength="500" rows="4" placeholder="Notas para el jugador (opcional)..." style="
+      width:100%; padding:10px 12px; border-radius:9px;
+      background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
+      color:#fff; font-family:'Montserrat',sans-serif; font-size:0.88rem;
+      resize:vertical; outline:none;"></textarea>
+    <div style="display:flex; gap:10px; margin-top:16px; justify-content:flex-end;">
+      <button id="modCancel" class="btn" style="background:rgba(255,255,255,0.08);">Cancelar</button>
+      <button id="modConfirm" class="btn">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { mountAuthUI } from "/auth.js";
+  mountAuthUI("authSlot");
+</script>
+
+<script type="module">
+  import { db, onAuthChange, isStaff, isAdmin, isOwner } from "/auth.js";
+  import {
+    collection, query, where, getDocs, doc, getDoc, addDoc, updateDoc,
+    writeBatch, serverTimestamp, deleteField
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { computePoints } from "/points.js";
+
+  const $ = (id) => document.getElementById(id);
+  const stateBox = $("stateBox");
+  const listBox  = $("listBox");
+  const toastEl  = $("toast");
+
+  function showToast(msg, isError = false) {
+    toastEl.textContent = msg;
+    toastEl.classList.toggle("error", !!isError);
+    toastEl.classList.add("show");
+    setTimeout(() => toastEl.classList.remove("show"), 2400);
+  }
+
+  function setState(html, isError = false) {
+    stateBox.innerHTML = `<div class="card state-msg ${isError ? "error" : ""}">${html}</div>`;
+    stateBox.style.display = "block";
+    listBox.style.display  = "none";
+  }
+
+  function escapeHtml(s) {
+    return String(s ?? "").replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    })[c]);
+  }
+
+  function fmtDate(ts) {
+    if (!ts) return "—";
+    try {
+      const d = ts.toDate ? ts.toDate() : new Date(ts);
+      return d.toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" });
+    } catch (e) { return "—"; }
+  }
+
+  /* Caches para evitar lecturas repetidas */
+  const profileCache = new Map();
+  const levelCache   = new Map();
+
+  async function fetchProfile(uid) {
+    if (!uid) return null;
+    if (profileCache.has(uid)) return profileCache.get(uid);
+    try {
+      const snap = await getDoc(doc(db, "profiles", uid));
+      const data = snap.exists() ? snap.data() : null;
+      profileCache.set(uid, data);
+      return data;
+    } catch (err) { profileCache.set(uid, null); return null; }
+  }
+  async function fetchLevel(id) {
+    if (!id) return null;
+    if (levelCache.has(id)) return levelCache.get(id);
+    try {
+      const snap = await getDoc(doc(db, "levels", id));
+      const data = snap.exists() ? snap.data() : null;
+      levelCache.set(id, data);
+      return data;
+    } catch (err) { levelCache.set(id, null); return null; }
+  }
+
+  function renderPlayer(profile, uid, isP2 = false) {
+    const name    = (profile && profile.name)     || "Jugador";
+    const photo   = (profile && profile.photoURL) || "";
+    const country = (profile && profile.country)  || "";
+    const flag = country
+      ? `<img class="flag" src="https://flagcdn.com/w40/${country.toLowerCase()}.png" onerror="this.style.display='none'">`
+      : "";
+    return `
+      <a class="rc-player ${isP2 ? "p2-tag" : ""}" href="/profile.html?id=${uid || ""}">
+        ${photo
+          ? `<img src="${photo}" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">`
+          : `<img src="" style="visibility:hidden">`}
+        <span>${escapeHtml(name)}</span>
+        ${flag}
+      </a>`;
+  }
+
+  function buildRecordCard(rec) {
+    const lvl = rec._level || {};
+    const wrap = document.createElement("div");
+    wrap.className = "card record-card";
+    wrap.dataset.id = rec.id;
+
+    const playersHtml =
+      renderPlayer(rec._profile, rec.userId) +
+      (rec.mode2P && rec.player2Id
+        ? renderPlayer(rec._profile2, rec.player2Id, true)
+        : "");
+
+    const isFull   = Number(rec.percent) === 100;
+    const isClaim  = !!rec.isNewLevelClaim;
+    /* V15: cualquier staff (Mod/Admin/Owner) puede aceptar reclamos.
+       El Mod podrá crear el nivel + reordenar posiciones, pero NO
+       podrá editar después los datos del nivel (lo bloquean las
+       reglas de Firestore). */
+    const meCanAccept = !isClaim || isStaff();
+
+    /* Encabezado del nivel — distinto si es reclamo de NUEVO nivel */
+    const levelHeader = isClaim
+      ? `
+        <div class="rc-level" style="display:flex; flex-wrap:wrap; align-items:center; gap:8px;">
+          <span style="
+            padding:3px 9px; border-radius:7px; font-size:.7rem; letter-spacing:.6px;
+            background:linear-gradient(90deg,#c7ff3b,#ffd700); color:#1a1500; font-weight:800;
+          ">🆕 NUEVO NIVEL RECLAMADO</span>
+          <span>${escapeHtml(rec.claimedLevelName || "Sin nombre")}</span>
+        </div>
+        <div style="font-size:.86rem; color:rgba(230,230,230,0.7); margin:-2px 0 6px;">
+          ID declarado: <b style="color:#c7ff3b; font-family:monospace;">${escapeHtml(rec.claimedLevelId || "—")}</b>
+        </div>`
+      : `<div class="rc-level">${escapeHtml(lvl.name || "Nivel desconocido")}</div>`;
+
+    /* Botón de aceptar — etiqueta y comportamiento dependen del tipo */
+    const acceptBtnHtml = isClaim
+      ? (meCanAccept
+          ? `<button class="btn btn-accept" data-action="accept-claim">+ Aceptar y añadir nivel</button>`
+          : `<button class="btn" disabled style="opacity:.55; cursor:not-allowed;" title="Solo Admin/Owner pueden aceptar reclamos de Nuevo nivel">Solo Admin/Owner</button>`)
+      : `<button class="btn btn-accept" data-action="accept">Aceptar</button>`;
+
+    wrap.innerHTML = `
+      <div class="left">
+        ${levelHeader}
+        <div class="rc-players">${playersHtml}</div>
+        <div class="rc-meta">
+          <span><b>Porcentaje:</b> <span class="badge ${isFull ? "full" : ""}">${Math.round(Number(rec.percent))}%</span></span>
+          ${rec.mobile   ? `<span class="badge mobile">P1 móvil</span>` : ``}
+          ${rec.mode2P && rec.mobile2P ? `<span class="badge mobile">P2 móvil</span>` : ``}
+          ${rec.mode2P  ? `<span class="badge">2 Players</span>` : ``}
+        </div>
+        <a class="rc-video" href="${rec.video}" target="_blank" rel="noopener">▶ ${escapeHtml(rec.video)}</a>
+        ${rec.video2 ? `<br><a class="rc-video" href="${rec.video2}" target="_blank" rel="noopener">▶ Video 2P: ${escapeHtml(rec.video2)}</a>` : ``}
+        ${rec.rawFootage ? `<br><a class="rc-video" href="${rec.rawFootage}" target="_blank" rel="noopener" style="color:#ffd95a;">📼 Raw footage</a>` : ``}
+        ${rec.extraNotes ? `
+          <div style="margin-top:10px; padding:9px 12px; background:rgba(199,255,59,0.06); border-left:3px solid rgba(199,255,59,0.4); border-radius:6px; font-size:.86rem; line-height:1.45; color:#dfeee0; white-space:pre-wrap;">
+            <b style="color:#c7ff3b;">Notas:</b> ${escapeHtml(rec.extraNotes)}
+          </div>` : ``}
+        <div class="rc-time">
+          Enviado: ${fmtDate(rec.createdAt)}
+          ${rec.updatedAt ? ` &nbsp;·&nbsp; <span style="color:#ffd95a;">Actualizado: ${fmtDate(rec.updatedAt)}</span>` : ``}
+        </div>
+      </div>
+      <div class="right">
+        ${renderClaimSection(rec)}
+        ${acceptBtnHtml}
+        <button class="btn btn-reject" data-action="reject">Rechazar</button>
+      </div>
+    `;
+
+    bindCardActions(rec, wrap);
+    return wrap;
+  }
+
+  /* ============================================================
+   *   RECLAMAR REVISIÓN (evita que dos staffs revisen lo mismo)
+   *   ----------------------------------------------------------
+   *   - El record guarda en Firestore tres campos:
+   *       reviewClaimedBy     : uid del staff que tiene la revisión
+   *       reviewClaimedByName : nombre legible (para mostrar)
+   *       reviewClaimedAt     : timestamp del reclamo
+   *   - Cuando NO está reclamado: botón amarillo "📋 Reclamar revisión".
+   *   - Cuando lo reclama el staff actual: botón verde "✓ Quitar
+   *     reclamación".
+   *   - Cuando lo tiene OTRO staff: banner naranja con su nombre y un
+   *     botón bloqueado; al pulsarlo / o al pulsar Aceptar/Rechazar
+   *     aparece un toast "❌ La revisión de este record está a cargo
+   *     de: (Staff)".
+   *   - Las reglas de Firestore V16 también bloquean por servidor.
+   * ============================================================ */
+  function meUid() {
+    return (window.__currentUser && window.__currentUser.uid) || null;
+  }
+  /* Devuelve el nombre PÚBLICO del staff actual.
+     Prioriza el nombre del perfil (/profiles/{uid}.name) que es el
+     que ven el resto de jugadores en el sitio.  Solo si todavía no
+     se ha cargado el perfil cae al displayName de Firebase Auth. */
+  function meName() {
+    const u = window.__currentUser;
+    if (!u) return "Staff";
+    if (window.__myProfileName && window.__myProfileName.trim()) {
+      return window.__myProfileName.trim();
+    }
+    return (u.displayName && u.displayName.trim())
+        || (u.email && u.email.split("@")[0])
+        || "Staff";
+  }
+
+  function renderClaimSection(rec) {
+    const uid = meUid();
+    const claimedBy   = rec.reviewClaimedBy || null;
+    const claimedName = rec.reviewClaimedByName || "Staff";
+    if (!claimedBy) {
+      return `
+        <div class="claim-wrap">
+          <button class="btn-claim" data-action="claim">Reclamar revisión</button>
+        </div>`;
+    }
+    if (claimedBy === uid) {
+      return `
+        <div class="claim-wrap">
+          <button class="btn-claim mine" data-action="release">Quitar reclamación</button>
+          <div class="claim-tag mine">Reclamado por <b>ti</b></div>
+        </div>`;
+    }
+    /* Reclamado por OTRO staff */
+    return `
+      <div class="claim-wrap">
+        <button class="btn-claim locked" data-action="claim-locked">Reclamado</button>
+        <div class="claim-tag">por <b>${escapeHtml(claimedName)}</b></div>
+      </div>`;
+  }
+
+  function bindCardActions(rec, wrap) {
+    wrap.querySelectorAll("button[data-action]").forEach(btn => {
+      const action = btn.dataset.action;
+      btn.onclick = () => {
+        /* Acciones de claim/release/locked */
+        if (action === "claim")        { return claimReview(rec, wrap); }
+        if (action === "release")      { return releaseReview(rec, wrap); }
+        if (action === "claim-locked") {
+          showToast(`❌ La revisión de este record está a cargo de: ${rec.reviewClaimedByName || "Otro staff"}`, true);
+          return;
+        }
+        /* Acciones de moderación.
+           1) Si está reclamado por OTRO staff: bloqueamos
+              (Owner se salta esta restricción).
+           2) Si NO está reclamado por NADIE: forzamos al staff
+              a reclamarlo PRIMERO (Owner exento). */
+        const claimedBy = rec.reviewClaimedBy || null;
+        const myUid     = meUid();
+        if (claimedBy && claimedBy !== myUid && !isOwner()) {
+          showToast(`❌ La revisión de este record está a cargo de: ${rec.reviewClaimedByName || "Otro staff"}`, true);
+          return;
+        }
+        if (!claimedBy && !isOwner()) {
+          showToast("⚠️ PRIMERO DEBES RECLAMAR LA REVISIÓN DEL RECORD.", true);
+          return;
+        }
+        if (action === "accept-claim") openAddLevelModal(rec, wrap);
+        else                            openModerateModal(rec.id, action, wrap);
+      };
+    });
+  }
+
+  function refreshClaimUI(rec, wrap) {
+    const right = wrap.querySelector(".right");
+    if (!right) return;
+    /* Reemplazamos solo el bloque de claim (los dos primeros nodos:
+       el banner+botón cuando está reclamado, o solo el botón cuando no).
+       Lo más simple: re-renderizar el right entero. */
+    const isFull   = Number(rec.percent) === 100;
+    const isClaim  = !!rec.isNewLevelClaim;
+    const meCanAccept = !isClaim || isStaff();
+    const acceptBtnHtml = isClaim
+      ? (meCanAccept
+          ? `<button class="btn btn-accept" data-action="accept-claim">+ Aceptar y añadir nivel</button>`
+          : `<button class="btn" disabled style="opacity:.55; cursor:not-allowed;">Solo Admin/Owner</button>`)
+      : `<button class="btn btn-accept" data-action="accept">Aceptar</button>`;
+    right.innerHTML = `
+      ${renderClaimSection(rec)}
+      ${acceptBtnHtml}
+      <button class="btn btn-reject" data-action="reject">Rechazar</button>
+    `;
+    bindCardActions(rec, wrap);
+  }
+
+  /* Devuelve un nombre legible del nivel de un record, para los
+     mensajes "ya tienes reclamado X". */
+  function recLabel(r) {
+    if (!r) return "(record)";
+    return (r._level && r._level.name)
+        || r.claimedLevelName
+        || `record #${(r.id || "").slice(0,5)}`;
+  }
+
+  async function claimReview(rec, wrap) {
+    if (!isStaff()) {
+      showToast("Solo el staff puede reclamar revisiones.", true);
+      return;
+    }
+    /* REGLA UX: solo se permite UN reclamo activo a la vez por staff.
+       Si ya tienes otro record reclamado, debes soltarlo primero. */
+    const active = window.__myActiveClaim;
+    if (active && active.recordId && active.recordId !== rec.id) {
+      showToast(
+        `❌ Ya tienes una revisión reclamada: "${active.levelName}". ` +
+        `Suelta esa primero para reclamar otra.`,
+        true
+      );
+      return;
+    }
+    const myUid  = meUid();
+    const myName = meName();
+    const ref = doc(db, "records", rec.id);
+    /* Optimista: intentamos escribir directamente.  Si OTRO staff
+       ya tiene el reclamo, las reglas V16 devuelven permission-denied
+       y solo en ESE caso releemos el doc para saber el nombre.
+       Esto ahorra lecturas en el camino feliz (solo 1 escritura
+       cuando NO hay conflicto). */
+    try {
+      await updateDoc(ref, {
+        reviewClaimedBy:     myUid,
+        reviewClaimedByName: myName,
+        reviewClaimedAt:     serverTimestamp()
+      });
+      rec.reviewClaimedBy     = myUid;
+      rec.reviewClaimedByName = myName;
+      window.__myActiveClaim = { recordId: rec.id, levelName: recLabel(rec) };
+      refreshClaimUI(rec, wrap);
+      showToast("Revisión reclamada. Otros staff verán que estás revisándolo.");
+    } catch (err) {
+      console.error("[panel] claimReview error:", err);
+      /* Solo en caso de conflicto leemos el doc para mostrar quién lo tiene */
+      if (err && err.code === "permission-denied") {
+        try {
+          const snap = await getDoc(ref);
+          const byName = (snap.exists() && snap.data().reviewClaimedByName) || "Otro staff";
+          rec.reviewClaimedBy     = (snap.exists() && snap.data().reviewClaimedBy) || "__OTHER__";
+          rec.reviewClaimedByName = byName;
+          refreshClaimUI(rec, wrap);
+          showToast(`❌ La revisión de este record está a cargo de: ${byName}`, true);
+        } catch (_) {
+          showToast("❌ No se pudo reclamar la revisión (otro staff la tiene).", true);
+        }
+        return;
+      }
+      const human = err && (err.code === "resource-exhausted")
+        ? "Cuota de Firebase agotada hoy. Vuelve a intentarlo mañana o sube de plan."
+        : (err.message || err.code || "Error desconocido");
+      showToast("No se pudo reclamar la revisión: " + human, true);
+    }
+  }
+
+  async function releaseReview(rec, wrap) {
+    const myUid = meUid();
+    if (!myUid) return;
+    if (rec.reviewClaimedBy && rec.reviewClaimedBy !== myUid) {
+      showToast("Solo el staff que reclamó la revisión puede quitarla.", true);
+      return;
+    }
+    const ref = doc(db, "records", rec.id);
+    try {
+      await updateDoc(ref, {
+        reviewClaimedBy:     deleteField(),
+        reviewClaimedByName: deleteField(),
+        reviewClaimedAt:     deleteField()
+      });
+      delete rec.reviewClaimedBy;
+      delete rec.reviewClaimedByName;
+      delete rec.reviewClaimedAt;
+      if (window.__myActiveClaim && window.__myActiveClaim.recordId === rec.id) {
+        window.__myActiveClaim = null;
+      }
+      refreshClaimUI(rec, wrap);
+      showToast("Reclamación quitada. Cualquier staff puede revisarlo.");
+    } catch (err) {
+      console.error("[panel] releaseReview error:", err);
+      showToast("No se pudo quitar la reclamación: " + (err.message || err.code || ""), true);
+    }
+  }
+
+  /* ============================================================
+   *   MODAL: AÑADIR NIVEL (al aceptar un reclamo "Nuevo nivel")
+   * ============================================================ */
+  let alContext = null;   // {rec, wrap}
+
+  function openAddLevelModal(rec, wrap) {
+    /* V15: cualquier staff (Mod/Admin/Owner) puede aceptar el reclamo y
+       crear el nivel. Los Mods quedarán bloqueados por reglas de
+       Firestore si luego intentan EDITAR los datos del nivel. */
+    if (!isStaff()) {
+      showToast("Solo el staff puede añadir niveles nuevos.", true);
+      return;
+    }
+    alContext = { rec, wrap };
+    $("alName").value       = rec.claimedLevelName || "";
+    $("alAuthor").value     = "";
+    /* Banner con la info que envió el usuario: ID del nivel en GD */
+    if (rec.claimedLevelId) {
+      $("alClaimInfo").innerHTML =
+        `🆔 ID del nivel declarado por el usuario: ` +
+        `<b style="color:#c7ff3b; font-family:monospace;">${escapeHtml(rec.claimedLevelId)}</b>`;
+      $("alClaimInfo").style.display = "block";
+    } else {
+      $("alClaimInfo").style.display = "none";
+    }
+    /* Prellenamos el ID con lo que envió el usuario; el staff puede
+       corregirlo antes de guardar. Quedará en levels.gdLevelId. */
+    $("alGdLevelId").value  = rec.claimedLevelId || "";
+    $("alCreators").value   = "";
+    $("alPosition").value   = "";
+    $("alThumbnail").value  = "";
+    $("alBackground").value = "";
+    $("alGlow").value       = "";
+    $("alTags").value       = "";
+    $("alVideo").value      = rec.video || "";
+    /* Si el usuario eligió una dificultad en el reclamo, la usamos como
+       valor por defecto del select; si no, dejamos Extreme Demon. */
+    $("alDifficulty").value = rec.claimedLevelDifficulty || "Extreme Demon";
+    $("alMinPercent").value = "";
+    $("alDescription").value= "";
+    $("alStaffNotes").value = "";
+    $("alErr").style.display = "none";
+    $("alPointsPreview").textContent = "Puntos automáticos: —";
+    $("alBackdrop").style.display = "flex";
+  }
+  function closeAddLevelModal() { $("alBackdrop").style.display = "none"; alContext = null; }
+  $("alCancel").onclick = closeAddLevelModal;
+  /* Quitamos el cierre al hacer clic fuera del recuadro, porque al
+     escribir muchos campos el staff acaba cerrando el modal sin querer
+     y pierde lo escrito. Solo cierra con los botones Cancelar/Confirmar.
+     Mantenemos el listener únicamente para evitar que clics externos
+     causen otros side-effects (no-op). */
+  $("alBackdrop").addEventListener("click", e => {
+    /* outside click DESHABILITADO a propósito */
+    if (false && e.target === $("alBackdrop")) closeAddLevelModal();
+  });
+  $("alPosition").addEventListener("input", () => {
+    const p = Number($("alPosition").value);
+    $("alPointsPreview").textContent = (p > 0)
+      ? `Puntos automáticos: ${computePoints(p)} (posición #${p})`
+      : "Puntos automáticos: —";
+  });
+
+  $("alConfirm").onclick = async () => {
+    if (!alContext) return;
+    const { rec, wrap } = alContext;
+
+    const name      = $("alName").value.trim();
+    const author    = $("alAuthor").value.trim();
+    const creators  = $("alCreators").value.split(",").map(s => s.trim()).filter(Boolean);
+    const reqPos    = Math.max(1, Math.floor(Number($("alPosition").value) || 0));
+    const thumbnail = $("alThumbnail").value.trim();
+    const background= $("alBackground").value.trim();
+    const video     = $("alVideo").value.trim();
+    const difficulty= $("alDifficulty").value || "Extreme Demon";
+    const minRaw    = parseInt($("alMinPercent").value, 10);
+    const minPercent= Number.isFinite(minRaw) ? Math.min(100, Math.max(1, minRaw)) : 100;
+    const description = $("alDescription").value.trim();
+    const staffnotes  = $("alStaffNotes").value.trim().slice(0, 500);
+    const glow        = $("alGlow").value || "";
+    const tags        = $("alTags").value
+                          .split(",")
+                          .map(s => s.trim())
+                          .filter(Boolean)
+                          .slice(0, 12);
+
+    function showErr(t) { $("alErr").textContent = t; $("alErr").style.display = "block"; }
+    $("alErr").style.display = "none";
+
+    if (!name || !author) { showErr("Nombre y autor son obligatorios."); return; }
+    if (!reqPos)          { showErr("Indica la posición del nivel (≥ 1)."); return; }
+
+    $("alConfirm").disabled = true;
+    $("alCancel").disabled  = true;
+    $("alConfirm").textContent = "Procesando...";
+
+    try {
+      /* 1) Cargar todos los niveles para reordenar tras la inserción */
+      const lvlSnap = await getDocs(collection(db, "levels"));
+      const all = [];
+      lvlSnap.forEach(d => all.push({ id: d.id, ...d.data() }));
+      const ordered = [...all].sort((a, b) => {
+        const pa = Number(a.position) || Infinity;
+        const pb = Number(b.position) || Infinity;
+        return pa - pb;
+      });
+
+      const insertAt = Math.min(reqPos, ordered.length + 1);
+      const placeholder = { id: "__NEW__", name, author };
+      ordered.splice(insertAt - 1, 0, placeholder);
+
+      /* 2) Crear el doc del nivel en su posición pedida */
+      const newPos   = insertAt;
+      const newValue = computePoints(newPos);
+      const levelDoc = {
+        name, author, creators,
+        position: newPos, value: newValue,
+        thumbnail, background, video,
+        glow, is2P: false,
+        description, difficulty, minPercent,
+        tags
+      };
+      /* gdLevelId final: lo que el staff dejó en el input del modal
+         (prellenado con rec.claimedLevelId, pero editable). */
+      const finalGdId = ($("alGdLevelId").value || "").trim();
+      if (finalGdId) levelDoc.gdLevelId = String(finalGdId);
+      const newRef = await addDoc(collection(db, "levels"), levelDoc);
+      placeholder.id = newRef.id;
+
+      /* 3) Re-shift de las demás posiciones (writeBatch en chunks) */
+      const originalById = new Map(all.map(l => [l.id, { position: l.position, value: l.value }]));
+      const updates = [];
+      ordered.forEach((lvl, i) => {
+        if (lvl.id === newRef.id) return;
+        const p = i + 1;
+        const v = computePoints(p);
+        const orig = originalById.get(lvl.id) || {};
+        if (Number(orig.position) !== p || Number(orig.value) !== v) {
+          updates.push({ ref: doc(db, "levels", lvl.id), data: { position: p, value: v } });
+        }
+      });
+      const CHUNK = 450;
+      for (let i = 0; i < updates.length; i += CHUNK) {
+        const batch = writeBatch(db);
+        updates.slice(i, i + CHUNK).forEach(({ ref, data }) => batch.update(ref, data));
+        await batch.commit();
+      }
+
+      /* 4) Historial de posiciones:
+            (a) entrada NEW para el nivel recién añadido.
+            (b) entradas AUTO-SHIFT para CADA nivel desplazado por la
+                inserción (estas faltaban antes — por eso los demás
+                niveles no recibían historial al aceptar el reclamo). */
+      try {
+        const histEntries = [{
+          levelId: newRef.id, oldPosition: null, newPosition: newPos,
+          change: "NEW",
+          reason: `Nivel añadido al aceptar el reclamo del usuario`,
+          createdAt: serverTimestamp()
+        }];
+        ordered.forEach((lvl, i) => {
+          if (lvl.id === newRef.id) return;
+          const oldP = Number((originalById.get(lvl.id) || {}).position) || null;
+          const newP = i + 1;
+          if (oldP === newP) return;     // no se movió, no hay historial
+          histEntries.push({
+            levelId: lvl.id,
+            oldPosition: oldP,
+            newPosition: newP,
+            change: (oldP || 0) - newP,  // positivo = subió, negativo = bajó
+            reason: `Auto-shifted by new entry "${name}" at #${newPos}`,
+            createdAt: serverTimestamp()
+          });
+        });
+        await Promise.all(histEntries.map(h =>
+          addDoc(collection(db, "positionHistory"), h)
+        ));
+      } catch (_) { /* no bloqueante */ }
+
+      /* 4b) Aviso al webhook de Discord (vecinos en el orden tras insertar)
+             OJO con la terminología que pidió el usuario:
+               · "por encima de" = el nivel con NÚMERO de top mayor (más fácil)
+               · "por debajo de" = el nivel con NÚMERO de top menor (más difícil) */
+      try {
+        const harderNeighbor = ordered[insertAt - 2]; // pos newPos-1 (más arriba en la lista)
+        const easierNeighbor = ordered[insertAt];     // pos newPos+1 (más abajo en la lista)
+        const isFirst = newPos === 1;
+        const isLast  = !easierNeighbor;
+        let msg;
+        if (isFirst) {
+          msg = `**${name}** ha sido posicionado como Top **#1**, siendo el nuevo Hardest del Servidor.`;
+        } else if (isLast) {
+          msg = `**${name}** ha sido posicionado en la última posición (Top **#${newPos}**) por debajo de **${harderNeighbor.name}** (#${newPos - 1}).`;
+        } else {
+          const easierTxt = `**${easierNeighbor.name}** (#${newPos + 1})`;
+          const harderTxt = `**${harderNeighbor.name}** (#${newPos - 1})`;
+          msg = `**${name}** ha sido posicionado en el top **#${newPos}**, por encima de ${easierTxt} y por debajo de ${harderTxt}.`;
+        }
+        const { notifyDiscord } = await import("/discord-notify.js");
+        await notifyDiscord(msg);
+      } catch (e) { console.warn("[panel] discord notify fail:", e); }
+
+      /* 5) Aceptar el record del usuario que reclamó el nivel */
+      const meUid = (window.__currentUser && window.__currentUser.uid) || null;
+      await updateDoc(doc(db, "records", rec.id), {
+        levelId:         newRef.id,
+        isNewLevelClaim: false,
+        status:          "Accepted",
+        acceptedAt:      serverTimestamp(),
+        moderatedAt:     serverTimestamp(),
+        moderatedBy:     meUid,
+        staffnotes:      staffnotes || ""
+      });
+
+      /* Aviso al webhook de records (el reclamo se acaba de aceptar
+         como record real del nivel recién creado). Hidratamos _level
+         con la info que ya tenemos para que el embed muestre top y
+         dificultad correctos. */
+      try {
+        const recForHook = {
+          ...rec,
+          isNewLevelClaim: false,
+          _level: { name, position: newPos, difficulty },
+        };
+        await sendRecordWebhook(recForHook, "accept", staffnotes);
+      } catch (e) { console.warn("[panel] discord records notify (claim) fail:", e); }
+
+      /* 6) Animación de salida + toast */
+      wrap.style.transition = "opacity .25s, transform .25s";
+      wrap.style.opacity = "0";
+      wrap.style.transform = "translateX(20px)";
+      setTimeout(() => {
+        wrap.remove();
+        if (!listBox.querySelector(".record-card")) renderEmpty();
+      }, 260);
+      showToast(`Nivel "${name}" añadido y record aceptado.`);
+      closeAddLevelModal();
+    } catch (err) {
+      console.error("[panel] add-level error:", err);
+      showErr("Error: " + (err.message || err.code || "no se pudo añadir el nivel."));
+    } finally {
+      $("alConfirm").disabled = false;
+      $("alCancel").disabled  = false;
+      $("alConfirm").textContent = "+ Añadir nivel y aceptar récord";
+    }
+  };
+
+  /* ==== Modal de moderación ==== */
+  const modBackdrop = $("modBackdrop");
+  const modTitle    = $("modTitle");
+  const modNotes    = $("modNotes");
+  const modConfirm  = $("modConfirm");
+  const modCancel   = $("modCancel");
+  let modContext = null;     // {recordId, action, wrap}
+
+  function openModerateModal(recordId, action, wrap) {
+    modContext = { recordId, action, wrap };
+    modNotes.value = "";
+    modTitle.textContent =
+      action === "accept" ? "Aceptar este record" : "Rechazar este record";
+    modConfirm.className = "btn " + (action === "accept" ? "btn-accept" : "btn-reject");
+    modConfirm.textContent = action === "accept" ? "Aceptar record" : "Rechazar record";
+    modBackdrop.style.display = "flex";
+    setTimeout(() => modNotes.focus(), 50);
+  }
+  function closeModerateModal() {
+    modBackdrop.style.display = "none";
+    modContext = null;
+  }
+  modCancel.onclick = closeModerateModal;
+  modBackdrop.addEventListener("click", e => {
+    /* outside click DESHABILITADO: evita cerrar accidentalmente la
+       moderación mientras el staff escribe notas. */
+    if (false && e.target === modBackdrop) closeModerateModal();
+  });
+  modConfirm.onclick = async () => {
+    if (!modContext) return;
+    const { recordId, action, wrap } = modContext;
+    const notes = modNotes.value.trim().slice(0, 500);
+    modConfirm.disabled = true;
+    modCancel.disabled  = true;
+    try {
+      await moderate(recordId, action, wrap, notes);
+      closeModerateModal();
+    } catch (err) {
+      /* moderate ya muestra el toast de error */
+    } finally {
+      modConfirm.disabled = false;
+      modCancel.disabled  = false;
+    }
+  };
+
+  /* === Webhook de Discord para records aceptados/rechazados === */
+  async function sendRecordWebhook(rec, action, staffnotes) {
+    if (!rec) return;
+    const { notifyDiscord }      = await import("/discord-notify.js");
+    const { DIFFICULTY_IMAGES }  = await import("/difficulty.js");
+
+    const accepted = action === "accept";
+    const lvl      = rec._level || {};
+    const lvlName  = lvl.name || rec.claimedLevelName || "Nivel desconocido";
+    const lvlPos   = lvl.position ? `Top #${lvl.position}` : (rec.isNewLevelClaim ? "Nuevo nivel" : "Top —");
+
+    const p1 = (rec._profile  && rec._profile.name)  || "Jugador";
+    const p2 = (rec._profile2 && rec._profile2.name) || null;
+    const userField = (rec.mode2P && p2) ? `${p1} & ${p2}` : p1;
+
+    const dev1 = rec.mobile   ? "Móvil" : "PC";
+    const dev2 = rec.mode2P ? (rec.mobile2P ? "Móvil" : "PC") : null;
+    const deviceField = (rec.mode2P && p2)
+      ? `P1: ${dev1}  •  P2: ${dev2}`
+      : dev1;
+
+    const notes = (staffnotes && staffnotes.trim()) || "—";
+    const diffImg = DIFFICULTY_IMAGES[lvl.difficulty] || DIFFICULTY_IMAGES["Extreme Demon"];
+
+    /* Porcentaje del progreso (1-100). */
+    const pctNum = Math.max(1, Math.min(100, Math.round(Number(rec.percent) || 0)));
+    const pctStr = `${pctNum}%`;
+
+    /* Aceptado → "Record Aceptado" en LIMA (verde lima).
+       Rechazado → "Record Rechazado" en ROJO. La carita de
+       dificultad va como thumbnail (esquina superior derecha). */
+    const embed = {
+      title: accepted ? "🟢 Record Aceptado" : "🔴 Record Rechazado",
+      description: `**${lvlPos} - ${lvlName}**`,
+      color: accepted ? 0x7CFC00 /* lima */ : 0xe74c3c /* rojo */,
+      fields: [
+        { name: "Porcentaje",  value: pctStr,      inline: false },
+        { name: "Usuario",     value: userField,   inline: false },
+        { name: "Dispositivo", value: deviceField, inline: false },
+        { name: "Notas",       value: notes.slice(0, 1000), inline: false },
+      ],
+      thumbnail: { url: diffImg },
+    };
+
+    /* El link del vídeo va FUERA del embed (en el content del mensaje)
+       para que Discord lo desencadene como vista previa. */
+    const content = rec.video ? String(rec.video).slice(0, 500) : "";
+
+    await notifyDiscord({ target: "records", content, embeds: [embed] });
+  }
+
+  async function moderate(recordId, action, wrap, staffnotes) {
+    const buttons = wrap.querySelectorAll("button");
+    buttons.forEach(b => b.disabled = true);
+    try {
+      const base = action === "accept"
+        ? { status: "Accepted", acceptedAt: serverTimestamp() }
+        : { status: "Rejected" };
+      base.staffnotes      = staffnotes || "";
+      base.moderatedAt     = serverTimestamp();
+      base.moderatedBy     = (window.__currentUser && window.__currentUser.uid) || null;
+      await updateDoc(doc(db, "records", recordId), base);
+
+      /* Aviso al webhook de Discord de records */
+      try {
+        const recId = recordId;
+        const recObj = (window.__pendingRecords || []).find(r => r.id === recId) || null;
+        await sendRecordWebhook(recObj, action, staffnotes);
+      } catch (e) { console.warn("[panel] discord records notify fail:", e); }
+
+      wrap.style.transition = "opacity .25s, transform .25s";
+      wrap.style.opacity = "0";
+      wrap.style.transform = "translateX(20px)";
+      setTimeout(() => {
+        wrap.remove();
+        if (!listBox.querySelector(".record-card")) renderEmpty();
+      }, 260);
+      showToast(action === "accept" ? "Record aceptado." : "Record rechazado.");
+    } catch (err) {
+      console.error(err);
+      buttons.forEach(b => b.disabled = false);
+      showToast("Error: " + (err.message || "no se pudo actualizar."), true);
+      throw err;
+    }
+  }
+
+  function renderEmpty() {
+    listBox.innerHTML = `
+      <div class="card empty">
+        <div class="empty-icon">✓</div>
+        <div>No hay records pendientes por revisar.</div>
+      </div>`;
+  }
+
+  async function loadPending() {
+    setState("Cargando records pendientes...");
+    try {
+      const snap = await getDocs(query(
+        collection(db, "records"),
+        where("status", "==", "Pending")
+      ));
+
+      const records = [];
+      snap.forEach(d => records.push({ id: d.id, ...d.data() }));
+
+      /* Hidratar perfiles + niveles */
+      const uids   = new Set();
+      const lvlIds = new Set();
+      records.forEach(r => {
+        if (r.userId)    uids.add(r.userId);
+        if (r.player2Id) uids.add(r.player2Id);
+        if (r.levelId)   lvlIds.add(r.levelId);
+      });
+      await Promise.all([
+        ...Array.from(uids).map(fetchProfile),
+        ...Array.from(lvlIds).map(fetchLevel)
+      ]);
+      records.forEach(r => {
+        r._profile  = profileCache.get(r.userId);
+        r._profile2 = profileCache.get(r.player2Id);
+        r._level    = levelCache.get(r.levelId);
+      });
+      window.__pendingRecords = records;   // disponible para el webhook tras moderar
+
+      /* Escanear si YO ya tengo algún record reclamado (de una sesión
+         anterior o de otro tab).  Si lo encuentro, lo guardo en
+         window.__myActiveClaim para bloquear nuevos reclamos hasta
+         que suelte ese.  Solo puede haber UN reclamo activo a la vez. */
+      const myUidNow = window.__currentUser ? window.__currentUser.uid : null;
+      window.__myActiveClaim = null;
+      if (myUidNow) {
+        const mine = records.find(r => r.reviewClaimedBy === myUidNow);
+        if (mine) {
+          window.__myActiveClaim = { recordId: mine.id, levelName: recLabel(mine) };
+        }
+      }
+
+      records.sort((a, b) => {
+        const ta = (a.updatedAt && a.updatedAt.toMillis ? a.updatedAt.toMillis() : 0)
+                || (a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0);
+        const tb = (b.updatedAt && b.updatedAt.toMillis ? b.updatedAt.toMillis() : 0)
+                || (b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0);
+        return ta - tb; /* más antiguos primero */
+      });
+
+      /* === Cargar el ROL del dueño de cada record (userId) para clasificarlos
+       *     en 3 secciones de prioridad. Las lecturas de /users requieren ser
+       *     staff (lo somos aquí) y se cachean. === */
+      const ownerIds = [...new Set(records.map(r => r.userId).filter(Boolean))];
+      await Promise.all(ownerIds.map(async uid => {
+        if (userRoleCache.has(uid)) return;
+        try {
+          const us = await getDoc(doc(db, "users", uid));
+          userRoleCache.set(uid, us.exists() ? (us.data().role || "Default") : "Default");
+        } catch (e) { userRoleCache.set(uid, "Default"); }
+      }));
+
+      /* === Filtrar los records propios (no puedes moderarte a ti mismo) === */
+      const meUid = window.__currentUser ? window.__currentUser.uid : null;
+      const visible = records.filter(r =>
+        r.userId !== meUid && r.player2Id !== meUid
+      );
+
+      /* === Categorizar por rol del dueño === */
+      const STAFF_ROLES   = ["Mod", "Admin", "Owner"];
+      const buckets = { staff: [], booster: [], none: [] };
+      visible.forEach(r => {
+        const role = userRoleCache.get(r.userId) || "Default";
+        if (STAFF_ROLES.includes(role))      buckets.staff.push(r);
+        else if (role === "Booster")          buckets.booster.push(r);
+        else                                  buckets.none.push(r);
+      });
+
+      stateBox.style.display = "none";
+      listBox.style.display  = "block";
+      listBox.innerHTML = "";
+
+      const totalVisible = buckets.staff.length + buckets.booster.length + buckets.none.length;
+      if (totalVisible === 0) {
+        if (records.length > 0 && visible.length === 0) {
+          /* Solo había records propios → no se puede moderar */
+          listBox.innerHTML = `
+            <div class="card empty">
+              <div class="empty-icon">⚠</div>
+              <div>Solo hay records pendientes <b>tuyos</b>. Otro miembro del staff debe revisarlos.</div>
+            </div>`;
+        } else {
+          renderEmpty();
+        }
+        return;
+      }
+
+      renderSection("PRIORIDAD POR STAFF",    "Records de Mod, Admin u Owner.",       buckets.staff,   "staff");
+      renderSection("PRIORIDAD POR BOOSTERS", "Records de usuarios con rol Booster.", buckets.booster, "booster");
+      renderSection("SIN PRIORIDAD",          "Records de usuarios con rol Default.", buckets.none,    "none");
+    } catch (err) {
+      console.error(err);
+      setState("Error al cargar records: " + (err.message || err.code || "desconocido"), true);
+    }
+  }
+
+  /* Cache local de roles para no leer /users repetido */
+  const userRoleCache = new Map();
+
+  function renderSection(title, subtitle, items, kind) {
+    const header = document.createElement("div");
+    header.className = "priority-section";
+    header.innerHTML = `
+      <div class="priority-title priority-${kind}">${escapeHtml(title)}</div>
+      <div class="priority-sub">${escapeHtml(subtitle)} — ${items.length} pendiente${items.length === 1 ? "" : "s"}</div>
+    `;
+    listBox.appendChild(header);
+
+    if (items.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "card priority-empty";
+      empty.textContent = "Sin records en esta categoría.";
+      listBox.appendChild(empty);
+      return;
+    }
+    items.forEach(r => listBox.appendChild(buildRecordCard(r)));
+  }
+
+  /* ============================================================
+   *  HERRAMIENTA OWNER: recalcular puntos de toda la lista
+   *  ----------------------------------------------------------
+   *  Para cada doc de /levels: lee `position`, calcula
+   *  `computePoints(position)` y, si difiere del `value` actual,
+   *  lo actualiza. Se hace en lotes de 400 con writeBatch para
+   *  no romper el límite de 500 ops por batch de Firestore.
+   *  Sólo el rol Owner puede usarlo (UI oculta + chequeo en JS;
+   *  las reglas también limitan /levels a isStaff()).
+   * ============================================================ */
+  async function recalcAllPoints() {
+    if (!isOwner()) {
+      showToast("Sólo el Owner puede ejecutar esta acción.", true);
+      return;
+    }
+    const btn    = $("btnRecalcPoints");
+    const status = $("recalcStatus");
+    const ok = confirm(
+      "¿Recalcular los puntos (campo \"value\") de TODOS los niveles "
+      + "usando la fórmula actual?\n\nEsta acción afecta a todos los "
+      + "niveles de la lista. No se puede deshacer automáticamente."
+    );
+    if (!ok) return;
+
+    btn.disabled = true;
+    btn.textContent = "Recalculando…";
+    status.style.color = "rgba(230,230,230,0.75)";
+    status.textContent = "Leyendo niveles…";
+
+    try {
+      const snap = await getDocs(collection(db, "levels"));
+      const all  = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const total = all.length;
+      status.textContent = `Niveles encontrados: ${total}. Calculando…`;
+
+      /* Construir la lista de cambios. */
+      const changes = [];
+      for (const lvl of all) {
+        const pos = Number(lvl.position);
+        if (!Number.isFinite(pos) || pos < 1) continue; /* sin posición válida */
+        const newVal = computePoints(pos);
+        const oldVal = Number(lvl.value);
+        if (!Number.isFinite(oldVal) || oldVal !== newVal) {
+          changes.push({ id: lvl.id, newVal, oldVal, pos, name: lvl.name });
+        }
+      }
+
+      if (!changes.length) {
+        status.style.color = "#7fff3b";
+        status.textContent = `✔ Nada que actualizar: los ${total} niveles ya tienen los puntos correctos.`;
+        return;
+      }
+
+      status.textContent = `Actualizando ${changes.length} de ${total} niveles…`;
+
+      /* Escribir en lotes de 400. */
+      const CHUNK = 400;
+      let written = 0;
+      for (let i = 0; i < changes.length; i += CHUNK) {
+        const slice = changes.slice(i, i + CHUNK);
+        const batch = writeBatch(db);
+        slice.forEach(c => batch.update(doc(db, "levels", c.id), { value: c.newVal }));
+        await batch.commit();
+        written += slice.length;
+        status.textContent = `Actualizados ${written}/${changes.length}…`;
+      }
+
+      status.style.color = "#7fff3b";
+      status.textContent = `✔ Listo: ${changes.length} niveles actualizados (de ${total} totales).`;
+      console.log("[panel] recalcAllPoints — cambios aplicados:", changes);
+      showToast(`Recalculados ${changes.length} niveles.`);
+    } catch (err) {
+      console.error("[panel] recalcAllPoints error:", err);
+      status.style.color = "#ff7a7a";
+      status.textContent = "Error: " + (err.message || err.code || "desconocido");
+      showToast("Error al recalcular: " + (err.message || err.code || "desconocido"), true);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Recalcular puntos de toda la lista";
+    }
+  }
+  $("btnRecalcPoints").addEventListener("click", recalcAllPoints);
+
+  /* Gate por rol */
+  let initialized = false;
+  onAuthChange((user, data, loading) => {
+    window.__currentUser = user || null;
+    /* Cargamos el nombre PÚBLICO del staff (el del perfil) para
+       mostrarlo al resto cuando reclama un record.  Fire-and-forget:
+       si tarda, meName() cae al displayName de Auth temporalmente. */
+    window.__myProfileName = null;
+    if (user && user.uid) {
+      fetchProfile(user.uid).then(p => {
+        if (p && p.name) window.__myProfileName = p.name;
+      }).catch(() => {});
+    }
+    if (loading) {
+      setState("Cargando sesión...");
+      $("ownerToolsBox").style.display = "none";
+      return;
+    }
+    if (!user) {
+      setState("Debes iniciar sesión con una cuenta del staff para acceder al panel.", true);
+      $("ownerToolsBox").style.display = "none";
+      return;
+    }
+    if (!isStaff()) {
+      setState("Acceso restringido. Solo Mod, Admin u Owner pueden acceder a este panel.", true);
+      $("ownerToolsBox").style.display = "none";
+      return;
+    }
+    /* Sólo Owner ve la herramienta de recálculo. */
+    $("ownerToolsBox").style.display = isOwner() ? "block" : "none";
+    if (!initialized) {
+      initialized = true;
+      loadPending();
+    }
+  });
+</script>
+
+</body>
+</html>

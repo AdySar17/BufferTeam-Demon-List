@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  <title>Guidelines - BFT Demon List</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { overflow-x: hidden; }   /* evita scroll horizontal accidental */
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: black url('https://iili.io/qnR6Jst.jpg') no-repeat top center fixed;
+      background-size: cover;
+      padding-top: 70px;
+      min-height: 100vh;
+      color: white;
+      line-height: 1.55;
+    }
+
+    /* ===== HEADER (mismo que demonlist) ===== */
+    .top-header {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 15px;
+      z-index: 9999;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(10px);
+    }
+    .left { display: flex; align-items: center; gap: 10px; }
+    .logo-img { width: 38px; height: 38px; }
+    .logo-text { color: white; font-weight: bold; font-size: 1.1rem; }
+    .nav-links { display: flex; gap: 15px; }
+    .nav-links a { color: white; text-decoration: none; font-size: 0.95rem; }
+    .nav-links a:hover { color: #7cfc00; }
+    .menu-toggle {
+      display: none;
+      font-size: 28px; color: white;
+      width: 40px; height: 40px;
+      align-items: center; justify-content: center;
+      cursor: pointer; user-select: none;
+    }
+
+    /* ===== HERO =====
+       El fondo del sitio (sprites de GD) opaca demasiado la letra
+       del título y la descripción. Envolvemos el hero en un recuadro
+       oscuro semitransparente con blur para mejorar la legibilidad. */
+    .hero {
+      width: 92%;             /* mismo ancho que .toc / .section en móvil */
+      max-width: 820px;
+      margin: 28px auto 18px;
+      padding: 22px 26px;
+      border-radius: 16px;
+      background: rgba(10,12,10,0.72);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+    .hero-version {
+      display: inline-block;
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #c7ff3b;
+      background: rgba(199,255,59,0.10);
+      border: 1px solid rgba(199,255,59,0.35);
+      padding: 5px 12px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+    }
+    .hero h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      line-height: 1.15;
+      background: linear-gradient(90deg, #1a4d1a, #7cfc00, #c7ff3b);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 12px;
+    }
+    .hero p {
+      color: rgba(230,230,230,0.78);
+      font-size: 0.98rem;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    /* ===== TOC ===== */
+    .toc {
+      width: 92%;
+      max-width: 980px;
+      margin: 22px auto 26px;
+      padding: 16px 18px;
+      background: rgba(15,18,15,0.78);
+      border: 1px solid rgba(199,255,59,0.18);
+      border-radius: 14px;
+      backdrop-filter: blur(8px);
+    }
+    .toc-title {
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #9aa39a;
+      margin-bottom: 10px;
+    }
+    .toc-list {
+      display: flex; flex-wrap: wrap; gap: 8px 10px;
+      list-style: none;
+    }
+    .toc-list a {
+      display: inline-block;
+      font-size: 0.85rem;
+      color: #dfffbe;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: rgba(199,255,59,0.06);
+      border: 1px solid rgba(199,255,59,0.18);
+      transition: .15s background, .15s border-color, .15s transform;
+    }
+    .toc-list a:hover {
+      background: rgba(199,255,59,0.16);
+      border-color: rgba(199,255,59,0.45);
+      transform: translateY(-1px);
+    }
+
+    /* ===== SECCIONES ===== */
+    .section {
+      width: 92%;
+      max-width: 980px;
+      margin: 0 auto 22px;
+      padding: 24px 26px;
+      background: rgba(18,20,18,0.86);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-left: 4px solid #7cfc00;
+      border-radius: 14px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+      scroll-margin-top: 80px;
+    }
+    .section h2 {
+      display: flex; align-items: center; gap: 12px;
+      flex-wrap: wrap;          /* deja que el texto baje sin solaparse al icono */
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #c7ff3b;
+      margin-bottom: 6px;
+      line-height: 1.25;
+    }
+    .section h2 > span:not(.ico) { flex: 1; min-width: 0; }
+    .section h2 .ico {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: rgba(199,255,59,0.12);
+      border: 1px solid rgba(199,255,59,0.35);
+      flex-shrink: 0;
+    }
+    .section h2 .ico svg { width: 18px; height: 18px; fill: #c7ff3b; }
+    .section .lead {
+      color: rgba(230,230,230,0.75);
+      font-size: 0.94rem;
+      margin: 6px 0 14px;
+    }
+    .section p { color: rgba(230,230,230,0.86); font-size: 0.93rem; margin: 8px 0; }
+    .section strong { color: #ffffff; }
+
+    .check-list, .cross-list {
+      list-style: none;
+      margin: 10px 0 4px;
+      display: flex; flex-direction: column; gap: 7px;
+    }
+    /* Bloque normal con icono absoluto: así el texto interior (incluido
+       <strong>) fluye en una sola línea continua, sin partirse en
+       columnas como pasaba con display:flex. */
+    .check-list li, .cross-list li {
+      position: relative;
+      display: block;
+      padding: 9px 12px 9px 36px;
+      font-size: 0.93rem;
+      color: rgba(230,230,230,0.88);
+      background: rgba(255,255,255,0.03);
+      border-radius: 9px;
+      border: 1px solid rgba(255,255,255,0.05);
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+    .check-list li::before, .cross-list li::before {
+      content: "";
+      position: absolute;
+      left: 12px; top: 12px;
+      width: 16px; height: 16px;
+    }
+    .check-list li::before {
+      background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%237cfc00' d='M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z'/></svg>") center/contain no-repeat;
+    }
+    .cross-list li::before {
+      background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23ff6b6b' d='M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z'/></svg>") center/contain no-repeat;
+    }
+
+    .callout {
+      margin: 14px 0 6px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      background: rgba(199,255,59,0.07);
+      border: 1px solid rgba(199,255,59,0.30);
+      color: #dfffbe;
+    }
+    .callout.warn {
+      background: rgba(255,180,40,0.07);
+      border-color: rgba(255,180,40,0.40);
+      color: #ffe6b3;
+    }
+    .callout.danger {
+      background: rgba(255,80,80,0.07);
+      border-color: rgba(255,80,80,0.40);
+      color: #ffc7c7;
+    }
+    .callout b { color: #fff; }
+
+    /* ===== Bloques de dificultad ===== */
+    .diff-block {
+      display: flex; gap: 16px;
+      align-items: flex-start;
+      padding: 16px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      margin-top: 14px;
+    }
+    .diff-block + .diff-block { margin-top: 12px; }
+    /* Contenedor de imágenes: las parejas (Easy+Medium, Hard+Insane)
+       deben quedar siempre lado a lado, incluso al apilarse en móvil. */
+    .diff-block .diff-imgs {
+      display: flex; gap: 8px;
+      flex-shrink: 0;
+    }
+    .diff-block .diff-img {
+      width: 78px; height: 78px;
+      flex-shrink: 0;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 14px rgba(0,0,0,0.55));
+    }
+    .diff-block .diff-body { flex: 1; min-width: 0; }
+    .diff-block .diff-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .diff-block .diff-sub {
+      color: rgba(230,230,230,0.66);
+      font-size: 0.86rem;
+      margin-bottom: 10px;
+    }
+
+    /* Colores por tier */
+    .tier-easy   { border-left: 4px solid #7CFC00; }
+    .tier-easy   .diff-title { color: #c2ff7a; }
+    .tier-medium { border-left: 4px solid #ffd24d; }
+    .tier-medium .diff-title { color: #ffe28a; }
+    .tier-hard   { border-left: 4px solid #ffae40; }
+    .tier-hard   .diff-title { color: #ffc97a; }
+    .tier-insane { border-left: 4px solid #ff6b6b; }
+    .tier-insane .diff-title { color: #ff9c9c; }
+    .tier-extreme{ border-left: 4px solid #ff3b3b; }
+    .tier-extreme .diff-title { color: #ff7878; }
+    .tier-top    { border-left: 4px solid #c7ff3b; background: linear-gradient(135deg, rgba(199,255,59,0.08), rgba(255,215,0,0.04)); }
+    .tier-top    .diff-title { color: #f6ff8a; }
+
+    /* Layout extra dentro de los diff blocks */
+    .platforms {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px;
+    }
+    .platform-card {
+      padding: 10px 12px;
+      border-radius: 9px;
+      background: rgba(0,0,0,0.30);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+    .platform-card .pc-title {
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #c7ff3b;
+      margin-bottom: 6px;
+    }
+    .platform-card p {
+      font-size: 0.86rem;
+      color: rgba(230,230,230,0.85);
+      margin: 0;
+    }
+
+    /* Pie / firma */
+    .signoff {
+      max-width: 980px;
+      margin: 30px auto 60px;
+      text-align: center;
+      color: rgba(255,255,255,0.55);
+      font-size: 0.9rem;
+    }
+    .signoff strong { color: #c7ff3b; }
+
+    /* Botón volver al submit */
+    .back-cta {
+      max-width: 980px;
+      margin: 4px auto 24px;
+      text-align: center;
+    }
+    .back-cta a {
+      display: inline-block;
+      padding: 11px 22px;
+      border-radius: 11px;
+      background: linear-gradient(90deg, #1a4d1a, #7cfc00, #c7ff3b);
+      color: #0a1a00;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 4px 18px rgba(124,252,0,0.25);
+      transition: transform .15s, box-shadow .2s;
+    }
+    .back-cta a:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(124,252,0,0.4); }
+
+    /* Auth slot mínimo (no usamos auth aquí, pero conserva alineación) */
+    .auth-slot { display:flex; align-items:center; gap:10px; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .menu-toggle { display: flex; }
+      .nav-links {
+        display: none; flex-direction: column;
+        position: absolute; top: 60px; right: 10px;
+        background: rgba(0,0,0,0.92);
+        padding: 10px; border-radius: 10px; gap: 8px;
+        min-width: 180px;
+      }
+      .nav-links.active { display: flex; }
+      .hero { padding: 18px 16px; }
+      .hero h1 { font-size: 1.55rem; line-height: 1.2; }
+      .hero p { font-size: 0.88rem; }
+
+      .toc { padding: 12px 14px; }
+      .toc-list a { font-size: 0.78rem; padding: 5px 10px; }
+
+      .section { padding: 18px 16px; }
+      .section h2 { font-size: 1.1rem; gap: 10px; }
+      .section .lead, .section p { font-size: 0.9rem; }
+
+      /* Apilamos imagen(es) sobre el cuerpo, pero mantenemos las
+         dos caritas SIEMPRE lado a lado dentro del .diff-imgs. */
+      .diff-block {
+        flex-direction: column;
+        gap: 12px;
+        padding: 14px;
+      }
+      .diff-block .diff-imgs { gap: 6px; }
+      .diff-block .diff-img { width: 56px; height: 56px; }
+
+      .check-list li, .cross-list li { font-size: 0.88rem; padding: 8px 10px 8px 32px; }
+      .check-list li::before, .cross-list li::before { left: 10px; top: 11px; width: 14px; height: 14px; }
+      .platforms { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 420px) {
+      .hero h1 { font-size: 1.35rem; }
+      .section h2 { font-size: 1rem; }
+      .diff-block .diff-img { width: 48px; height: 48px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="top-header">
+    <div class="left">
+      <img src="https://iili.io/BN3Yhpp.png" class="logo-img" alt="Logo">
+      <div class="logo-text">BFT Demon List</div>
+    </div>
+    <div style="display:flex; align-items:center; gap:14px;">
+      <nav class="nav-links" id="navLinks">
+        <a href="/">Home</a>
+        <a href="/demonlist.html">Demon List</a>
+        <a href="/leaderboards.html">Leaderboards</a>
+        <a href="/notifications.html">✉ Notificaciones</a>
+        <a href="/submit.html">Enviar Record</a>
+        <a href="/guidelines.html">Guidelines</a>
+      </nav>
+      <div class="auth-slot" id="authSlot"></div>
+      <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-version">BFT Demon List · Guidelines · v1</div>
+    <h1>Guías de envío de récords</h1>
+    <p>Reglas creadas para mantener una lista justa, organizada y legítima para toda la comunidad.
+       Nuestro objetivo es permitir la participación de jugadores de todos los niveles, desde
+       principiantes hasta avanzados, sin perder la seriedad del sistema de verificación.</p>
+  </section>
+
+  <!-- TOC -->
+  <nav class="toc" aria-label="Índice">
+    <div class="toc-title">Índice</div>
+    <ul class="toc-list">
+      <li><a href="#general">Regla general</a></li>
+      <li><a href="#video">Video obligatorio</a></li>
+      <li><a href="#dificultad">Verificación por dificultad</a></li>
+      <li><a href="#raw">Raw footage</a></li>
+      <li><a href="#twoplayer">Records 2 Player</a></li>
+      <li><a href="#supervision">Segunda revisión</a></li>
+      <li><a href="#staff">Autoridad del staff</a></li>
+      <li><a href="#final">Objetivo final</a></li>
+    </ul>
+  </nav>
+
+  <!-- 1. REGLA GENERAL -->
+  <section class="section" id="general">
+    <h2>
+      <span class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 1 3 5v6c0 5 3.8 9.7 9 11 5.2-1.3 9-6 9-11V5l-9-4z"/></svg>
+      </span>
+      Regla general
+    </h2>
+    <p class="lead">Todos los récords deben ser obtenidos de forma <strong>legítima</strong>.
+      Los récords serán revisados por el staff: cumplir los requisitos mínimos no garantiza
+      aceptación automática si existen dudas razonables sobre la legitimidad.</p>
+
+    <p style="margin-top:10px;">No se permite bajo ninguna circunstancia:</p>
+    <ul class="cross-list">
+      <li>Hacks</li>
+      <li>Bots</li>
+      <li>Macros</li>
+      <li>Speedhack</li>
+      <li>Physics Bypass</li>
+      <li>Ediciones engañosas de video</li>
+      <li>Audio manipulado o falso</li>
+      <li>Uso de vacíos en las reglas para obtener ventaja</li>
+    </ul>
+
+    <div class="callout warn">
+      Si un jugador intenta aprovechar una falla o vacío no mencionado directamente en estas reglas,
+      el staff podrá tratarlo como una infracción si produce <b>la misma ventaja que una trampa normal</b>.
+    </div>
+    <div class="callout danger">
+      Cualquier intento de engaño puede resultar en <b>rechazo del récord</b>, <b>eliminación de récords previos</b>
+      o <b>sanciones</b> en la lista.
+    </div>
+  </section>
+
+  <!-- 2. VIDEO OBLIGATORIO -->
+  <section class="section" id="video">
+    <h2>
+      <span class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M4 5h12a2 2 0 0 1 2 2v3l4-2v8l-4-2v3a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></svg>
+      </span>
+      Video obligatorio
+    </h2>
+    <p class="lead">Todo récord enviado debe contar con evidencia en video. La calidad no necesita ser perfecta,
+      pero sí lo suficientemente clara para revisar el récord correctamente.</p>
+
+    <p>El video debe mostrar claramente:</p>
+    <ul class="check-list">
+      <li>El <strong>gameplay completo</strong> del intento ganador</li>
+      <li>La <strong>completion</strong> del nivel</li>
+      <li>La <strong>pantalla final</strong> (endscreen)</li>
+    </ul>
+
+    <div class="callout warn">
+      Una vez aceptado, el video debe permanecer disponible públicamente. Si el video es eliminado posteriormente,
+      el récord podrá ser <b>removido de la lista</b>.
+    </div>
+  </section>
+
+  <!-- 3. SISTEMA DE VERIFICACIÓN POR DIFICULTAD -->
+  <section class="section" id="dificultad">
+    <h2>
+      <span class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 2 4.5 6v6c0 4.5 3.2 8.7 7.5 10 4.3-1.3 7.5-5.5 7.5-10V6L12 2zm0 4 5 2.5V12c0 3.3-2.2 6.4-5 7.5-2.8-1.1-5-4.2-5-7.5V8.5L12 6z"/></svg>
+      </span>
+      Sistema de verificación por dificultad
+    </h2>
+    <p class="lead">No todos los niveles requieren el mismo grado de exigencia. Por ello, los requisitos cambian
+      según la dificultad del nivel.</p>
+
+    <!-- EASY / MEDIUM -->
+    <div class="diff-block tier-easy">
+      <div class="diff-imgs">
+        <img class="diff-img" src="https://iili.io/BrsRJwv.png" alt="Easy Demon">
+        <img class="diff-img" src="https://iili.io/BrsAp8g.png" alt="Medium Demon">
+      </div>
+      <div class="diff-body">
+        <div class="diff-title">Easy Demon · Medium Demon</div>
+        <div class="diff-sub">Puerta de entrada para nuevos jugadores.</div>
+        <ul class="check-list">
+          <li>Video claro</li>
+          <li>Completion visible</li>
+        </ul>
+        <p style="margin-top:10px; font-size:.87rem; color:rgba(230,230,230,0.7);">
+          <strong>No es obligatorio:</strong> clicks audibles, labels, cheat indicators ni raw footage.
+          Mientras el video muestre claramente que el nivel fue completado de forma legítima, normalmente será suficiente.
+        </p>
+      </div>
+    </div>
+
+    <!-- HARD / INSANE -->
+    <div class="diff-block tier-hard">
+      <div class="diff-imgs">
+        <img class="diff-img" src="https://iili.io/BrsRHAJ.png" alt="Hard Demon">
+        <img class="diff-img" src="https://iili.io/BrsR99a.png" alt="Insane Demon">
+      </div>
+      <div class="diff-body">
+        <div class="diff-title">Hard Demon · Insane Demon</div>
+        <div class="diff-sub">Dificultad intermedia-alta — se requiere mayor evidencia técnica.</div>
+        <ul class="check-list">
+          <li>Video claro</li>
+          <li>Endscreen visible</li>
+          <li>Labels visibles (si utilizas mods)</li>
+          <li>Cheat indicator visible (si aplica)</li>
+        </ul>
+        <p style="margin-top:10px; font-size:.87rem; color:rgba(230,230,230,0.7);">
+          No es obligatorio tener clicks audibles, aunque siempre ayudan al proceso de revisión.
+        </p>
+        <div class="callout">
+          <b>Jugadores Vanilla Geometry Dash:</b> si juegas sin mods, sin labels o sin herramientas
+          visuales adicionales, los <b>clicks audibles son obligatorios</b>, ya que habrá menos
+          indicadores disponibles para verificar legitimidad.
+        </div>
+        <div class="callout warn">
+          Entregar <b>raw footage</b> mejora considerablemente la confianza del récord y acelera la revisión.
+        </div>
+      </div>
+    </div>
+
+    <!-- EXTREME -->
+    <div class="diff-block tier-extreme">
+      <div class="diff-imgs">
+        <img class="diff-img" src="https://iili.io/KS9tvtI.md.png" alt="Extreme Demon">
+      </div>
+      <div class="diff-body">
+        <div class="diff-title">Extreme Demon</div>
+        <div class="diff-sub">Requieren una revisión seria debido a su dificultad.</div>
+
+        <div class="platforms">
+          <div class="platform-card">
+            <div class="pc-title">PC</div>
+            <p><strong>Clicks audibles obligatorios</strong> durante toda la completion.</p>
+          </div>
+          <div class="platform-card">
+            <div class="pc-title">Mobile</div>
+            <p>Se permiten clicks ligeros o menos notorios <strong>únicamente</strong> si se entrega
+              <strong>raw footage obligatorio</strong>. Esto permite verificar inputs en dispositivos
+              móviles donde el audio puede ser más difícil de captar.</p>
+          </div>
+        </div>
+
+        <div class="callout danger">
+          <b>Restricción adicional:</b> si el nivel se encuentra dentro del <b>Top 400+ de AREDL</b>,
+          no se aceptarán clicks ligeros. El audio deberá ser claro y suficiente para revisión.
+        </div>
+      </div>
+    </div>
+
+    <!-- TOP 150 -->
+    <div class="diff-block tier-top">
+      <div class="diff-imgs">
+        <img class="diff-img" src="https://iili.io/KS9tvtI.md.png" alt="Top 150 Demon">
+      </div>
+      <div class="diff-body">
+        <div class="diff-title">Top 150 Demons</div>
+        <div class="diff-sub">Máxima dificultad competitiva — se exige verificación cruzada.</div>
+        <ul class="check-list">
+          <li>El récord debe estar <strong>aceptado previamente en Pointercrate</strong>.</li>
+        </ul>
+        <div class="callout danger">
+          Si el récord <b>no está aceptado en Pointercrate</b>, no será aceptado en BFT Demon List.
+          Esto ayuda a mantener credibilidad total en récords de máximo nivel.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. RAW FOOTAGE -->
+  <section class="section" id="raw">
+    <h2>
+      <span class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16v3H4zM4 9h16v11H4zM7 12h10v2H7zM7 16h6v2H7z"/></svg>
+      </span>
+      Raw footage
+    </h2>
+    <p class="lead">El raw footage es la <strong>grabación original sin editar</strong>. Puede ser solicitado por el
+      staff en cualquier momento, incluso si inicialmente no era obligatorio.</p>
+
+    <p>Será altamente recomendado o requerido en casos como:</p>
+    <ul class="check-list">
+      <li>Extreme Demons</li>
+      <li>Top demons</li>
+      <li>Récords sospechosos</li>
+      <li>Audio poco claro</li>
+      <li>Casos especiales</li>
+    </ul>
+
+    <div class="callout danger">
+      Negarse a entregar raw footage cuando sea solicitado puede resultar en <b>rechazo del récord</b>.
+    </div>
+  </section>
+
+  <!-- 5. RECORDS 2 PLAYER -->
+  <section class="section" id="twoplayer">
+    <h2>
+      <span class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm8 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 19c0-2.7 4-4 6-4s6 1.3 6 4v1H2v-1zm12 0c0-1.5.7-2.7 1.7-3.5C17.4 15.2 19 16.6 22 17.4V20h-8v-1z"/></svg>
+      </span>
+      Records 2 Player
+    </h2>
+    <p class="lead">Los niveles 2 Player también son aceptados dentro de la lista.</p>
+    <ul class="check-list">
+      <li>Ambos jugadores deben estar <strong>correctamente identificados</strong>.</li>
+      <li>Si el récord fue realizado mediante <strong>Globed</strong>, deben presentarse <strong>ambas POV</strong>
+          o un enlace a la segunda perspectiva.</li>
+      <li>Si ambos jugadores completaron el nivel en un <strong>mismo dispositivo</strong>, un solo video será suficiente.</li>
+    </ul>
+    <div class="callout warn">
+      El staff podrá solicitar información adicional si existen dudas sobre la participación real de ambos jugadores.
+    </div>
+  </section>
+
+  <!-- 6. SUPERVISIÓN -->
+  <section class="section" id="supervision">
+    <h2>
+      <span class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M10 2a8 8 0 1 1-5.3 14L2 18.7 3.3 20l2.7-2.7A8 8 0 0 1 10 2zm0 2a6 6 0 1 0 0 12A6 6 0 0 0 10 4z"/></svg>
+      </span>
+      Segunda revisión / Supervisión
+    </h2>
+    <p class="lead">Un récord aceptado <strong>no significa aprobación permanente</strong>.</p>
+    <p>Si con el tiempo aparecen:</p>
+    <ul class="check-list">
+      <li>Sospechas razonables</li>
+      <li>Reportes de la comunidad</li>
+      <li>Nuevas pruebas</li>
+      <li>Inconsistencias técnicas</li>
+    </ul>
+    <p style="margin-top:8px;">El récord podrá ser enviado a <strong>Revisión de Supervisión</strong>, donde múltiples
+      miembros del staff lo analizarán nuevamente con mayor profundidad. Tras la revisión, el récord podrá:</p>
+    <ul class="check-list">
+      <li>Mantenerse aceptado</li>
+      <li>Ser removido</li>
+      <li>Solicitar evidencia adicional al jugador</li>
+    </ul>
+  </section>
+
+  <!-- 7. AUTORIDAD DEL STAFF -->
+  <section class="section" id="staff">
+    <h2>
+      <span class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 1 3 5v6c0 5 3.8 9.7 9 11 5.2-1.3 9-6 9-11V5l-9-4zm0 4 6 2.7V11c0 4-2.7 7.7-6 8.9-3.3-1.2-6-4.9-6-8.9V7.7L12 5z"/></svg>
+      </span>
+      Autoridad del staff
+    </h2>
+    <p class="lead">El staff tiene la <strong>decisión final</strong> en situaciones no contempladas
+      directamente en estas reglas.</p>
+    <ul class="check-list">
+      <li>Casos especiales</li>
+      <li>Métodos nuevos de trampa</li>
+      <li>Evidencia insuficiente</li>
+      <li>Situaciones ambiguas</li>
+    </ul>
+    <div class="callout">
+      Nuestro objetivo no es perjudicar jugadores legítimos, sino <b>proteger la integridad de la lista</b>.
+    </div>
+  </section>
+
+  <!-- 8. OBJETIVO FINAL -->
+  <section class="section" id="final">
+    <h2>
+      <span class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 4a6 6 0 1 1 0 12 6 6 0 0 1 0-12zm0 3a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
+      </span>
+      Objetivo final
+    </h2>
+    <p>Queremos construir una lista <strong>competitiva, seria y abierta para todos</strong>.</p>
+    <p>No importa si eres principiante o profesional. Si juegas legítimamente y mejoras como jugador,
+       <strong>tienes un lugar aquí</strong>.</p>
+  </section>
+
+  <!-- CTA volver al envío -->
+  <div class="back-cta">
+    <a href="/submit.html">Volver a enviar mi récord →</a>
+  </div>
+
+  <div class="signoff">
+    <strong>BFT Demon List Staff Team</strong>
+  </div>
+
+  <script>
+    function toggleMenu() {
+      document.getElementById('navLinks').classList.toggle('active');
+    }
+  </script>
+
+  <!-- Carga el widget de auth (foto + nombre + Iniciar/Cerrar sesión)
+       igual que en submit/demonlist/etc. para que la sesión se vea aquí. -->
+  <script type="module">
+    import { mountAuthUI } from "/auth.js?v=8";
+    mountAuthUI("authSlot");
+  </script>
+</body>
+</html>

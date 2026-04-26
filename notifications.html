@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notificaciones — BFT Demon List</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    min-height: 100vh;
+    font-family: 'Montserrat', sans-serif;
+    color: #fff;
+    background: #050a05 url('https://iili.io/qnR6Jst.jpg') no-repeat top center fixed;
+    background-size: cover;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV — igual al resto */
+  .top-header {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 18px;
+    z-index: 9999;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .left  { display: flex; align-items: center; gap: 10px; }
+  .logo-img  { width: 36px; height: 36px; }
+  .logo-text { color: white; font-weight: 700; font-size: 1.05rem; }
+  .nav-links { display: flex; gap: 18px; }
+  .nav-links a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.92rem; transition: color .2s; }
+  .nav-links a:hover { color: #c7ff3b; }
+  .menu-toggle {
+    display: none; font-size: 26px; color: white;
+    width: 38px; height: 38px; align-items: center; justify-content: center;
+    cursor: pointer; user-select: none;
+  }
+  @media (max-width: 680px) {
+    .menu-toggle { display: flex; }
+    .nav-links {
+      display: none; flex-direction: column;
+      position: absolute; top: 60px; right: 10px;
+      background: rgba(0,0,0,0.92); padding: 10px; border-radius: 10px; gap: 8px;
+    }
+    .nav-links.open { display: flex; }
+  }
+
+  .page-wrap {
+    max-width: 880px; margin: 95px auto 60px;
+    padding: 0 20px;
+  }
+  .page-title {
+    font-size: 2rem; font-weight: 700;
+    background: linear-gradient(90deg, #4a8a1a, #c7ff3b);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    margin-bottom: 6px;
+  }
+  .page-sub { color: rgba(230,230,230,0.6); font-size: .9rem; margin-bottom: 22px; }
+
+  .state-msg { text-align: center; padding: 60px 20px; color: rgba(230,230,230,0.65); font-size: 0.95rem; }
+  .state-msg.error { color: #ff9a9a; }
+
+  /* TABS */
+  .tabs {
+    display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap;
+  }
+  .tab {
+    padding: 8px 16px; border-radius: 9px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: rgba(230,230,230,0.75);
+    font-size: 0.85rem; font-weight: 600;
+    cursor: pointer; transition: all .15s;
+  }
+  .tab:hover { background: rgba(199,255,59,0.08); color: #c7ff3b; }
+  .tab.active {
+    background: linear-gradient(90deg, rgba(74,138,26,0.5), rgba(199,255,59,0.25));
+    color: #fff; border-color: rgba(199,255,59,0.4);
+  }
+
+  /* CARD */
+  .notif {
+    background: rgba(8,8,8,0.65);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-left: 4px solid #888;
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+  }
+  .notif.accepted { border-left-color: #7fff3b; }
+  .notif.rejected { border-left-color: #ff5e5e; }
+
+  .notif-head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 14px; flex-wrap: wrap; margin-bottom: 8px;
+  }
+  .notif-title {
+    font-size: 1.05rem; font-weight: 700;
+    background: linear-gradient(90deg, #7fff3b, #c7ff3b);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .notif-title a { color: inherit; text-decoration: none; }
+  .notif-title a:hover { text-decoration: underline; }
+  .notif-status {
+    padding: 4px 10px; border-radius: 7px;
+    font-size: 0.72rem; font-weight: 800; letter-spacing: .5px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .notif-status.accepted { background: rgba(127,255,59,0.18); color: #c7ff3b; }
+  .notif-status.rejected { background: rgba(255,94,94,0.18); color: #ff9a9a; }
+
+  .notif-meta {
+    display: flex; flex-wrap: wrap; gap: 14px;
+    font-size: 0.82rem; color: rgba(230,230,230,0.7);
+    margin-bottom: 10px;
+  }
+  .notif-meta b { color: #fff; font-weight: 700; }
+
+  .notif-notes {
+    margin-top: 10px; padding: 10px 14px;
+    background: rgba(199,255,59,0.06);
+    border-left: 3px solid rgba(199,255,59,0.4);
+    border-radius: 6px;
+    font-size: 0.86rem; line-height: 1.5;
+    color: #dfeee0; white-space: pre-wrap;
+  }
+  .notif-notes b { color: #c7ff3b; }
+
+  .notif-time {
+    font-size: 0.72rem; color: rgba(230,230,230,0.4);
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="left">
+    <img src="https://iili.io/BN3Yhpp.png" class="logo-img" alt="Logo">
+    <div class="logo-text">BFT Demon List</div>
+  </div>
+  <div style="display:flex; align-items:center; gap:14px;">
+    <nav class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/demonlist.html">Demon List</a>
+      <a href="/leaderboards.html">Leaderboards</a>
+      <a href="/notifications.html">✉ Notificaciones</a>
+      <a href="/submit.html">Enviar Record</a>
+      <a href="/guidelines.html">Guidelines</a>
+      <a href="/panel.html" class="staff-only">Panel de Records</a>
+    </nav>
+    <div class="auth-slot" id="authSlot"></div>
+    <div class="menu-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')">☰</div>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <h1 class="page-title">✉ Notificaciones</h1>
+  <p class="page-sub">Aquí aparecen tus records moderados por el staff: aceptados o rechazados, con la nota que el moderador haya dejado.</p>
+
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-filter="all">Todas</div>
+    <div class="tab" data-filter="Accepted">Aceptadas</div>
+    <div class="tab" data-filter="Rejected">Rechazadas</div>
+  </div>
+
+  <div id="stateMsg" class="state-msg">Cargando notificaciones...</div>
+  <div id="list"></div>
+</div>
+
+<script type="module">
+  import { mountAuthUI } from "/auth.js";
+  mountAuthUI("authSlot");
+</script>
+
+<script type="module">
+  import { db, onAuthChange } from "/auth.js";
+  import {
+    collection, query, where, getDocs, doc, getDoc
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const $ = (id) => document.getElementById(id);
+  const stateMsg = $("stateMsg");
+  const listEl   = $("list");
+
+  let allNotifs = [];        // moderated records (Accepted/Rejected) involving the user
+  let activeFilter = "all";
+
+  function escapeHtml(s) {
+    return String(s ?? "").replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    })[c]);
+  }
+  function fmtDate(ts) {
+    if (!ts) return "—";
+    try {
+      const d = ts.toDate ? ts.toDate() : new Date(ts);
+      return d.toLocaleString("es-ES", { dateStyle: "long", timeStyle: "short" });
+    } catch (e) { return "—"; }
+  }
+  function tsMillis(ts) {
+    if (!ts) return 0;
+    try { return ts.toMillis ? ts.toMillis() : new Date(ts).getTime(); }
+    catch (e) { return 0; }
+  }
+
+  /* TABS */
+  document.querySelectorAll(".tab").forEach(t => {
+    t.onclick = () => {
+      document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+      t.classList.add("active");
+      activeFilter = t.dataset.filter;
+      render();
+    };
+  });
+
+  async function loadNotifications(uid) {
+    stateMsg.style.display = "block";
+    stateMsg.classList.remove("error");
+    stateMsg.textContent = "Cargando notificaciones...";
+    listEl.innerHTML = "";
+
+    try {
+      /* Records donde el usuario participa (jugador 1 o 2) */
+      const [snap1, snap2] = await Promise.all([
+        getDocs(query(collection(db, "records"), where("userId",    "==", uid))),
+        getDocs(query(collection(db, "records"), where("player2Id", "==", uid)))
+      ]);
+      const map = new Map();
+      snap1.forEach(d => map.set(d.id, { id: d.id, ...d.data() }));
+      snap2.forEach(d => map.set(d.id, { id: d.id, ...d.data() }));
+
+      /* Solo records moderados (Accepted o Rejected) */
+      allNotifs = [...map.values()]
+        .filter(r => r.status === "Accepted" || r.status === "Rejected");
+
+      if (!allNotifs.length) {
+        stateMsg.textContent = "No tienes notificaciones todavía. Cuando el staff revise un record tuyo aparecerá aquí.";
+        return;
+      }
+
+      /* Adjuntar nivel */
+      const lvlIds = [...new Set(allNotifs.map(r => r.levelId).filter(Boolean))];
+      const lvlMap = new Map();
+      await Promise.all(lvlIds.map(async id => {
+        try {
+          const s = await getDoc(doc(db, "levels", id));
+          if (s.exists()) lvlMap.set(id, s.data());
+        } catch (e) {}
+      }));
+      allNotifs.forEach(r => { r._level = lvlMap.get(r.levelId) || {}; });
+
+      /* Ordenar por fecha de moderación DESC (más recientes arriba) */
+      allNotifs.sort((a, b) => {
+        const ta = tsMillis(a.moderatedAt) || tsMillis(a.acceptedAt) || tsMillis(a.updatedAt) || tsMillis(a.createdAt);
+        const tb = tsMillis(b.moderatedAt) || tsMillis(b.acceptedAt) || tsMillis(b.updatedAt) || tsMillis(b.createdAt);
+        return tb - ta;
+      });
+
+      stateMsg.style.display = "none";
+      render();
+    } catch (err) {
+      console.error("[notifications] load error:", err);
+      stateMsg.classList.add("error");
+      stateMsg.textContent = "Error al cargar las notificaciones: " + (err.message || "");
+    }
+  }
+
+  function render() {
+    const items = activeFilter === "all"
+      ? allNotifs
+      : allNotifs.filter(r => r.status === activeFilter);
+
+    if (!items.length) {
+      listEl.innerHTML = "";
+      stateMsg.style.display = "block";
+      stateMsg.classList.remove("error");
+      stateMsg.textContent = activeFilter === "all"
+        ? "No tienes notificaciones todavía."
+        : `No hay notificaciones ${activeFilter === "Accepted" ? "aceptadas" : "rechazadas"}.`;
+      return;
+    }
+    stateMsg.style.display = "none";
+
+    listEl.innerHTML = "";
+    items.forEach(rec => {
+      const lvl = rec._level || {};
+      const accepted = rec.status === "Accepted";
+      const wrap = document.createElement("div");
+      wrap.className = "notif " + (accepted ? "accepted" : "rejected");
+
+      const dateMain = accepted
+        ? (rec.acceptedAt || rec.moderatedAt || rec.updatedAt)
+        : (rec.moderatedAt || rec.updatedAt || rec.createdAt);
+
+      wrap.innerHTML = `
+        <div class="notif-head">
+          <div class="notif-title">
+            <a href="/level.html?id=${encodeURIComponent(rec.levelId || "")}">${escapeHtml(lvl.name || "Nivel desconocido")}</a>
+          </div>
+          <div class="notif-status ${accepted ? "accepted" : "rejected"}">${accepted ? "Aceptada" : "Rechazada"}</div>
+        </div>
+        <div class="notif-meta">
+          <span><b>Porcentaje:</b> ${Math.round(Number(rec.percent || 0))}%</span>
+          ${lvl.position ? `<span><b>Posición del nivel:</b> #${lvl.position}</span>` : ``}
+          ${rec.mode2P ? `<span><b>Modo:</b> 2 Players</span>` : ``}
+        </div>
+        ${rec.staffnotes ? `
+          <div class="notif-notes">
+            <b>Nota del staff:</b> ${escapeHtml(rec.staffnotes)}
+          </div>` : ``}
+        <div class="notif-time">
+          ${accepted ? "Aceptada el" : "Rechazada el"}: ${fmtDate(dateMain)}
+        </div>
+      `;
+      listEl.appendChild(wrap);
+    });
+  }
+
+  /* Auth gate */
+  let initialized = false;
+  onAuthChange((user, data, loading) => {
+    if (loading) {
+      stateMsg.textContent = "Cargando sesión...";
+      return;
+    }
+    if (!user) {
+      stateMsg.classList.add("error");
+      stateMsg.textContent = "Inicia sesión para ver tus notificaciones.";
+      listEl.innerHTML = "";
+      return;
+    }
+    if (!initialized) {
+      initialized = true;
+      loadNotifications(user.uid);
+    }
+  });
+</script>
+</body>
+</html>
