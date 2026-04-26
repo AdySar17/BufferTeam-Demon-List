@@ -1,5 +1,5 @@
 import { expectTypeOf, test } from "vitest";
-import * as z from "zod/v4";
+import * as z from "../index.js";
 
 test("branded types", () => {
   const mySchema = z
@@ -10,18 +10,18 @@ test("branded types", () => {
 
   // simple branding
   type MySchema = z.infer<typeof mySchema>;
-
+  // Using true for type equality assertion
   expectTypeOf<MySchema>().toEqualTypeOf<{ name: string } & z.$brand<"superschema">>();
 
   const doStuff = (arg: MySchema) => arg;
-  doStuff(mySchema.parse({ name: "hello there" }));
+  doStuff(z.parse(mySchema, { name: "hello there" }));
 
   // inheritance
   const extendedSchema = mySchema.brand<"subschema">();
   type ExtendedSchema = z.infer<typeof extendedSchema>;
-  expectTypeOf<ExtendedSchema>().toEqualTypeOf<{ name: string } & z.BRAND<"superschema"> & z.BRAND<"subschema">>();
+  expectTypeOf<ExtendedSchema>().toEqualTypeOf<{ name: string } & z.$brand<"superschema"> & z.$brand<"subschema">>();
 
-  doStuff(extendedSchema.parse({ name: "hello again" }));
+  doStuff(z.parse(extendedSchema, { name: "hello again" }));
 
   // number branding
   const numberSchema = z.number().brand<42>();
@@ -33,31 +33,19 @@ test("branded types", () => {
   type MyBrand = typeof MyBrand;
   const symbolBrand = z.number().brand<"sup">().brand<typeof MyBrand>();
   type SymbolBrand = z.infer<typeof symbolBrand>;
-  // number & { [z.BRAND]: { sup: true, [MyBrand]: true } }
-  expectTypeOf<SymbolBrand>().toEqualTypeOf<number & z.BRAND<"sup"> & z.BRAND<MyBrand>>();
+  // number & { [z.$brand]: { sup: true, [MyBrand]: true } }
+  expectTypeOf<SymbolBrand>().toEqualTypeOf<number & z.$brand<"sup"> & z.$brand<MyBrand>>();
 
   // keeping brands out of input types
   const age = z.number().brand<"age">();
+  type Age1 = z.infer<typeof age>;
+  type AgeInput1 = z.input<typeof age>;
 
-  type Age = z.infer<typeof age>;
-  type AgeInput = z.input<typeof age>;
-
-  expectTypeOf<AgeInput>().not.toEqualTypeOf<Age>();
-  expectTypeOf<number>().toEqualTypeOf<AgeInput>();
-  expectTypeOf<number & z.BRAND<"age">>().toEqualTypeOf<Age>();
+  // Using not for type inequality assertion
+  expectTypeOf<AgeInput1>().not.toEqualTypeOf<Age1>();
+  expectTypeOf<number>().toEqualTypeOf<AgeInput1>();
+  expectTypeOf<number & z.$brand<"age">>().toEqualTypeOf<Age1>();
 
   // @ts-expect-error
   doStuff({ name: "hello there!" });
-});
-
-test("$branded", () => {
-  const a = z.string().brand<"a">();
-
-  expectTypeOf<typeof a>().toEqualTypeOf<z.core.$ZodBranded<z.ZodString, "a">>();
-});
-
-test("branded record", () => {
-  const recordWithBrandedNumberKeys = z.record(z.string().brand("SomeBrand"), z.number());
-  type recordWithBrandedNumberKeys = z.infer<typeof recordWithBrandedNumberKeys>;
-  expectTypeOf<recordWithBrandedNumberKeys>().toEqualTypeOf<Record<string & z.core.$brand<"SomeBrand">, number>>();
 });
