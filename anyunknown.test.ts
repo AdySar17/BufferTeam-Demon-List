@@ -1,15 +1,13 @@
-// @ts-ignore TS6133
-import { expect, test } from "vitest";
+import { expect, expectTypeOf, test } from "vitest";
 
-import * as z from "zod/v3";
-import { util } from "../helpers/util.js";
+import * as z from "zod/v4";
 
 test("check any inference", () => {
   const t1 = z.any();
   t1.optional();
   t1.nullable();
   type t1 = z.infer<typeof t1>;
-  util.assertEqual<t1, any>(true);
+  expectTypeOf<t1>().toEqualTypeOf<any>();
 });
 
 test("check unknown inference", () => {
@@ -17,7 +15,7 @@ test("check unknown inference", () => {
   t1.optional();
   t1.nullable();
   type t1 = z.infer<typeof t1>;
-  util.assertEqual<t1, unknown>(true);
+  expectTypeOf<t1>().toEqualTypeOf<unknown>();
 });
 
 test("check never inference", () => {

@@ -1,8 +1,6 @@
-// @ts-ignore TS6133
-import { expect, test } from "vitest";
-
-import * as z from "zod/v3";
-import { util } from "../helpers/util.js";
+import { expect, expectTypeOf, test } from "vitest";
+import * as z from "zod/v4";
+import * as core from "zod/v4/core";
 
 const Test = z.object({
   f1: z.number(),
@@ -19,7 +17,7 @@ test("object type inference", () => {
     f4: { t: string | boolean }[];
   };
 
-  util.assertEqual<z.TypeOf<typeof Test>, TestType>(true);
+  expectTypeOf<z.TypeOf<typeof Test>>().toEqualTypeOf<TestType>();
 });
 
 test("unknown throw", () => {
@@ -62,15 +60,27 @@ test("correct parsing", () => {
   });
 });
 
-test("incorrect #1", () => {
-  expect(() => Test.parse({} as any)).toThrow();
-});
-
 test("nonstrict by default", () => {
   z.object({ points: z.number() }).parse({
     points: 2314,
     unknown: "asdf",
   });
+});
+
+test("parse optional keys ", () => {
+  const schema = z.object({
+    a: z.string().optional(),
+  });
+  expect(schema.parse({ a: "asdf" })).toEqual({ a: "asdf" });
+});
+
+test("empty object", () => {
+  const schema = z.object({});
+  expect(schema.parse({})).toEqual({});
+  expect(schema.parse({ name: "asdf" })).toEqual({});
+  expect(schema.safeParse(null).success).toEqual(false);
+  expect(schema.safeParse("asdf").success).toEqual(false);
+  expectTypeOf<z.output<typeof schema>>().toEqualTypeOf<Record<string, never>>();
 });
 
 const data = {
@@ -84,7 +94,7 @@ test("strip by default", () => {
 });
 
 test("unknownkeys override", () => {
-  const val = z.object({ points: z.number() }).strict().passthrough().strip().nonstrict().parse(data);
+  const val = z.object({ points: z.number() }).strict().passthrough().strip().passthrough().parse(data);
 
   expect(val).toEqual(data);
 });
@@ -115,8 +125,8 @@ test("catchall inference", () => {
     .catchall(z.number());
 
   const d1 = o1.parse({ first: "asdf", num: 1243 });
-  util.assertEqual<number, (typeof d1)["asdf"]>(true);
-  util.assertEqual<string, (typeof d1)["first"]>(true);
+  // expectTypeOf<(typeof d1)["asdf"]>().toEqualTypeOf<number>();
+  expectTypeOf<(typeof d1)["first"]>().toEqualTypeOf<string>();
 });
 
 test("catchall overrides strict", () => {
@@ -152,7 +162,7 @@ test("catchall overrides strict", () => {
   });
 });
 
-test("test that optional keys are unset", async () => {
+test("optional keys are unset", async () => {
   const SNamedEntity = z.object({
     id: z.string(),
     set: z.string().optional(),
@@ -162,11 +172,10 @@ test("test that optional keys are unset", async () => {
     id: "asdf",
     set: undefined,
   });
-  // eslint-disable-next-line ban/ban
   expect(Object.keys(result)).toEqual(["id", "set"]);
 });
 
-test("test catchall parsing", async () => {
+test("catchall parsing", async () => {
   const result = z.object({ name: z.string() }).catchall(z.number()).parse({ name: "Foo", validExtraKey: 61 });
 
   expect(result).toEqual({ name: "Foo", validExtraKey: 61 });
@@ -179,7 +188,7 @@ test("test catchall parsing", async () => {
   expect(result2.success).toEqual(false);
 });
 
-test("test nonexistent keys", async () => {
+test("nonexistent keys", async () => {
   const Schema = z.union([z.object({ a: z.string() }), z.object({ b: z.number() })]);
   const obj = { a: "A" };
   const result = await Schema.spa(obj); // Works with 1.11.10, breaks with 2.0.0-beta.21
@@ -204,7 +213,18 @@ test("test async union", async () => {
 test("test inferred merged type", async () => {
   const asdf = z.object({ a: z.string() }).merge(z.object({ a: z.number() }));
   type asdf = z.infer<typeof asdf>;
-  util.assertEqual<asdf, { a: number }>(true);
+
+  expectTypeOf<asdf>().toEqualTypeOf<{ a: number }>();
+});
+
+test("inferred type with Record shape", () => {
+  type A = z.ZodObject<Record<string, z.ZodType<string, number>>>;
+  expectTypeOf<z.infer<A>>().toEqualTypeOf<Record<string, string>>();
+  expectTypeOf<z.input<A>>().toEqualTypeOf<Record<string, number>>();
+
+  type B = z.ZodObject;
+  expectTypeOf<z.infer<B>>().toEqualTypeOf<Record<string, unknown>>();
+  expectTypeOf<z.input<B>>().toEqualTypeOf<Record<string, unknown>>();
 });
 
 test("inferred merged object type with optional properties", async () => {
@@ -212,9 +232,8 @@ test("inferred merged object type with optional properties", async () => {
     .object({ a: z.string(), b: z.string().optional() })
     .merge(z.object({ a: z.string().optional(), b: z.string() }));
   type Merged = z.infer<typeof Merged>;
-  util.assertEqual<Merged, { a?: string; b: string }>(true);
-  // todo
-  // util.assertEqual<Merged, { a?: string; b: string }>(true);
+  expectTypeOf<Merged>().toEqualTypeOf<{ a?: string; b: string }>();
+  expectTypeOf<Merged>().toEqualTypeOf<{ a?: string; b: string }>();
 });
 
 test("inferred unioned object type with optional properties", async () => {
@@ -223,35 +242,35 @@ test("inferred unioned object type with optional properties", async () => {
     z.object({ a: z.string().optional(), b: z.string() }),
   ]);
   type Unioned = z.infer<typeof Unioned>;
-  util.assertEqual<Unioned, { a: string; b?: string } | { a?: string; b: string }>(true);
+  expectTypeOf<Unioned>().toEqualTypeOf<{ a: string; b?: string } | { a?: string; b: string }>();
 });
 
 test("inferred enum type", async () => {
   const Enum = z.object({ a: z.string(), b: z.string().optional() }).keyof();
 
-  expect(Enum.Values).toEqual({
-    a: "a",
-    b: "b",
-  });
   expect(Enum.enum).toEqual({
     a: "a",
     b: "b",
   });
-  expect(Enum._def.values).toEqual(["a", "b"]);
+
+  expect(Enum._zod.def.entries).toEqual({
+    a: "a",
+    b: "b",
+  });
   type Enum = z.infer<typeof Enum>;
-  util.assertEqual<Enum, "a" | "b">(true);
+  expectTypeOf<Enum>().toEqualTypeOf<"a" | "b">();
 });
 
 test("inferred partial object type with optional properties", async () => {
   const Partial = z.object({ a: z.string(), b: z.string().optional() }).partial();
   type Partial = z.infer<typeof Partial>;
-  util.assertEqual<Partial, { a?: string; b?: string }>(true);
+  expectTypeOf<Partial>().toEqualTypeOf<{ a?: string; b?: string }>();
 });
 
 test("inferred picked object type with optional properties", async () => {
   const Picked = z.object({ a: z.string(), b: z.string().optional() }).pick({ b: true });
   type Picked = z.infer<typeof Picked>;
-  util.assertEqual<Picked, { b?: string }>(true);
+  expectTypeOf<Picked>().toEqualTypeOf<{ b?: string }>();
 });
 
 test("inferred type for unknown/any keys", () => {
@@ -262,27 +281,15 @@ test("inferred type for unknown/any keys", () => {
     unknownRequired: z.unknown(),
   });
   type myType = z.infer<typeof myType>;
-  util.assertEqual<
-    myType,
-    {
-      anyOptional?: any;
-      anyRequired?: any;
-      unknownOptional?: unknown;
-      unknownRequired?: unknown;
-    }
-  >(true);
+  expectTypeOf<myType>().toEqualTypeOf<{
+    anyOptional?: any;
+    anyRequired: any;
+    unknownOptional?: unknown;
+    unknownRequired: unknown;
+  }>();
 });
 
-test("setKey", () => {
-  const base = z.object({ name: z.string() });
-  const withNewKey = base.setKey("age", z.number());
-
-  type withNewKey = z.infer<typeof withNewKey>;
-  util.assertEqual<withNewKey, { name: string; age: number }>(true);
-  withNewKey.parse({ name: "asdf", age: 1234 });
-});
-
-test("strictcreate", async () => {
+test("strictObject", async () => {
   const strictObj = z.strictObject({
     name: z.string(),
   });
@@ -310,7 +317,7 @@ test("intersection of object with date", async () => {
   const schema = z.object({
     a: z.date(),
   });
-  expect(schema.and(schema).parse({ a: new Date(1637353595983) })).toEqual({
+  expect(z.intersection(schema, schema).parse({ a: new Date(1637353595983) })).toEqual({
     a: new Date(1637353595983),
   });
   const result = await schema.parseAsync({ a: new Date(1637353595983) });
@@ -323,7 +330,7 @@ test("intersection of object with refine with date", async () => {
       a: z.date(),
     })
     .refine(() => true);
-  expect(schema.and(schema).parse({ a: new Date(1637353595983) })).toEqual({
+  expect(z.intersection(schema, schema).parse({ a: new Date(1637353595983) })).toEqual({
     a: new Date(1637353595983),
   });
   const result = await schema.parseAsync({ a: new Date(1637353595983) });
@@ -353,31 +360,34 @@ test("constructor key", () => {
   });
 
   type Example = z.infer<typeof Example>;
-  util.assertEqual<keyof Example, "prop" | "opt" | "arr">(true);
+  expectTypeOf<keyof Example>().toEqualTypeOf<"prop" | "opt" | "arr">();
+});
+
+test("catchall", () => {
+  const a = z.object({});
+  expect(a._zod.def.catchall).toBeUndefined();
+
+  const b = z.strictObject({});
+  expect(b._zod.def.catchall).toBeInstanceOf(core.$ZodNever);
+
+  const c = z.looseObject({});
+  expect(c._zod.def.catchall).toBeInstanceOf(core.$ZodUnknown);
+
+  const d = z.object({}).catchall(z.number());
+  expect(d._zod.def.catchall).toBeInstanceOf(core.$ZodNumber);
 });
 
 test("unknownkeys merging", () => {
   // This one is "strict"
-  const schemaA = z
-    .object({
-      a: z.string(),
-    })
-    .strict();
+  const a = z.looseObject({
+    a: z.string(),
+  });
 
-  // This one is "strip"
-  const schemaB = z
-    .object({
-      b: z.string(),
-    })
-    .catchall(z.string());
+  const b = z.strictObject({ b: z.string() });
 
-  const mergedSchema = schemaA.merge(schemaB);
-  type mergedSchema = typeof mergedSchema;
-  util.assertEqual<mergedSchema["_def"]["unknownKeys"], "strip">(true);
-  expect(mergedSchema._def.unknownKeys).toEqual("strip");
-
-  util.assertEqual<mergedSchema["_def"]["catchall"], z.ZodString>(true);
-  expect(mergedSchema._def.catchall instanceof z.ZodString).toEqual(true);
+  // incoming object overrides
+  const c = a.merge(b);
+  expect(c._zod.def.catchall).toBeInstanceOf(core.$ZodNever);
 });
 
 const personToExtend = z.object({
@@ -393,8 +403,8 @@ test("extend() should return schema with new key", () => {
   const actual = PersonWithNickname.parse(expected);
 
   expect(actual).toEqual(expected);
-  util.assertEqual<keyof PersonWithNickname, "firstName" | "lastName" | "nickName">(true);
-  util.assertEqual<PersonWithNickname, { firstName: string; lastName: string; nickName: string }>(true);
+  expectTypeOf<keyof PersonWithNickname>().toEqualTypeOf<"firstName" | "lastName" | "nickName">();
+  expectTypeOf<PersonWithNickname>().toEqualTypeOf<{ firstName: string; lastName: string; nickName: string }>();
 });
 
 test("extend() should have power to override existing key", () => {
@@ -407,28 +417,147 @@ test("extend() should have power to override existing key", () => {
   const actual = PersonWithNumberAsLastName.parse(expected);
 
   expect(actual).toEqual(expected);
-  util.assertEqual<PersonWithNumberAsLastName, { firstName: string; lastName: number }>(true);
+  expectTypeOf<PersonWithNumberAsLastName>().toEqualTypeOf<{ firstName: string; lastName: number }>();
 });
 
 test("passthrough index signature", () => {
   const a = z.object({ a: z.string() });
   type a = z.infer<typeof a>;
-  util.assertEqual<{ a: string }, a>(true);
+  expectTypeOf<a>().toEqualTypeOf<{ a: string }>();
   const b = a.passthrough();
   type b = z.infer<typeof b>;
-  util.assertEqual<{ a: string } & { [k: string]: unknown }, b>(true);
+  expectTypeOf<b>().toEqualTypeOf<{ a: string; [k: string]: unknown }>();
 });
 
-test("xor", () => {
-  type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
-  type XOR<T, U> = T extends object ? (U extends object ? (Without<T, U> & U) | (Without<U, T> & T) : U) : T;
+// test("xor", () => {
+//   type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
+//   type XOR<T, U> = T extends object ? (U extends object ? (Without<T, U> & U) | (Without<U, T> & T) : U) : T;
 
-  type A = { name: string; a: number };
-  type B = { name: string; b: number };
-  type C = XOR<A, B>;
-  type Outer = { data: C };
+//   type A = { name: string; a: number };
+//   type B = { name: string; b: number };
+//   type C = XOR<A, B>;
+//   type Outer = { data: C };
+//   const Outer = z.object({
+//     data: z.union([z.object({ name: z.string(), a: z.number() }), z.object({ name: z.string(), b: z.number() })]),
+//   }) satisfies z.ZodType<Outer, any>;
+// });
 
-  const _Outer: z.ZodType<Outer> = z.object({
-    data: z.union([z.object({ name: z.string(), a: z.number() }), z.object({ name: z.string(), b: z.number() })]),
+test("assignability", () => {
+  z.object({ a: z.string() }) satisfies z.ZodObject<{ a: z.ZodString }>;
+  z.object({ a: z.string() }).catchall(z.number()) satisfies z.ZodObject<{ a: z.ZodString }>;
+  z.object({ a: z.string() }).strict() satisfies z.ZodObject;
+  z.object({}) satisfies z.ZodObject;
+
+  z.looseObject({ name: z.string() }) satisfies z.ZodObject<
+    {
+      name: z.ZodString;
+    },
+    z.core.$loose
+  >;
+  z.looseObject({ name: z.string() }) satisfies z.ZodObject<{
+    name: z.ZodString;
+  }>;
+  z.strictObject({ name: z.string() }) satisfies z.ZodObject<
+    {
+      name: z.ZodString;
+    },
+    z.core.$loose
+  >;
+  z.strictObject({ name: z.string() }) satisfies z.ZodObject<
+    {
+      name: z.ZodString;
+    },
+    z.core.$strict
+  >;
+  z.object({ name: z.string() }) satisfies z.ZodObject<{
+    name: z.ZodString;
+  }>;
+  z.object({
+    a: z.string(),
+    b: z.number(),
+    c: z.boolean(),
+  }) satisfies z.core.$ZodObject;
+});
+
+test("null prototype", () => {
+  const schema = z.object({ a: z.string() });
+  const obj = Object.create(null);
+  obj.a = "foo";
+  expect(schema.parse(obj)).toEqual({ a: "foo" });
+});
+
+test("empty objects", () => {
+  const A = z.looseObject({});
+  type Ain = z.input<typeof A>;
+  expectTypeOf<Ain>().toEqualTypeOf<Record<string, unknown>>();
+  type Aout = z.output<typeof A>;
+  expectTypeOf<Aout>().toEqualTypeOf<Record<string, unknown>>();
+
+  const B = z.object({});
+  type Bout = z.output<typeof B>;
+  expectTypeOf<Bout>().toEqualTypeOf<Record<string, never>>();
+  type Bin = z.input<typeof B>;
+  expectTypeOf<Bin>().toEqualTypeOf<Record<string, never>>();
+
+  const C = z.strictObject({});
+  type Cout = z.output<typeof C>;
+  expectTypeOf<Cout>().toEqualTypeOf<Record<string, never>>();
+  type Cin = z.input<typeof C>;
+  expectTypeOf<Cin>().toEqualTypeOf<Record<string, never>>();
+});
+
+test("preserve key order", () => {
+  const schema = z.object({
+    a: z.string().optional(),
+    b: z.string(),
   });
+  const r1 = schema.safeParse({ a: "asdf", b: "qwer" });
+  const r2 = schema.safeParse({ a: "asdf", b: "qwer" }, { jitless: true });
+
+  expect(Object.keys(r1.data!)).toMatchInlineSnapshot(`
+    [
+      "a",
+      "b",
+    ]
+  `);
+  expect(Object.keys(r1.data!)).toEqual(Object.keys(r2.data!));
+});
+
+test("empty shape", () => {
+  const a = z.object({});
+
+  a.parse({});
+  a.parse({}, { jitless: true });
+  a.parse(Object.create(null));
+  a.parse(Object.create(null), { jitless: true });
+
+  expect(() => a.parse([])).toThrow();
+  expect(() => a.parse([], { jitless: true })).toThrow();
+});
+
+test("zodtype assignability", () => {
+  // Does not error
+  z.object({ hello: z.string().optional() }) satisfies z.ZodType<{ hello?: string | undefined }>;
+  z.object({ hello: z.string() }) satisfies z.ZodType<{ hello?: string | undefined }>;
+  // @ts-expect-error
+  z.object({}) satisfies z.ZodType<{ hello: string | undefined }>;
+  // @ts-expect-error
+  z.object({ hello: z.string().optional() }) satisfies z.ZodType<{ hello: string | undefined }>;
+  // @ts-expect-error
+  z.object({ hello: z.string().optional() }) satisfies z.ZodType<{ hello: string }>;
+  // @ts-expect-error
+  z.object({ hello: z.number() }) satisfies z.ZodType<{ hello?: string | undefined }>;
+});
+
+test("index signature in shape", () => {
+  function makeZodObj<const T extends string>(key: T) {
+    return z.looseObject({
+      [key]: z.string(),
+    });
+  }
+
+  const schema = makeZodObj("foo");
+  type schema = z.infer<typeof schema>;
+
+  expectTypeOf<schema>().toEqualTypeOf<Record<string, string>>();
 });

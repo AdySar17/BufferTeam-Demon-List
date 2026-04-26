@@ -1,87 +1,175 @@
-// @ts-ignore TS6133
-import { test } from "vitest";
-
-import * as z from "zod/v3";
-import { util } from "../helpers/util.js";
+import { expectTypeOf, test } from "vitest";
+import * as z from "zod/v4";
+import type * as core from "zod/v4/core";
 
 test("first party switch", () => {
-  const myType = z.string() as z.ZodFirstPartySchemaTypes;
-  const def = myType._def;
-
-  switch (def.typeName) {
-    case z.ZodFirstPartyTypeKind.ZodString:
+  const myType = z.string() as core.$ZodTypes;
+  const def = myType._zod.def;
+  switch (def.type) {
+    case "string":
       break;
-    case z.ZodFirstPartyTypeKind.ZodNumber:
+    case "number":
       break;
-    case z.ZodFirstPartyTypeKind.ZodNaN:
+    case "bigint":
       break;
-    case z.ZodFirstPartyTypeKind.ZodBigInt:
+    case "boolean":
       break;
-    case z.ZodFirstPartyTypeKind.ZodBoolean:
+    case "date":
       break;
-    case z.ZodFirstPartyTypeKind.ZodDate:
+    case "symbol":
       break;
-    case z.ZodFirstPartyTypeKind.ZodUndefined:
+    case "undefined":
       break;
-    case z.ZodFirstPartyTypeKind.ZodNull:
+    case "null":
       break;
-    case z.ZodFirstPartyTypeKind.ZodAny:
+    case "any":
       break;
-    case z.ZodFirstPartyTypeKind.ZodUnknown:
+    case "unknown":
       break;
-    case z.ZodFirstPartyTypeKind.ZodNever:
+    case "never":
       break;
-    case z.ZodFirstPartyTypeKind.ZodVoid:
+    case "void":
       break;
-    case z.ZodFirstPartyTypeKind.ZodArray:
+    case "array":
       break;
-    case z.ZodFirstPartyTypeKind.ZodObject:
+    case "object":
       break;
-    case z.ZodFirstPartyTypeKind.ZodUnion:
+    case "union":
       break;
-    case z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion:
+    case "intersection":
       break;
-    case z.ZodFirstPartyTypeKind.ZodIntersection:
+    case "tuple":
       break;
-    case z.ZodFirstPartyTypeKind.ZodTuple:
+    case "record":
       break;
-    case z.ZodFirstPartyTypeKind.ZodRecord:
+    case "map":
       break;
-    case z.ZodFirstPartyTypeKind.ZodMap:
+    case "set":
       break;
-    case z.ZodFirstPartyTypeKind.ZodSet:
+    case "literal":
       break;
-    case z.ZodFirstPartyTypeKind.ZodFunction:
+    case "enum":
       break;
-    case z.ZodFirstPartyTypeKind.ZodLazy:
+    case "promise":
       break;
-    case z.ZodFirstPartyTypeKind.ZodLiteral:
+    case "optional":
       break;
-    case z.ZodFirstPartyTypeKind.ZodEnum:
+    case "nonoptional":
       break;
-    case z.ZodFirstPartyTypeKind.ZodEffects:
+    case "nullable":
       break;
-    case z.ZodFirstPartyTypeKind.ZodNativeEnum:
+    case "default":
       break;
-    case z.ZodFirstPartyTypeKind.ZodOptional:
+    case "prefault":
       break;
-    case z.ZodFirstPartyTypeKind.ZodNullable:
+    case "template_literal":
       break;
-    case z.ZodFirstPartyTypeKind.ZodDefault:
+    case "custom":
       break;
-    case z.ZodFirstPartyTypeKind.ZodCatch:
+    case "transform":
       break;
-    case z.ZodFirstPartyTypeKind.ZodPromise:
+    case "readonly":
       break;
-    case z.ZodFirstPartyTypeKind.ZodBranded:
+    case "nan":
       break;
-    case z.ZodFirstPartyTypeKind.ZodPipeline:
+    case "pipe":
       break;
-    case z.ZodFirstPartyTypeKind.ZodSymbol:
+    case "success":
       break;
-    case z.ZodFirstPartyTypeKind.ZodReadonly:
+    case "catch":
+      break;
+    case "file":
+      break;
+    case "lazy":
       break;
     default:
-      util.assertNever(def);
+      expectTypeOf(def).toEqualTypeOf<never>();
+  }
+});
+
+test("$ZodSchemaTypes", () => {
+  const type = "string" as core.$ZodTypeDef["type"];
+  switch (type) {
+    case "string":
+      break;
+    case "number":
+      break;
+    case "int":
+      break;
+    case "bigint":
+      break;
+    case "boolean":
+      break;
+    case "date":
+      break;
+    case "symbol":
+      break;
+    case "undefined":
+      break;
+    case "null":
+      break;
+    case "any":
+      break;
+    case "unknown":
+      break;
+    case "never":
+      break;
+    case "void":
+      break;
+    case "array":
+      break;
+    case "object":
+      break;
+    case "union":
+      break;
+    case "intersection":
+      break;
+    case "tuple":
+      break;
+    case "record":
+      break;
+    case "map":
+      break;
+    case "set":
+      break;
+    case "literal":
+      break;
+    case "enum":
+      break;
+    case "promise":
+      break;
+    case "optional":
+      break;
+    case "nonoptional":
+      break;
+    case "nullable":
+      break;
+    case "default":
+      break;
+    case "prefault":
+      break;
+    case "template_literal":
+      break;
+    case "custom":
+      break;
+    case "transform":
+      break;
+    case "readonly":
+      break;
+    case "nan":
+      break;
+    case "pipe":
+      break;
+    case "success":
+      break;
+    case "catch":
+      break;
+    case "file":
+      break;
+    case "lazy":
+      break;
+
+    default:
+      expectTypeOf(type).toEqualTypeOf<never>();
   }
 });

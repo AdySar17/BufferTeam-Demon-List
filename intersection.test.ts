@@ -1,24 +1,43 @@
-// @ts-ignore TS6133
-import { expect, test } from "vitest";
+import { expect, expectTypeOf, test } from "vitest";
+import type { util } from "zod/v4/core";
 
-import * as z from "zod/v3";
+import * as z from "zod/v4";
 
 test("object intersection", () => {
-  const BaseTeacher = z.object({
-    subjects: z.array(z.string()),
-  });
-  const HasID = z.object({ id: z.string() });
+  const A = z.object({ a: z.string() });
+  const B = z.object({ b: z.string() });
 
-  const Teacher = z.intersection(BaseTeacher.passthrough(), HasID); // BaseTeacher.merge(HasID);
-  const data = {
-    subjects: ["math"],
-    id: "asdfasdf",
-  };
-  expect(Teacher.parse(data)).toEqual(data);
-  expect(() => Teacher.parse({ subject: data.subjects })).toThrow();
-  expect(Teacher.parse({ ...data, extra: 12 })).toEqual({ ...data, extra: 12 });
+  const C = z.intersection(A, B); // BaseC.merge(HasID);
+  type C = z.infer<typeof C>;
+  expectTypeOf<C>().toEqualTypeOf<{ a: string } & { b: string }>();
+  const data = { a: "foo", b: "foo" };
+  expect(C.parse(data)).toEqual(data);
+  expect(() => C.parse({ a: "foo" })).toThrow();
+});
 
-  expect(() => z.intersection(BaseTeacher.strict(), HasID).parse({ ...data, extra: 12 })).toThrow();
+test("object intersection: loose", () => {
+  const A = z.looseObject({ a: z.string() });
+  const B = z.object({ b: z.string() });
+
+  const C = z.intersection(A, B); // BaseC.merge(HasID);
+  type C = z.infer<typeof C>;
+  expectTypeOf<C>().toEqualTypeOf<{ a: string; [x: string]: unknown } & { b: string }>();
+  const data = { a: "foo", b: "foo", c: "extra" };
+  expect(C.parse(data)).toEqual(data);
+  expect(() => C.parse({ a: "foo" })).toThrow();
+});
+
+test("object intersection: strict", () => {
+  const A = z.strictObject({ a: z.string() });
+  const B = z.object({ b: z.string() });
+
+  const C = z.intersection(A, B); // BaseC.merge(HasID);
+  type C = z.infer<typeof C>;
+  expectTypeOf<C>().toEqualTypeOf<{ a: string } & { b: string }>();
+  const data = { a: "foo", b: "foo", c: "extra" };
+
+  const result = C.safeParse(data);
+  expect(result.success).toEqual(false);
 });
 
 test("deep intersection", () => {
@@ -27,18 +46,19 @@ test("deep intersection", () => {
       is_animal: z.boolean(),
     }),
   });
-  const Cat = z
-    .object({
+  const Cat = z.intersection(
+    z.object({
       properties: z.object({
         jumped: z.boolean(),
       }),
-    })
-    .and(Animal);
+    }),
+    Animal
+  );
 
-  type _Cat = z.infer<typeof Cat>;
-  // const cat:Cat = 'asdf' as any;
-  const cat = Cat.parse({ properties: { is_animal: true, jumped: true } });
-  expect(cat.properties).toEqual({ is_animal: true, jumped: true });
+  type Cat = util.Flatten<z.infer<typeof Cat>>;
+  expectTypeOf<Cat>().toEqualTypeOf<{ properties: { is_animal: boolean } & { jumped: boolean } }>();
+  const a = Cat.safeParse({ properties: { is_animal: true, jumped: true } });
+  expect(a.data!.properties).toEqual({ is_animal: true, jumped: true });
 });
 
 test("deep intersection of arrays", async () => {
@@ -49,15 +69,16 @@ test("deep intersection of arrays", async () => {
       })
     ),
   });
-  const Registry = z
-    .object({
+  const Registry = z.intersection(
+    Author,
+    z.object({
       posts: z.array(
         z.object({
           title: z.string(),
         })
       ),
     })
-    .and(Author);
+  );
 
   const posts = [
     { post_id: 1, title: "Novels" },
@@ -75,20 +96,12 @@ test("invalid intersection types", async () => {
     z.number().transform((x) => x + 1)
   );
 
-  const syncResult = numberIntersection.safeParse(1234);
-  expect(syncResult.success).toEqual(false);
-  if (!syncResult.success) {
-    expect(syncResult.error.issues[0].code).toEqual(z.ZodIssueCode.invalid_intersection_types);
-  }
-
-  const asyncResult = await numberIntersection.spa(1234);
-  expect(asyncResult.success).toEqual(false);
-  if (!asyncResult.success) {
-    expect(asyncResult.error.issues[0].code).toEqual(z.ZodIssueCode.invalid_intersection_types);
-  }
+  expect(() => {
+    numberIntersection.parse(1234);
+  }).toThrowErrorMatchingInlineSnapshot(`[Error: Unmergable intersection. Error path: []]`);
 });
 
-test("invalid array merge", async () => {
+test("invalid array merge (incompatible lengths)", async () => {
   const stringArrInt = z.intersection(
     z.string().array(),
     z
@@ -96,15 +109,63 @@ test("invalid array merge", async () => {
       .array()
       .transform((val) => [...val, "asdf"])
   );
-  const syncResult = stringArrInt.safeParse(["asdf", "qwer"]);
-  expect(syncResult.success).toEqual(false);
-  if (!syncResult.success) {
-    expect(syncResult.error.issues[0].code).toEqual(z.ZodIssueCode.invalid_intersection_types);
-  }
 
-  const asyncResult = await stringArrInt.spa(["asdf", "qwer"]);
-  expect(asyncResult.success).toEqual(false);
-  if (!asyncResult.success) {
-    expect(asyncResult.error.issues[0].code).toEqual(z.ZodIssueCode.invalid_intersection_types);
-  }
+  expect(() => stringArrInt.safeParse(["asdf", "qwer"])).toThrowErrorMatchingInlineSnapshot(
+    `[Error: Unmergable intersection. Error path: []]`
+  );
+});
+
+test("invalid array merge (incompatible elements)", async () => {
+  const stringArrInt = z.intersection(
+    z.string().array(),
+    z
+      .string()
+      .array()
+      .transform((val) => [...val.slice(0, -1), "asdf"])
+  );
+
+  expect(() => stringArrInt.safeParse(["asdf", "qwer"])).toThrowErrorMatchingInlineSnapshot(
+    `[Error: Unmergable intersection. Error path: [1]]`
+  );
+});
+
+test("invalid object merge", async () => {
+  const Cat = z.object({
+    phrase: z.string().transform((val) => `${val} Meow`),
+  });
+  const Dog = z.object({
+    phrase: z.string().transform((val) => `${val} Woof`),
+  });
+  const CatDog = z.intersection(Cat, Dog);
+
+  expect(() => CatDog.parse({ phrase: "Hello, my name is CatDog." })).toThrowErrorMatchingInlineSnapshot(
+    `[Error: Unmergable intersection. Error path: ["phrase"]]`
+  );
+});
+
+test("invalid deep merge of object and array combination", async () => {
+  const University = z.object({
+    students: z.array(
+      z.object({
+        name: z.string().transform((val) => `Student name: ${val}`),
+      })
+    ),
+  });
+  const Registry = z.intersection(
+    University,
+    z.object({
+      students: z.array(
+        z.object({
+          name: z.string(),
+          surname: z.string(),
+        })
+      ),
+    })
+  );
+
+  const students = [{ name: "John", surname: "Doe" }];
+
+  expect(() => Registry.parse({ students })).toThrowErrorMatchingInlineSnapshot(
+    `[Error: Unmergable intersection. Error path: ["students",0,"name"]]`
+  );
 });

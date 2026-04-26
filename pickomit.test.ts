@@ -1,8 +1,5 @@
-// @ts-ignore TS6133
-import { expect, test } from "vitest";
-
-import * as z from "zod/v3";
-import { util } from "../helpers/util.js";
+import { expect, expectTypeOf, test } from "vitest";
+import * as z from "zod/v4";
 
 const fish = z.object({
   name: z.string(),
@@ -13,7 +10,7 @@ const fish = z.object({
 test("pick type inference", () => {
   const nameonlyFish = fish.pick({ name: true });
   type nameonlyFish = z.infer<typeof nameonlyFish>;
-  util.assertEqual<nameonlyFish, { name: string }>(true);
+  expectTypeOf<nameonlyFish>().toEqualTypeOf<{ name: string }>();
 });
 
 test("pick parse - success", () => {
@@ -45,10 +42,20 @@ test("pick parse - fail", () => {
   expect(bad4).toThrow();
 });
 
+test("pick - remove optional", () => {
+  const schema = z.object({ a: z.string(), b: z.string().optional() });
+  expect("a" in schema._zod.def.shape).toEqual(true);
+  expect("b" in schema._zod.def.shape!).toEqual(true);
+  const picked = schema.pick({ a: true });
+  expect("a" in picked._zod.def.shape).toEqual(true);
+  expect("b" in picked._zod.def.shape!).toEqual(false);
+});
+
 test("omit type inference", () => {
   const nonameFish = fish.omit({ name: true });
   type nonameFish = z.infer<typeof nonameFish>;
-  util.assertEqual<nonameFish, { age: number; nested: {} }>(true);
+
+  expectTypeOf<nonameFish>().toEqualTypeOf<{ age: number; nested: Record<string, never> }>();
 });
 
 test("omit parse - success", () => {
@@ -76,10 +83,17 @@ test("omit parse - fail", () => {
   expect(bad4).toThrow();
 });
 
+test("omit - remove optional", () => {
+  const schema = z.object({ a: z.string(), b: z.string().optional() });
+  expect("a" in schema._zod.def.shape).toEqual(true);
+  const omitted = schema.omit({ a: true });
+  expect("a" in omitted._zod.def.shape).toEqual(false);
+});
+
 test("nonstrict inference", () => {
   const laxfish = fish.pick({ name: true }).catchall(z.any());
   type laxfish = z.infer<typeof laxfish>;
-  util.assertEqual<laxfish, { name: string } & { [k: string]: any }>(true);
+  expectTypeOf<laxfish>().toEqualTypeOf<{ name: string; [k: string]: any }>();
 });
 
 test("nonstrict parsing - pass", () => {
@@ -100,12 +114,14 @@ test("pick/omit/required/partial - do not allow unknown keys", () => {
     age: z.number(),
   });
 
+  expect(() => schema.pick({ name: true, asdf: true })).toThrow();
+
   // @ts-expect-error
-  schema.pick({ $unknown: true });
+  expect(() => schema.pick({ $unknown: true })).toThrow();
   // @ts-expect-error
-  schema.omit({ $unknown: true });
+  expect(() => schema.omit({ $unknown: true })).toThrow();
   // @ts-expect-error
-  schema.required({ $unknown: true });
+  expect(() => schema.required({ $unknown: true })).toThrow();
   // @ts-expect-error
-  schema.partial({ $unknown: true });
+  expect(() => schema.partial({ $unknown: true })).toThrow();
 });
