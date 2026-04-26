@@ -23,38 +23,38 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ZodISODuration = exports.ZodISOTime = exports.ZodISODate = exports.ZodISODateTime = void 0;
+exports.ZodMiniISODuration = exports.ZodMiniISOTime = exports.ZodMiniISODate = exports.ZodMiniISODateTime = void 0;
 exports.datetime = datetime;
 exports.date = date;
 exports.time = time;
 exports.duration = duration;
 const core = __importStar(require("../core/index.cjs"));
 const schemas = __importStar(require("./schemas.cjs"));
-exports.ZodISODateTime = core.$constructor("ZodISODateTime", (inst, def) => {
+exports.ZodMiniISODateTime = core.$constructor("$ZodISODateTime", (inst, def) => {
     core.$ZodISODateTime.init(inst, def);
-    schemas.ZodStringFormat.init(inst, def);
+    schemas.ZodMiniStringFormat.init(inst, def);
 });
 function datetime(params) {
-    return core._isoDateTime(exports.ZodISODateTime, params);
+    return core._isoDateTime(exports.ZodMiniISODateTime, params);
 }
-exports.ZodISODate = core.$constructor("ZodISODate", (inst, def) => {
+exports.ZodMiniISODate = core.$constructor("$ZodISODate", (inst, def) => {
     core.$ZodISODate.init(inst, def);
-    schemas.ZodStringFormat.init(inst, def);
+    schemas.ZodMiniStringFormat.init(inst, def);
 });
 function date(params) {
-    return core._isoDate(exports.ZodISODate, params);
+    return core._isoDate(exports.ZodMiniISODate, params);
 }
-exports.ZodISOTime = core.$constructor("ZodISOTime", (inst, def) => {
+exports.ZodMiniISOTime = core.$constructor("$ZodISOTime", (inst, def) => {
     core.$ZodISOTime.init(inst, def);
-    schemas.ZodStringFormat.init(inst, def);
+    schemas.ZodMiniStringFormat.init(inst, def);
 });
 function time(params) {
-    return core._isoTime(exports.ZodISOTime, params);
+    return core._isoTime(exports.ZodMiniISOTime, params);
 }
-exports.ZodISODuration = core.$constructor("ZodISODuration", (inst, def) => {
+exports.ZodMiniISODuration = core.$constructor("$ZodISODuration", (inst, def) => {
     core.$ZodISODuration.init(inst, def);
-    schemas.ZodStringFormat.init(inst, def);
+    schemas.ZodMiniStringFormat.init(inst, def);
 });
 function duration(params) {
-    return core._isoDuration(exports.ZodISODuration, params);
+    return core._isoDuration(exports.ZodMiniISODuration, params);
 }

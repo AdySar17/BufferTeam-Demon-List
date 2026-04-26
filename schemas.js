@@ -1,1717 +1,732 @@
-import * as checks from "./checks.js";
-import * as core from "./core.js";
-import { Doc } from "./doc.js";
-import { safeParse, safeParseAsync } from "./parse.js";
-import * as regexes from "./regexes.js";
-import * as util from "./util.js";
-import { version } from "./versions.js";
-export const $ZodType = /*@__PURE__*/ core.$constructor("$ZodType", (inst, def) => {
-    var _a;
-    inst ?? (inst = {});
-    inst._zod.def = def; // set _def property
-    inst._zod.bag = inst._zod.bag || {}; // initialize _bag object
-    inst._zod.version = version;
-    const checks = [...(inst._zod.def.checks ?? [])];
-    // if inst is itself a checks.$ZodCheck, run it as a check
-    if (inst._zod.traits.has("$ZodCheck")) {
-        checks.unshift(inst);
-    }
-    //
-    for (const ch of checks) {
-        for (const fn of ch._zod.onattach) {
-            fn(inst);
+import * as core from "../core/index.js";
+import { util } from "../core/index.js";
+import * as parse from "./parse.js";
+export const ZodMiniType = /*@__PURE__*/ core.$constructor("ZodMiniType", (inst, def) => {
+    if (!inst._zod)
+        throw new Error("Uninitialized schema in ZodMiniType.");
+    core.$ZodType.init(inst, def);
+    inst.def = def;
+    inst.parse = (data, params) => parse.parse(inst, data, params, { callee: inst.parse });
+    inst.safeParse = (data, params) => parse.safeParse(inst, data, params);
+    inst.parseAsync = async (data, params) => parse.parseAsync(inst, data, params, { callee: inst.parseAsync });
+    inst.safeParseAsync = async (data, params) => parse.safeParseAsync(inst, data, params);
+    inst.check = (...checks) => {
+        return inst.clone({
+            ...def,
+            checks: [
+                ...(def.checks ?? []),
+                ...checks.map((ch) => typeof ch === "function" ? { _zod: { check: ch, def: { check: "custom" }, onattach: [] } } : ch),
+            ],
         }
-    }
-    if (checks.length === 0) {
-        // deferred initializer
-        // inst._zod.parse is not yet defined
-        (_a = inst._zod).deferred ?? (_a.deferred = []);
-        inst._zod.deferred?.push(() => {
-            inst._zod.run = inst._zod.parse;
-        });
-    }
-    else {
-        const runChecks = (payload, checks, ctx) => {
-            let isAborted = util.aborted(payload);
-            let asyncResult;
-            for (const ch of checks) {
-                if (ch._zod.def.when) {
-                    const shouldRun = ch._zod.def.when(payload);
-                    if (!shouldRun)
-                        continue;
-                }
-                else if (isAborted) {
-                    continue;
-                }
-                const currLen = payload.issues.length;
-                const _ = ch._zod.check(payload);
-                if (_ instanceof Promise && ctx?.async === false) {
-                    throw new core.$ZodAsyncError();
-                }
-                if (asyncResult || _ instanceof Promise) {
-                    asyncResult = (asyncResult ?? Promise.resolve()).then(async () => {
-                        await _;
-                        const nextLen = payload.issues.length;
-                        if (nextLen === currLen)
-                            return;
-                        if (!isAborted)
-                            isAborted = util.aborted(payload, currLen);
-                    });
-                }
-                else {
-                    const nextLen = payload.issues.length;
-                    if (nextLen === currLen)
-                        continue;
-                    if (!isAborted)
-                        isAborted = util.aborted(payload, currLen);
-                }
-            }
-            if (asyncResult) {
-                return asyncResult.then(() => {
-                    return payload;
-                });
-            }
-            return payload;
-        };
-        inst._zod.run = (payload, ctx) => {
-            const result = inst._zod.parse(payload, ctx);
-            if (result instanceof Promise) {
-                if (ctx.async === false)
-                    throw new core.$ZodAsyncError();
-                return result.then((result) => runChecks(result, checks, ctx));
-            }
-            return runChecks(result, checks, ctx);
-        };
-    }
-    inst["~standard"] = {
-        validate: (value) => {
-            try {
-                const r = safeParse(inst, value);
-                return r.success ? { value: r.data } : { issues: r.error?.issues };
-            }
-            catch (_) {
-                return safeParseAsync(inst, value).then((r) => (r.success ? { value: r.data } : { issues: r.error?.issues }));
-            }
+        // { parent: true }
+        );
+    };
+    inst.clone = (_def, params) => core.clone(inst, _def, params);
+    inst.brand = () => inst;
+    inst.register = ((reg, meta) => {
+        reg.add(inst, meta);
+        return inst;
+    });
+});
+export const ZodMiniString = /*@__PURE__*/ core.$constructor("ZodMiniString", (inst, def) => {
+    core.$ZodString.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function string(params) {
+    return core._string(ZodMiniString, params);
+}
+export const ZodMiniStringFormat = /*@__PURE__*/ core.$constructor("ZodMiniStringFormat", (inst, def) => {
+    core.$ZodStringFormat.init(inst, def);
+    ZodMiniString.init(inst, def);
+});
+export const ZodMiniEmail = /*@__PURE__*/ core.$constructor("ZodMiniEmail", (inst, def) => {
+    core.$ZodEmail.init(inst, def);
+    ZodMiniStringFormat.init(inst, def);
+});
+export function email(params) {
+    return core._email(ZodMiniEmail, params);
+}
+export const ZodMiniGUID = /*@__PURE__*/ core.$constructor("ZodMiniGUID", (inst, def) => {
+    core.$ZodGUID.init(inst, def);
+    ZodMiniStringFormat.init(inst, def);
+});
+export function guid(params) {
+    return core._guid(ZodMiniGUID, params);
+}
+export const ZodMiniUUID = /*@__PURE__*/ core.$constructor("ZodMiniUUID", (inst, def) => {
+    core.$ZodUUID.init(inst, def);
+    ZodMiniStringFormat.init(inst, def);
+});
+export function uuid(params) {
+    return core._uuid(ZodMiniUUID, params);
+}
+export function uuidv4(params) {
+    return core._uuidv4(ZodMiniUUID, params);
+}
+// ZodMiniUUIDv6
+export function uuidv6(params) {
+    return core._uuidv6(ZodMiniUUID, params);
+}
+// ZodMiniUUIDv7
+export function uuidv7(params) {
+    return core._uuidv7(ZodMiniUUID, params);
+}
+export const ZodMiniURL = /*@__PURE__*/ core.$constructor("ZodMiniURL", (inst, def) => {
+    core.$ZodURL.init(inst, def);
+    ZodMiniStringFormat.init(inst, def);
+});
+export function url(params) {
+    return core._url(ZodMiniURL, params);
+}
+export const ZodMiniEmoji = /*@__PURE__*/ core.$constructor("ZodMiniEmoji", (inst, def) => {
+    core.$ZodEmoji.init(inst, def);
+    ZodMiniStringFormat.init(inst, def);
+});
+export function emoji(params) {
+    return core._emoji(ZodMiniEmoji, params);
+}
+export const ZodMiniNanoID = /*@__PURE__*/ core.$constructor("ZodMiniNanoID", (inst, def) => {
+    core.$ZodNanoID.init(inst, def);
+    ZodMiniStringFormat.init(inst, def);
+});
+export function nanoid(params) {
+    return core._nanoid(ZodMiniNanoID, params);
+}
+export const ZodMiniCUID = /*@__PURE__*/ core.$constructor("ZodMiniCUID", (inst, def) => {
+    core.$ZodCUID.init(inst, def);
+    ZodMiniStringFormat.init(inst, def);
+});
+export function cuid(params) {
+    return core._cuid(ZodMiniCUID, params);
+}
+export const ZodMiniCUID2 = /*@__PURE__*/ core.$constructor("ZodMiniCUID2", (inst, def) => {
+    core.$ZodCUID2.init(inst, def);
+    ZodMiniStringFormat.init(inst, def);
+});
+export function cuid2(params) {
+    return core._cuid2(ZodMiniCUID2, params);
+}
+export const ZodMiniULID = /*@__PURE__*/ core.$constructor("ZodMiniULID", (inst, def) => {
+    core.$ZodULID.init(inst, def);
+    ZodMiniStringFormat.init(inst, def);
+});
+export function ulid(params) {
+    return core._ulid(ZodMiniULID, params);
+}
+export const ZodMiniXID = /*@__PURE__*/ core.$constructor("ZodMiniXID", (inst, def) => {
+    core.$ZodXID.init(inst, def);
+    ZodMiniStringFormat.init(inst, def);
+});
+export function xid(params) {
+    return core._xid(ZodMiniXID, params);
+}
+export const ZodMiniKSUID = /*@__PURE__*/ core.$constructor("ZodMiniKSUID", (inst, def) => {
+    core.$ZodKSUID.init(inst, def);
+    ZodMiniStringFormat.init(inst, def);
+});
+export function ksuid(params) {
+    return core._ksuid(ZodMiniKSUID, params);
+}
+export const ZodMiniIPv4 = /*@__PURE__*/ core.$constructor("ZodMiniIPv4", (inst, def) => {
+    core.$ZodIPv4.init(inst, def);
+    ZodMiniStringFormat.init(inst, def);
+});
+export function ipv4(params) {
+    return core._ipv4(ZodMiniIPv4, params);
+}
+export const ZodMiniIPv6 = /*@__PURE__*/ core.$constructor("ZodMiniIPv6", (inst, def) => {
+    core.$ZodIPv6.init(inst, def);
+    ZodMiniStringFormat.init(inst, def);
+});
+export function ipv6(params) {
+    return core._ipv6(ZodMiniIPv6, params);
+}
+export const ZodMiniCIDRv4 = /*@__PURE__*/ core.$constructor("ZodMiniCIDRv4", (inst, def) => {
+    core.$ZodCIDRv4.init(inst, def);
+    ZodMiniStringFormat.init(inst, def);
+});
+export function cidrv4(params) {
+    return core._cidrv4(ZodMiniCIDRv4, params);
+}
+export const ZodMiniCIDRv6 = /*@__PURE__*/ core.$constructor("ZodMiniCIDRv6", (inst, def) => {
+    core.$ZodCIDRv6.init(inst, def);
+    ZodMiniStringFormat.init(inst, def);
+});
+export function cidrv6(params) {
+    return core._cidrv6(ZodMiniCIDRv6, params);
+}
+export const ZodMiniBase64 = /*@__PURE__*/ core.$constructor("ZodMiniBase64", (inst, def) => {
+    core.$ZodBase64.init(inst, def);
+    ZodMiniStringFormat.init(inst, def);
+});
+export function base64(params) {
+    return core._base64(ZodMiniBase64, params);
+}
+export const ZodMiniBase64URL = /*@__PURE__*/ core.$constructor("ZodMiniBase64URL", (inst, def) => {
+    core.$ZodBase64URL.init(inst, def);
+    ZodMiniStringFormat.init(inst, def);
+});
+export function base64url(params) {
+    return core._base64url(ZodMiniBase64URL, params);
+}
+export const ZodMiniE164 = /*@__PURE__*/ core.$constructor("ZodMiniE164", (inst, def) => {
+    core.$ZodE164.init(inst, def);
+    ZodMiniStringFormat.init(inst, def);
+});
+export function e164(params) {
+    return core._e164(ZodMiniE164, params);
+}
+export const ZodMiniJWT = /*@__PURE__*/ core.$constructor("ZodMiniJWT", (inst, def) => {
+    core.$ZodJWT.init(inst, def);
+    ZodMiniStringFormat.init(inst, def);
+});
+export function jwt(params) {
+    return core._jwt(ZodMiniJWT, params);
+}
+export const ZodMiniCustomStringFormat = /*@__PURE__*/ core.$constructor("ZodMiniCustomStringFormat", (inst, def) => {
+    core.$ZodCustomStringFormat.init(inst, def);
+    ZodMiniStringFormat.init(inst, def);
+});
+export function stringFormat(format, fnOrRegex, _params = {}) {
+    return core._stringFormat(ZodMiniCustomStringFormat, format, fnOrRegex, _params);
+}
+export const ZodMiniNumber = /*@__PURE__*/ core.$constructor("ZodMiniNumber", (inst, def) => {
+    core.$ZodNumber.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function number(params) {
+    return core._number(ZodMiniNumber, params);
+}
+export const ZodMiniNumberFormat = /*@__PURE__*/ core.$constructor("ZodMiniNumberFormat", (inst, def) => {
+    core.$ZodNumberFormat.init(inst, def);
+    ZodMiniNumber.init(inst, def);
+});
+// int
+export function int(params) {
+    return core._int(ZodMiniNumberFormat, params);
+}
+// float32
+export function float32(params) {
+    return core._float32(ZodMiniNumberFormat, params);
+}
+// float64
+export function float64(params) {
+    return core._float64(ZodMiniNumberFormat, params);
+}
+// int32
+export function int32(params) {
+    return core._int32(ZodMiniNumberFormat, params);
+}
+// uint32
+export function uint32(params) {
+    return core._uint32(ZodMiniNumberFormat, params);
+}
+export const ZodMiniBoolean = /*@__PURE__*/ core.$constructor("ZodMiniBoolean", (inst, def) => {
+    core.$ZodBoolean.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function boolean(params) {
+    return core._boolean(ZodMiniBoolean, params);
+}
+export const ZodMiniBigInt = /*@__PURE__*/ core.$constructor("ZodMiniBigInt", (inst, def) => {
+    core.$ZodBigInt.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function bigint(params) {
+    return core._bigint(ZodMiniBigInt, params);
+}
+export const ZodMiniBigIntFormat = /*@__PURE__*/ core.$constructor("ZodMiniBigIntFormat", (inst, def) => {
+    core.$ZodBigIntFormat.init(inst, def);
+    ZodMiniBigInt.init(inst, def);
+});
+// int64
+export function int64(params) {
+    return core._int64(ZodMiniBigIntFormat, params);
+}
+// uint64
+export function uint64(params) {
+    return core._uint64(ZodMiniBigIntFormat, params);
+}
+export const ZodMiniSymbol = /*@__PURE__*/ core.$constructor("ZodMiniSymbol", (inst, def) => {
+    core.$ZodSymbol.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function symbol(params) {
+    return core._symbol(ZodMiniSymbol, params);
+}
+export const ZodMiniUndefined = /*@__PURE__*/ core.$constructor("ZodMiniUndefined", (inst, def) => {
+    core.$ZodUndefined.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+function _undefined(params) {
+    return core._undefined(ZodMiniUndefined, params);
+}
+export { _undefined as undefined };
+export const ZodMiniNull = /*@__PURE__*/ core.$constructor("ZodMiniNull", (inst, def) => {
+    core.$ZodNull.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+function _null(params) {
+    return core._null(ZodMiniNull, params);
+}
+export { _null as null };
+export const ZodMiniAny = /*@__PURE__*/ core.$constructor("ZodMiniAny", (inst, def) => {
+    core.$ZodAny.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function any() {
+    return core._any(ZodMiniAny);
+}
+export const ZodMiniUnknown = /*@__PURE__*/ core.$constructor("ZodMiniUnknown", (inst, def) => {
+    core.$ZodUnknown.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function unknown() {
+    return core._unknown(ZodMiniUnknown);
+}
+export const ZodMiniNever = /*@__PURE__*/ core.$constructor("ZodMiniNever", (inst, def) => {
+    core.$ZodNever.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function never(params) {
+    return core._never(ZodMiniNever, params);
+}
+export const ZodMiniVoid = /*@__PURE__*/ core.$constructor("ZodMiniVoid", (inst, def) => {
+    core.$ZodVoid.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+function _void(params) {
+    return core._void(ZodMiniVoid, params);
+}
+export { _void as void };
+export const ZodMiniDate = /*@__PURE__*/ core.$constructor("ZodMiniDate", (inst, def) => {
+    core.$ZodDate.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function date(params) {
+    return core._date(ZodMiniDate, params);
+}
+export const ZodMiniArray = /*@__PURE__*/ core.$constructor("ZodMiniArray", (inst, def) => {
+    core.$ZodArray.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function array(element, params) {
+    return new ZodMiniArray({
+        type: "array",
+        element: element,
+        ...util.normalizeParams(params),
+    });
+}
+// .keyof
+export function keyof(schema) {
+    const shape = schema._zod.def.shape;
+    return literal(Object.keys(shape));
+}
+export const ZodMiniObject = /*@__PURE__*/ core.$constructor("ZodMiniObject", (inst, def) => {
+    core.$ZodObject.init(inst, def);
+    ZodMiniType.init(inst, def);
+    util.defineLazy(inst, "shape", () => def.shape);
+});
+export function object(shape, params) {
+    const def = {
+        type: "object",
+        get shape() {
+            util.assignProp(this, "shape", { ...shape });
+            return this.shape;
         },
-        vendor: "zod",
-        version: 1,
+        ...util.normalizeParams(params),
     };
-});
-export { clone } from "./util.js";
-export const $ZodString = /*@__PURE__*/ core.$constructor("$ZodString", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.pattern = [...(inst?._zod.bag?.patterns ?? [])].pop() ?? regexes.string(inst._zod.bag);
-    inst._zod.parse = (payload, _) => {
-        if (def.coerce)
-            try {
-                payload.value = String(payload.value);
-            }
-            catch (_) { }
-        if (typeof payload.value === "string")
-            return payload;
-        payload.issues.push({
-            expected: "string",
-            code: "invalid_type",
-            input: payload.value,
-            inst,
-        });
-        return payload;
-    };
-});
-export const $ZodStringFormat = /*@__PURE__*/ core.$constructor("$ZodStringFormat", (inst, def) => {
-    // check initialization must come first
-    checks.$ZodCheckStringFormat.init(inst, def);
-    $ZodString.init(inst, def);
-});
-export const $ZodGUID = /*@__PURE__*/ core.$constructor("$ZodGUID", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.guid);
-    $ZodStringFormat.init(inst, def);
-});
-export const $ZodUUID = /*@__PURE__*/ core.$constructor("$ZodUUID", (inst, def) => {
-    if (def.version) {
-        const versionMap = {
-            v1: 1,
-            v2: 2,
-            v3: 3,
-            v4: 4,
-            v5: 5,
-            v6: 6,
-            v7: 7,
-            v8: 8,
-        };
-        const v = versionMap[def.version];
-        if (v === undefined)
-            throw new Error(`Invalid UUID version: "${def.version}"`);
-        def.pattern ?? (def.pattern = regexes.uuid(v));
-    }
-    else
-        def.pattern ?? (def.pattern = regexes.uuid());
-    $ZodStringFormat.init(inst, def);
-});
-export const $ZodEmail = /*@__PURE__*/ core.$constructor("$ZodEmail", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.email);
-    $ZodStringFormat.init(inst, def);
-});
-export const $ZodURL = /*@__PURE__*/ core.$constructor("$ZodURL", (inst, def) => {
-    $ZodStringFormat.init(inst, def);
-    inst._zod.check = (payload) => {
-        try {
-            const orig = payload.value;
-            const url = new URL(orig);
-            const href = url.href;
-            if (def.hostname) {
-                def.hostname.lastIndex = 0;
-                if (!def.hostname.test(url.hostname)) {
-                    payload.issues.push({
-                        code: "invalid_format",
-                        format: "url",
-                        note: "Invalid hostname",
-                        pattern: regexes.hostname.source,
-                        input: payload.value,
-                        inst,
-                        continue: !def.abort,
-                    });
-                }
-            }
-            if (def.protocol) {
-                def.protocol.lastIndex = 0;
-                if (!def.protocol.test(url.protocol.endsWith(":") ? url.protocol.slice(0, -1) : url.protocol)) {
-                    payload.issues.push({
-                        code: "invalid_format",
-                        format: "url",
-                        note: "Invalid protocol",
-                        pattern: def.protocol.source,
-                        input: payload.value,
-                        inst,
-                        continue: !def.abort,
-                    });
-                }
-            }
-            // payload.value = url.href;
-            if (!orig.endsWith("/") && href.endsWith("/")) {
-                payload.value = href.slice(0, -1);
-            }
-            else {
-                payload.value = href;
-            }
-            return;
-        }
-        catch (_) {
-            payload.issues.push({
-                code: "invalid_format",
-                format: "url",
-                input: payload.value,
-                inst,
-                continue: !def.abort,
-            });
-        }
-    };
-});
-export const $ZodEmoji = /*@__PURE__*/ core.$constructor("$ZodEmoji", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.emoji());
-    $ZodStringFormat.init(inst, def);
-});
-export const $ZodNanoID = /*@__PURE__*/ core.$constructor("$ZodNanoID", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.nanoid);
-    $ZodStringFormat.init(inst, def);
-});
-export const $ZodCUID = /*@__PURE__*/ core.$constructor("$ZodCUID", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.cuid);
-    $ZodStringFormat.init(inst, def);
-});
-export const $ZodCUID2 = /*@__PURE__*/ core.$constructor("$ZodCUID2", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.cuid2);
-    $ZodStringFormat.init(inst, def);
-});
-export const $ZodULID = /*@__PURE__*/ core.$constructor("$ZodULID", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.ulid);
-    $ZodStringFormat.init(inst, def);
-});
-export const $ZodXID = /*@__PURE__*/ core.$constructor("$ZodXID", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.xid);
-    $ZodStringFormat.init(inst, def);
-});
-export const $ZodKSUID = /*@__PURE__*/ core.$constructor("$ZodKSUID", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.ksuid);
-    $ZodStringFormat.init(inst, def);
-});
-export const $ZodISODateTime = /*@__PURE__*/ core.$constructor("$ZodISODateTime", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.datetime(def));
-    $ZodStringFormat.init(inst, def);
-});
-export const $ZodISODate = /*@__PURE__*/ core.$constructor("$ZodISODate", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.date);
-    $ZodStringFormat.init(inst, def);
-});
-export const $ZodISOTime = /*@__PURE__*/ core.$constructor("$ZodISOTime", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.time(def));
-    $ZodStringFormat.init(inst, def);
-});
-export const $ZodISODuration = /*@__PURE__*/ core.$constructor("$ZodISODuration", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.duration);
-    $ZodStringFormat.init(inst, def);
-});
-export const $ZodIPv4 = /*@__PURE__*/ core.$constructor("$ZodIPv4", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.ipv4);
-    $ZodStringFormat.init(inst, def);
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        bag.format = `ipv4`;
-    });
-});
-export const $ZodIPv6 = /*@__PURE__*/ core.$constructor("$ZodIPv6", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.ipv6);
-    $ZodStringFormat.init(inst, def);
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        bag.format = `ipv6`;
-    });
-    inst._zod.check = (payload) => {
-        try {
-            new URL(`http://[${payload.value}]`);
-            // return;
-        }
-        catch {
-            payload.issues.push({
-                code: "invalid_format",
-                format: "ipv6",
-                input: payload.value,
-                inst,
-                continue: !def.abort,
-            });
-        }
-    };
-});
-export const $ZodCIDRv4 = /*@__PURE__*/ core.$constructor("$ZodCIDRv4", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.cidrv4);
-    $ZodStringFormat.init(inst, def);
-});
-export const $ZodCIDRv6 = /*@__PURE__*/ core.$constructor("$ZodCIDRv6", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.cidrv6); // not used for validation
-    $ZodStringFormat.init(inst, def);
-    inst._zod.check = (payload) => {
-        const [address, prefix] = payload.value.split("/");
-        try {
-            if (!prefix)
-                throw new Error();
-            const prefixNum = Number(prefix);
-            if (`${prefixNum}` !== prefix)
-                throw new Error();
-            if (prefixNum < 0 || prefixNum > 128)
-                throw new Error();
-            new URL(`http://[${address}]`);
-        }
-        catch {
-            payload.issues.push({
-                code: "invalid_format",
-                format: "cidrv6",
-                input: payload.value,
-                inst,
-                continue: !def.abort,
-            });
-        }
-    };
-});
-//////////////////////////////   ZodBase64   //////////////////////////////
-export function isValidBase64(data) {
-    if (data === "")
-        return true;
-    if (data.length % 4 !== 0)
-        return false;
-    try {
-        atob(data);
-        return true;
-    }
-    catch {
-        return false;
-    }
+    return new ZodMiniObject(def);
 }
-export const $ZodBase64 = /*@__PURE__*/ core.$constructor("$ZodBase64", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.base64);
-    $ZodStringFormat.init(inst, def);
-    inst._zod.onattach.push((inst) => {
-        inst._zod.bag.contentEncoding = "base64";
+// strictObject
+export function strictObject(shape, params) {
+    return new ZodMiniObject({
+        type: "object",
+        // shape: shape as core.$ZodLooseShape,
+        get shape() {
+            util.assignProp(this, "shape", { ...shape });
+            return this.shape;
+        },
+        catchall: never(),
+        ...util.normalizeParams(params),
     });
-    inst._zod.check = (payload) => {
-        if (isValidBase64(payload.value))
-            return;
-        payload.issues.push({
-            code: "invalid_format",
-            format: "base64",
-            input: payload.value,
-            inst,
-            continue: !def.abort,
-        });
-    };
-});
-//////////////////////////////   ZodBase64   //////////////////////////////
-export function isValidBase64URL(data) {
-    if (!regexes.base64url.test(data))
-        return false;
-    const base64 = data.replace(/[-_]/g, (c) => (c === "-" ? "+" : "/"));
-    const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
-    return isValidBase64(padded);
 }
-export const $ZodBase64URL = /*@__PURE__*/ core.$constructor("$ZodBase64URL", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.base64url);
-    $ZodStringFormat.init(inst, def);
-    inst._zod.onattach.push((inst) => {
-        inst._zod.bag.contentEncoding = "base64url";
+// looseObject
+export function looseObject(shape, params) {
+    return new ZodMiniObject({
+        type: "object",
+        // shape: shape as core.$ZodLooseShape,
+        get shape() {
+            util.assignProp(this, "shape", { ...shape });
+            return this.shape;
+        },
+        // get optional() {
+        //   return util.optionalKeys(shape);
+        // },
+        catchall: unknown(),
+        ...util.normalizeParams(params),
     });
-    inst._zod.check = (payload) => {
-        if (isValidBase64URL(payload.value))
-            return;
-        payload.issues.push({
-            code: "invalid_format",
-            format: "base64url",
-            input: payload.value,
-            inst,
-            continue: !def.abort,
-        });
-    };
-});
-export const $ZodE164 = /*@__PURE__*/ core.$constructor("$ZodE164", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.e164);
-    $ZodStringFormat.init(inst, def);
-});
-//////////////////////////////   ZodJWT   //////////////////////////////
-export function isValidJWT(token, algorithm = null) {
-    try {
-        const tokensParts = token.split(".");
-        if (tokensParts.length !== 3)
-            return false;
-        const [header] = tokensParts;
-        if (!header)
-            return false;
-        const parsedHeader = JSON.parse(atob(header));
-        if ("typ" in parsedHeader && parsedHeader?.typ !== "JWT")
-            return false;
-        if (!parsedHeader.alg)
-            return false;
-        if (algorithm && (!("alg" in parsedHeader) || parsedHeader.alg !== algorithm))
-            return false;
-        return true;
-    }
-    catch {
-        return false;
-    }
 }
-export const $ZodJWT = /*@__PURE__*/ core.$constructor("$ZodJWT", (inst, def) => {
-    $ZodStringFormat.init(inst, def);
-    inst._zod.check = (payload) => {
-        if (isValidJWT(payload.value, def.alg))
-            return;
-        payload.issues.push({
-            code: "invalid_format",
-            format: "jwt",
-            input: payload.value,
-            inst,
-            continue: !def.abort,
-        });
-    };
-});
-export const $ZodCustomStringFormat = /*@__PURE__*/ core.$constructor("$ZodCustomStringFormat", (inst, def) => {
-    $ZodStringFormat.init(inst, def);
-    inst._zod.check = (payload) => {
-        if (def.fn(payload.value))
-            return;
-        payload.issues.push({
-            code: "invalid_format",
-            format: def.format,
-            input: payload.value,
-            inst,
-            continue: !def.abort,
-        });
-    };
-});
-export const $ZodNumber = /*@__PURE__*/ core.$constructor("$ZodNumber", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.pattern = inst._zod.bag.pattern ?? regexes.number;
-    inst._zod.parse = (payload, _ctx) => {
-        if (def.coerce)
-            try {
-                payload.value = Number(payload.value);
-            }
-            catch (_) { }
-        const input = payload.value;
-        if (typeof input === "number" && !Number.isNaN(input) && Number.isFinite(input)) {
-            return payload;
-        }
-        const received = typeof input === "number"
-            ? Number.isNaN(input)
-                ? "NaN"
-                : !Number.isFinite(input)
-                    ? "Infinity"
-                    : undefined
-            : undefined;
-        payload.issues.push({
-            expected: "number",
-            code: "invalid_type",
-            input,
-            inst,
-            ...(received ? { received } : {}),
-        });
-        return payload;
-    };
-});
-export const $ZodNumberFormat = /*@__PURE__*/ core.$constructor("$ZodNumber", (inst, def) => {
-    checks.$ZodCheckNumberFormat.init(inst, def);
-    $ZodNumber.init(inst, def); // no format checksp
-});
-export const $ZodBoolean = /*@__PURE__*/ core.$constructor("$ZodBoolean", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.pattern = regexes.boolean;
-    inst._zod.parse = (payload, _ctx) => {
-        if (def.coerce)
-            try {
-                payload.value = Boolean(payload.value);
-            }
-            catch (_) { }
-        const input = payload.value;
-        if (typeof input === "boolean")
-            return payload;
-        payload.issues.push({
-            expected: "boolean",
-            code: "invalid_type",
-            input,
-            inst,
-        });
-        return payload;
-    };
-});
-export const $ZodBigInt = /*@__PURE__*/ core.$constructor("$ZodBigInt", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.pattern = regexes.bigint;
-    inst._zod.parse = (payload, _ctx) => {
-        if (def.coerce)
-            try {
-                payload.value = BigInt(payload.value);
-            }
-            catch (_) { }
-        if (typeof payload.value === "bigint")
-            return payload;
-        payload.issues.push({
-            expected: "bigint",
-            code: "invalid_type",
-            input: payload.value,
-            inst,
-        });
-        return payload;
-    };
-});
-export const $ZodBigIntFormat = /*@__PURE__*/ core.$constructor("$ZodBigInt", (inst, def) => {
-    checks.$ZodCheckBigIntFormat.init(inst, def);
-    $ZodBigInt.init(inst, def); // no format checks
-});
-export const $ZodSymbol = /*@__PURE__*/ core.$constructor("$ZodSymbol", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload, _ctx) => {
-        const input = payload.value;
-        if (typeof input === "symbol")
-            return payload;
-        payload.issues.push({
-            expected: "symbol",
-            code: "invalid_type",
-            input,
-            inst,
-        });
-        return payload;
-    };
-});
-export const $ZodUndefined = /*@__PURE__*/ core.$constructor("$ZodUndefined", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.pattern = regexes.undefined;
-    inst._zod.values = new Set([undefined]);
-    inst._zod.optin = "optional";
-    inst._zod.optout = "optional";
-    inst._zod.parse = (payload, _ctx) => {
-        const input = payload.value;
-        if (typeof input === "undefined")
-            return payload;
-        payload.issues.push({
-            expected: "undefined",
-            code: "invalid_type",
-            input,
-            inst,
-        });
-        return payload;
-    };
-});
-export const $ZodNull = /*@__PURE__*/ core.$constructor("$ZodNull", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.pattern = regexes.null;
-    inst._zod.values = new Set([null]);
-    inst._zod.parse = (payload, _ctx) => {
-        const input = payload.value;
-        if (input === null)
-            return payload;
-        payload.issues.push({
-            expected: "null",
-            code: "invalid_type",
-            input,
-            inst,
-        });
-        return payload;
-    };
-});
-export const $ZodAny = /*@__PURE__*/ core.$constructor("$ZodAny", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload) => payload;
-});
-export const $ZodUnknown = /*@__PURE__*/ core.$constructor("$ZodUnknown", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload) => payload;
-});
-export const $ZodNever = /*@__PURE__*/ core.$constructor("$ZodNever", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload, _ctx) => {
-        payload.issues.push({
-            expected: "never",
-            code: "invalid_type",
-            input: payload.value,
-            inst,
-        });
-        return payload;
-    };
-});
-export const $ZodVoid = /*@__PURE__*/ core.$constructor("$ZodVoid", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload, _ctx) => {
-        const input = payload.value;
-        if (typeof input === "undefined")
-            return payload;
-        payload.issues.push({
-            expected: "void",
-            code: "invalid_type",
-            input,
-            inst,
-        });
-        return payload;
-    };
-});
-export const $ZodDate = /*@__PURE__*/ core.$constructor("$ZodDate", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload, _ctx) => {
-        if (def.coerce) {
-            try {
-                payload.value = new Date(payload.value);
-            }
-            catch (_err) { }
-        }
-        const input = payload.value;
-        const isDate = input instanceof Date;
-        const isValidDate = isDate && !Number.isNaN(input.getTime());
-        if (isValidDate)
-            return payload;
-        payload.issues.push({
-            expected: "date",
-            code: "invalid_type",
-            input,
-            ...(isDate ? { received: "Invalid Date" } : {}),
-            inst,
-        });
-        return payload;
-    };
-});
-function handleArrayResult(result, final, index) {
-    if (result.issues.length) {
-        final.issues.push(...util.prefixIssues(index, result.issues));
-    }
-    final.value[index] = result.value;
+// object methods
+export function extend(schema, shape) {
+    return util.extend(schema, shape);
 }
-export const $ZodArray = /*@__PURE__*/ core.$constructor("$ZodArray", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload, ctx) => {
-        const input = payload.value;
-        if (!Array.isArray(input)) {
-            payload.issues.push({
-                expected: "array",
-                code: "invalid_type",
-                input,
-                inst,
-            });
-            return payload;
-        }
-        payload.value = Array(input.length);
-        const proms = [];
-        for (let i = 0; i < input.length; i++) {
-            const item = input[i];
-            const result = def.element._zod.run({
-                value: item,
-                issues: [],
-            }, ctx);
-            if (result instanceof Promise) {
-                proms.push(result.then((result) => handleArrayResult(result, payload, i)));
-            }
-            else {
-                handleArrayResult(result, payload, i);
-            }
-        }
-        if (proms.length) {
-            return Promise.all(proms).then(() => payload);
-        }
-        return payload; //handleArrayResultsAsync(parseResults, final);
-    };
+export function merge(schema, shape) {
+    return util.extend(schema, shape);
+}
+export function pick(schema, mask) {
+    return util.pick(schema, mask);
+}
+// .omit
+export function omit(schema, mask) {
+    return util.omit(schema, mask);
+}
+export function partial(schema, mask) {
+    return util.partial(ZodMiniOptional, schema, mask);
+}
+export function required(schema, mask) {
+    return util.required(ZodMiniNonOptional, schema, mask);
+}
+export function catchall(inst, catchall) {
+    return inst.clone({ ...inst._zod.def, catchall: catchall });
+}
+export const ZodMiniUnion = /*@__PURE__*/ core.$constructor("ZodMiniUnion", (inst, def) => {
+    core.$ZodUnion.init(inst, def);
+    ZodMiniType.init(inst, def);
 });
-function handleObjectResult(result, final, key) {
-    // if(isOptional)
-    if (result.issues.length) {
-        final.issues.push(...util.prefixIssues(key, result.issues));
-    }
-    final.value[key] = result.value;
-}
-function handleOptionalObjectResult(result, final, key, input) {
-    if (result.issues.length) {
-        // validation failed against value schema
-        if (input[key] === undefined) {
-            // if input was undefined, ignore the error
-            if (key in input) {
-                final.value[key] = undefined;
-            }
-            else {
-                final.value[key] = result.value;
-            }
-        }
-        else {
-            final.issues.push(...util.prefixIssues(key, result.issues));
-        }
-    }
-    else if (result.value === undefined) {
-        // validation returned `undefined`
-        if (key in input)
-            final.value[key] = undefined;
-    }
-    else {
-        // non-undefined value
-        final.value[key] = result.value;
-    }
-}
-export const $ZodObject = /*@__PURE__*/ core.$constructor("$ZodObject", (inst, def) => {
-    // requires cast because technically $ZodObject doesn't extend
-    $ZodType.init(inst, def);
-    const _normalized = util.cached(() => {
-        const keys = Object.keys(def.shape);
-        for (const k of keys) {
-            if (!(def.shape[k] instanceof $ZodType)) {
-                throw new Error(`Invalid element at key "${k}": expected a Zod schema`);
-            }
-        }
-        const okeys = util.optionalKeys(def.shape);
-        return {
-            shape: def.shape,
-            keys,
-            keySet: new Set(keys),
-            numKeys: keys.length,
-            optionalKeys: new Set(okeys),
-        };
+export function union(options, params) {
+    return new ZodMiniUnion({
+        type: "union",
+        options: options,
+        ...util.normalizeParams(params),
     });
-    util.defineLazy(inst._zod, "propValues", () => {
-        const shape = def.shape;
-        const propValues = {};
-        for (const key in shape) {
-            const field = shape[key]._zod;
-            if (field.values) {
-                propValues[key] ?? (propValues[key] = new Set());
-                for (const v of field.values)
-                    propValues[key].add(v);
-            }
-        }
-        return propValues;
-    });
-    const generateFastpass = (shape) => {
-        const doc = new Doc(["shape", "payload", "ctx"]);
-        const normalized = _normalized.value;
-        const parseStr = (key) => {
-            const k = util.esc(key);
-            return `shape[${k}]._zod.run({ value: input[${k}], issues: [] }, ctx)`;
-        };
-        doc.write(`const input = payload.value;`);
-        const ids = Object.create(null);
-        let counter = 0;
-        for (const key of normalized.keys) {
-            ids[key] = `key_${counter++}`;
-        }
-        // A: preserve key order {
-        doc.write(`const newResult = {}`);
-        for (const key of normalized.keys) {
-            if (normalized.optionalKeys.has(key)) {
-                const id = ids[key];
-                doc.write(`const ${id} = ${parseStr(key)};`);
-                const k = util.esc(key);
-                doc.write(`
-        if (${id}.issues.length) {
-          if (input[${k}] === undefined) {
-            if (${k} in input) {
-              newResult[${k}] = undefined;
-            }
-          } else {
-            payload.issues = payload.issues.concat(
-              ${id}.issues.map((iss) => ({
-                ...iss,
-                path: iss.path ? [${k}, ...iss.path] : [${k}],
-              }))
-            );
-          }
-        } else if (${id}.value === undefined) {
-          if (${k} in input) newResult[${k}] = undefined;
-        } else {
-          newResult[${k}] = ${id}.value;
-        }
-        `);
-            }
-            else {
-                const id = ids[key];
-                //  const id = ids[key];
-                doc.write(`const ${id} = ${parseStr(key)};`);
-                doc.write(`
-          if (${id}.issues.length) payload.issues = payload.issues.concat(${id}.issues.map(iss => ({
-            ...iss,
-            path: iss.path ? [${util.esc(key)}, ...iss.path] : [${util.esc(key)}]
-          })));`);
-                doc.write(`newResult[${util.esc(key)}] = ${id}.value`);
-            }
-        }
-        doc.write(`payload.value = newResult;`);
-        doc.write(`return payload;`);
-        const fn = doc.compile();
-        return (payload, ctx) => fn(shape, payload, ctx);
-    };
-    let fastpass;
-    const isObject = util.isObject;
-    const jit = !core.globalConfig.jitless;
-    const allowsEval = util.allowsEval;
-    const fastEnabled = jit && allowsEval.value; // && !def.catchall;
-    const catchall = def.catchall;
-    let value;
-    inst._zod.parse = (payload, ctx) => {
-        value ?? (value = _normalized.value);
-        const input = payload.value;
-        if (!isObject(input)) {
-            payload.issues.push({
-                expected: "object",
-                code: "invalid_type",
-                input,
-                inst,
-            });
-            return payload;
-        }
-        const proms = [];
-        if (jit && fastEnabled && ctx?.async === false && ctx.jitless !== true) {
-            // always synchronous
-            if (!fastpass)
-                fastpass = generateFastpass(def.shape);
-            payload = fastpass(payload, ctx);
-        }
-        else {
-            payload.value = {};
-            const shape = value.shape;
-            for (const key of value.keys) {
-                const el = shape[key];
-                // do not add omitted optional keys
-                // if (!(key in input)) {
-                //   if (optionalKeys.has(key)) continue;
-                //   payload.issues.push({
-                //     code: "invalid_type",
-                //     path: [key],
-                //     expected: "nonoptional",
-                //     note: `Missing required key: "${key}"`,
-                //     input,
-                //     inst,
-                //   });
-                // }
-                const r = el._zod.run({ value: input[key], issues: [] }, ctx);
-                const isOptional = el._zod.optin === "optional" && el._zod.optout === "optional";
-                if (r instanceof Promise) {
-                    proms.push(r.then((r) => isOptional ? handleOptionalObjectResult(r, payload, key, input) : handleObjectResult(r, payload, key)));
-                }
-                else if (isOptional) {
-                    handleOptionalObjectResult(r, payload, key, input);
-                }
-                else {
-                    handleObjectResult(r, payload, key);
-                }
-            }
-        }
-        if (!catchall) {
-            // return payload;
-            return proms.length ? Promise.all(proms).then(() => payload) : payload;
-        }
-        const unrecognized = [];
-        // iterate over input keys
-        const keySet = value.keySet;
-        const _catchall = catchall._zod;
-        const t = _catchall.def.type;
-        for (const key of Object.keys(input)) {
-            if (keySet.has(key))
-                continue;
-            if (t === "never") {
-                unrecognized.push(key);
-                continue;
-            }
-            const r = _catchall.run({ value: input[key], issues: [] }, ctx);
-            if (r instanceof Promise) {
-                proms.push(r.then((r) => handleObjectResult(r, payload, key)));
-            }
-            else {
-                handleObjectResult(r, payload, key);
-            }
-        }
-        if (unrecognized.length) {
-            payload.issues.push({
-                code: "unrecognized_keys",
-                keys: unrecognized,
-                input,
-                inst,
-            });
-        }
-        if (!proms.length)
-            return payload;
-        return Promise.all(proms).then(() => {
-            return payload;
-        });
-    };
-});
-function handleUnionResults(results, final, inst, ctx) {
-    for (const result of results) {
-        if (result.issues.length === 0) {
-            final.value = result.value;
-            return final;
-        }
-    }
-    final.issues.push({
-        code: "invalid_union",
-        input: final.value,
-        inst,
-        errors: results.map((result) => result.issues.map((iss) => util.finalizeIssue(iss, ctx, core.config()))),
-    });
-    return final;
 }
-export const $ZodUnion = /*@__PURE__*/ core.$constructor("$ZodUnion", (inst, def) => {
-    $ZodType.init(inst, def);
-    util.defineLazy(inst._zod, "optin", () => def.options.some((o) => o._zod.optin === "optional") ? "optional" : undefined);
-    util.defineLazy(inst._zod, "optout", () => def.options.some((o) => o._zod.optout === "optional") ? "optional" : undefined);
-    util.defineLazy(inst._zod, "values", () => {
-        if (def.options.every((o) => o._zod.values)) {
-            return new Set(def.options.flatMap((option) => Array.from(option._zod.values)));
-        }
-        return undefined;
+export const ZodMiniDiscriminatedUnion = /*@__PURE__*/ core.$constructor("ZodMiniDiscriminatedUnion", (inst, def) => {
+    core.$ZodDiscriminatedUnion.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function discriminatedUnion(discriminator, options, params) {
+    return new ZodMiniDiscriminatedUnion({
+        type: "union",
+        options,
+        discriminator,
+        ...util.normalizeParams(params),
     });
-    util.defineLazy(inst._zod, "pattern", () => {
-        if (def.options.every((o) => o._zod.pattern)) {
-            const patterns = def.options.map((o) => o._zod.pattern);
-            return new RegExp(`^(${patterns.map((p) => util.cleanRegex(p.source)).join("|")})$`);
-        }
-        return undefined;
+}
+export const ZodMiniIntersection = /*@__PURE__*/ core.$constructor("ZodMiniIntersection", (inst, def) => {
+    core.$ZodIntersection.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function intersection(left, right) {
+    return new ZodMiniIntersection({
+        type: "intersection",
+        left: left,
+        right: right,
     });
-    inst._zod.parse = (payload, ctx) => {
-        let async = false;
-        const results = [];
-        for (const option of def.options) {
-            const result = option._zod.run({
-                value: payload.value,
-                issues: [],
-            }, ctx);
-            if (result instanceof Promise) {
-                results.push(result);
-                async = true;
-            }
-            else {
-                if (result.issues.length === 0)
-                    return result;
-                results.push(result);
-            }
-        }
-        if (!async)
-            return handleUnionResults(results, payload, inst, ctx);
-        return Promise.all(results).then((results) => {
-            return handleUnionResults(results, payload, inst, ctx);
-        });
-    };
+}
+export const ZodMiniTuple = /*@__PURE__*/ core.$constructor("ZodMiniTuple", (inst, def) => {
+    core.$ZodTuple.init(inst, def);
+    ZodMiniType.init(inst, def);
 });
-export const $ZodDiscriminatedUnion = 
-/*@__PURE__*/
-core.$constructor("$ZodDiscriminatedUnion", (inst, def) => {
-    $ZodUnion.init(inst, def);
-    const _super = inst._zod.parse;
-    util.defineLazy(inst._zod, "propValues", () => {
-        const propValues = {};
-        for (const option of def.options) {
-            const pv = option._zod.propValues;
-            if (!pv || Object.keys(pv).length === 0)
-                throw new Error(`Invalid discriminated union option at index "${def.options.indexOf(option)}"`);
-            for (const [k, v] of Object.entries(pv)) {
-                if (!propValues[k])
-                    propValues[k] = new Set();
-                for (const val of v) {
-                    propValues[k].add(val);
-                }
-            }
-        }
-        return propValues;
+export function tuple(items, _paramsOrRest, _params) {
+    const hasRest = _paramsOrRest instanceof core.$ZodType;
+    const params = hasRest ? _params : _paramsOrRest;
+    const rest = hasRest ? _paramsOrRest : null;
+    return new ZodMiniTuple({
+        type: "tuple",
+        items: items,
+        rest,
+        ...util.normalizeParams(params),
     });
-    const disc = util.cached(() => {
-        const opts = def.options;
-        const map = new Map();
-        for (const o of opts) {
-            const values = o._zod.propValues[def.discriminator];
-            if (!values || values.size === 0)
-                throw new Error(`Invalid discriminated union option at index "${def.options.indexOf(o)}"`);
-            for (const v of values) {
-                if (map.has(v)) {
-                    throw new Error(`Duplicate discriminator value "${String(v)}"`);
-                }
-                map.set(v, o);
-            }
-        }
-        return map;
+}
+export const ZodMiniRecord = /*@__PURE__*/ core.$constructor("ZodMiniRecord", (inst, def) => {
+    core.$ZodRecord.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function record(keyType, valueType, params) {
+    return new ZodMiniRecord({
+        type: "record",
+        keyType,
+        valueType: valueType,
+        ...util.normalizeParams(params),
     });
-    inst._zod.parse = (payload, ctx) => {
-        const input = payload.value;
-        if (!util.isObject(input)) {
-            payload.issues.push({
-                code: "invalid_type",
-                expected: "object",
-                input,
-                inst,
-            });
-            return payload;
-        }
-        const opt = disc.value.get(input?.[def.discriminator]);
-        if (opt) {
-            return opt._zod.run(payload, ctx);
-        }
-        if (def.unionFallback) {
-            return _super(payload, ctx);
-        }
-        // no matching discriminator
-        payload.issues.push({
-            code: "invalid_union",
-            errors: [],
-            note: "No matching discriminator",
-            input,
-            path: [def.discriminator],
-            inst,
-        });
-        return payload;
-    };
-});
-export const $ZodIntersection = /*@__PURE__*/ core.$constructor("$ZodIntersection", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload, ctx) => {
-        const input = payload.value;
-        const left = def.left._zod.run({ value: input, issues: [] }, ctx);
-        const right = def.right._zod.run({ value: input, issues: [] }, ctx);
-        const async = left instanceof Promise || right instanceof Promise;
-        if (async) {
-            return Promise.all([left, right]).then(([left, right]) => {
-                return handleIntersectionResults(payload, left, right);
-            });
-        }
-        return handleIntersectionResults(payload, left, right);
-    };
-});
-function mergeValues(a, b) {
-    // const aType = parse.t(a);
-    // const bType = parse.t(b);
-    if (a === b) {
-        return { valid: true, data: a };
-    }
-    if (a instanceof Date && b instanceof Date && +a === +b) {
-        return { valid: true, data: a };
-    }
-    if (util.isPlainObject(a) && util.isPlainObject(b)) {
-        const bKeys = Object.keys(b);
-        const sharedKeys = Object.keys(a).filter((key) => bKeys.indexOf(key) !== -1);
-        const newObj = { ...a, ...b };
-        for (const key of sharedKeys) {
-            const sharedValue = mergeValues(a[key], b[key]);
-            if (!sharedValue.valid) {
-                return {
-                    valid: false,
-                    mergeErrorPath: [key, ...sharedValue.mergeErrorPath],
-                };
-            }
-            newObj[key] = sharedValue.data;
-        }
-        return { valid: true, data: newObj };
-    }
-    if (Array.isArray(a) && Array.isArray(b)) {
-        if (a.length !== b.length) {
-            return { valid: false, mergeErrorPath: [] };
-        }
-        const newArray = [];
-        for (let index = 0; index < a.length; index++) {
-            const itemA = a[index];
-            const itemB = b[index];
-            const sharedValue = mergeValues(itemA, itemB);
-            if (!sharedValue.valid) {
-                return {
-                    valid: false,
-                    mergeErrorPath: [index, ...sharedValue.mergeErrorPath],
-                };
-            }
-            newArray.push(sharedValue.data);
-        }
-        return { valid: true, data: newArray };
-    }
-    return { valid: false, mergeErrorPath: [] };
 }
-function handleIntersectionResults(result, left, right) {
-    if (left.issues.length) {
-        result.issues.push(...left.issues);
-    }
-    if (right.issues.length) {
-        result.issues.push(...right.issues);
-    }
-    if (util.aborted(result))
-        return result;
-    const merged = mergeValues(left.value, right.value);
-    if (!merged.valid) {
-        throw new Error(`Unmergable intersection. Error path: ` + `${JSON.stringify(merged.mergeErrorPath)}`);
-    }
-    result.value = merged.data;
-    return result;
-}
-export const $ZodTuple = /*@__PURE__*/ core.$constructor("$ZodTuple", (inst, def) => {
-    $ZodType.init(inst, def);
-    const items = def.items;
-    const optStart = items.length - [...items].reverse().findIndex((item) => item._zod.optin !== "optional");
-    inst._zod.parse = (payload, ctx) => {
-        const input = payload.value;
-        if (!Array.isArray(input)) {
-            payload.issues.push({
-                input,
-                inst,
-                expected: "tuple",
-                code: "invalid_type",
-            });
-            return payload;
-        }
-        payload.value = [];
-        const proms = [];
-        if (!def.rest) {
-            const tooBig = input.length > items.length;
-            const tooSmall = input.length < optStart - 1;
-            if (tooBig || tooSmall) {
-                payload.issues.push({
-                    input,
-                    inst,
-                    origin: "array",
-                    ...(tooBig ? { code: "too_big", maximum: items.length } : { code: "too_small", minimum: items.length }),
-                });
-                return payload;
-            }
-        }
-        let i = -1;
-        for (const item of items) {
-            i++;
-            if (i >= input.length)
-                if (i >= optStart)
-                    continue;
-            const result = item._zod.run({
-                value: input[i],
-                issues: [],
-            }, ctx);
-            if (result instanceof Promise) {
-                proms.push(result.then((result) => handleTupleResult(result, payload, i)));
-            }
-            else {
-                handleTupleResult(result, payload, i);
-            }
-        }
-        if (def.rest) {
-            const rest = input.slice(items.length);
-            for (const el of rest) {
-                i++;
-                const result = def.rest._zod.run({
-                    value: el,
-                    issues: [],
-                }, ctx);
-                if (result instanceof Promise) {
-                    proms.push(result.then((result) => handleTupleResult(result, payload, i)));
-                }
-                else {
-                    handleTupleResult(result, payload, i);
-                }
-            }
-        }
-        if (proms.length)
-            return Promise.all(proms).then(() => payload);
-        return payload;
-    };
-});
-function handleTupleResult(result, final, index) {
-    if (result.issues.length) {
-        final.issues.push(...util.prefixIssues(index, result.issues));
-    }
-    final.value[index] = result.value;
-}
-export const $ZodRecord = /*@__PURE__*/ core.$constructor("$ZodRecord", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload, ctx) => {
-        const input = payload.value;
-        if (!util.isPlainObject(input)) {
-            payload.issues.push({
-                expected: "record",
-                code: "invalid_type",
-                input,
-                inst,
-            });
-            return payload;
-        }
-        const proms = [];
-        if (def.keyType._zod.values) {
-            const values = def.keyType._zod.values;
-            payload.value = {};
-            for (const key of values) {
-                if (typeof key === "string" || typeof key === "number" || typeof key === "symbol") {
-                    const result = def.valueType._zod.run({ value: input[key], issues: [] }, ctx);
-                    if (result instanceof Promise) {
-                        proms.push(result.then((result) => {
-                            if (result.issues.length) {
-                                payload.issues.push(...util.prefixIssues(key, result.issues));
-                            }
-                            payload.value[key] = result.value;
-                        }));
-                    }
-                    else {
-                        if (result.issues.length) {
-                            payload.issues.push(...util.prefixIssues(key, result.issues));
-                        }
-                        payload.value[key] = result.value;
-                    }
-                }
-            }
-            let unrecognized;
-            for (const key in input) {
-                if (!values.has(key)) {
-                    unrecognized = unrecognized ?? [];
-                    unrecognized.push(key);
-                }
-            }
-            if (unrecognized && unrecognized.length > 0) {
-                payload.issues.push({
-                    code: "unrecognized_keys",
-                    input,
-                    inst,
-                    keys: unrecognized,
-                });
-            }
-        }
-        else {
-            payload.value = {};
-            for (const key of Reflect.ownKeys(input)) {
-                if (key === "__proto__")
-                    continue;
-                const keyResult = def.keyType._zod.run({ value: key, issues: [] }, ctx);
-                if (keyResult instanceof Promise) {
-                    throw new Error("Async schemas not supported in object keys currently");
-                }
-                if (keyResult.issues.length) {
-                    payload.issues.push({
-                        origin: "record",
-                        code: "invalid_key",
-                        issues: keyResult.issues.map((iss) => util.finalizeIssue(iss, ctx, core.config())),
-                        input: key,
-                        path: [key],
-                        inst,
-                    });
-                    payload.value[keyResult.value] = keyResult.value;
-                    continue;
-                }
-                const result = def.valueType._zod.run({ value: input[key], issues: [] }, ctx);
-                if (result instanceof Promise) {
-                    proms.push(result.then((result) => {
-                        if (result.issues.length) {
-                            payload.issues.push(...util.prefixIssues(key, result.issues));
-                        }
-                        payload.value[keyResult.value] = result.value;
-                    }));
-                }
-                else {
-                    if (result.issues.length) {
-                        payload.issues.push(...util.prefixIssues(key, result.issues));
-                    }
-                    payload.value[keyResult.value] = result.value;
-                }
-            }
-        }
-        if (proms.length) {
-            return Promise.all(proms).then(() => payload);
-        }
-        return payload;
-    };
-});
-export const $ZodMap = /*@__PURE__*/ core.$constructor("$ZodMap", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload, ctx) => {
-        const input = payload.value;
-        if (!(input instanceof Map)) {
-            payload.issues.push({
-                expected: "map",
-                code: "invalid_type",
-                input,
-                inst,
-            });
-            return payload;
-        }
-        const proms = [];
-        payload.value = new Map();
-        for (const [key, value] of input) {
-            const keyResult = def.keyType._zod.run({ value: key, issues: [] }, ctx);
-            const valueResult = def.valueType._zod.run({ value: value, issues: [] }, ctx);
-            if (keyResult instanceof Promise || valueResult instanceof Promise) {
-                proms.push(Promise.all([keyResult, valueResult]).then(([keyResult, valueResult]) => {
-                    handleMapResult(keyResult, valueResult, payload, key, input, inst, ctx);
-                }));
-            }
-            else {
-                handleMapResult(keyResult, valueResult, payload, key, input, inst, ctx);
-            }
-        }
-        if (proms.length)
-            return Promise.all(proms).then(() => payload);
-        return payload;
-    };
-});
-function handleMapResult(keyResult, valueResult, final, key, input, inst, ctx) {
-    if (keyResult.issues.length) {
-        if (util.propertyKeyTypes.has(typeof key)) {
-            final.issues.push(...util.prefixIssues(key, keyResult.issues));
-        }
-        else {
-            final.issues.push({
-                origin: "map",
-                code: "invalid_key",
-                input,
-                inst,
-                issues: keyResult.issues.map((iss) => util.finalizeIssue(iss, ctx, core.config())),
-            });
-        }
-    }
-    if (valueResult.issues.length) {
-        if (util.propertyKeyTypes.has(typeof key)) {
-            final.issues.push(...util.prefixIssues(key, valueResult.issues));
-        }
-        else {
-            final.issues.push({
-                origin: "map",
-                code: "invalid_element",
-                input,
-                inst,
-                key: key,
-                issues: valueResult.issues.map((iss) => util.finalizeIssue(iss, ctx, core.config())),
-            });
-        }
-    }
-    final.value.set(keyResult.value, valueResult.value);
-}
-export const $ZodSet = /*@__PURE__*/ core.$constructor("$ZodSet", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload, ctx) => {
-        const input = payload.value;
-        if (!(input instanceof Set)) {
-            payload.issues.push({
-                input,
-                inst,
-                expected: "set",
-                code: "invalid_type",
-            });
-            return payload;
-        }
-        const proms = [];
-        payload.value = new Set();
-        for (const item of input) {
-            const result = def.valueType._zod.run({ value: item, issues: [] }, ctx);
-            if (result instanceof Promise) {
-                proms.push(result.then((result) => handleSetResult(result, payload)));
-            }
-            else
-                handleSetResult(result, payload);
-        }
-        if (proms.length)
-            return Promise.all(proms).then(() => payload);
-        return payload;
-    };
-});
-function handleSetResult(result, final) {
-    if (result.issues.length) {
-        final.issues.push(...result.issues);
-    }
-    final.value.add(result.value);
-}
-export const $ZodEnum = /*@__PURE__*/ core.$constructor("$ZodEnum", (inst, def) => {
-    $ZodType.init(inst, def);
-    const values = util.getEnumValues(def.entries);
-    inst._zod.values = new Set(values);
-    inst._zod.pattern = new RegExp(`^(${values
-        .filter((k) => util.propertyKeyTypes.has(typeof k))
-        .map((o) => (typeof o === "string" ? util.escapeRegex(o) : o.toString()))
-        .join("|")})$`);
-    inst._zod.parse = (payload, _ctx) => {
-        const input = payload.value;
-        if (inst._zod.values.has(input)) {
-            return payload;
-        }
-        payload.issues.push({
-            code: "invalid_value",
-            values,
-            input,
-            inst,
-        });
-        return payload;
-    };
-});
-export const $ZodLiteral = /*@__PURE__*/ core.$constructor("$ZodLiteral", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.values = new Set(def.values);
-    inst._zod.pattern = new RegExp(`^(${def.values
-        .map((o) => (typeof o === "string" ? util.escapeRegex(o) : o ? o.toString() : String(o)))
-        .join("|")})$`);
-    inst._zod.parse = (payload, _ctx) => {
-        const input = payload.value;
-        if (inst._zod.values.has(input)) {
-            return payload;
-        }
-        payload.issues.push({
-            code: "invalid_value",
-            values: def.values,
-            input,
-            inst,
-        });
-        return payload;
-    };
-});
-export const $ZodFile = /*@__PURE__*/ core.$constructor("$ZodFile", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload, _ctx) => {
-        const input = payload.value;
-        if (input instanceof File)
-            return payload;
-        payload.issues.push({
-            expected: "file",
-            code: "invalid_type",
-            input,
-            inst,
-        });
-        return payload;
-    };
-});
-export const $ZodTransform = /*@__PURE__*/ core.$constructor("$ZodTransform", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload, _ctx) => {
-        const _out = def.transform(payload.value, payload);
-        if (_ctx.async) {
-            const output = _out instanceof Promise ? _out : Promise.resolve(_out);
-            return output.then((output) => {
-                payload.value = output;
-                return payload;
-            });
-        }
-        if (_out instanceof Promise) {
-            throw new core.$ZodAsyncError();
-        }
-        payload.value = _out;
-        return payload;
-    };
-});
-export const $ZodOptional = /*@__PURE__*/ core.$constructor("$ZodOptional", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.optin = "optional";
-    inst._zod.optout = "optional";
-    util.defineLazy(inst._zod, "values", () => {
-        return def.innerType._zod.values ? new Set([...def.innerType._zod.values, undefined]) : undefined;
+export function partialRecord(keyType, valueType, params) {
+    return new ZodMiniRecord({
+        type: "record",
+        keyType: union([keyType, never()]),
+        valueType: valueType,
+        ...util.normalizeParams(params),
     });
-    util.defineLazy(inst._zod, "pattern", () => {
-        const pattern = def.innerType._zod.pattern;
-        return pattern ? new RegExp(`^(${util.cleanRegex(pattern.source)})?$`) : undefined;
-    });
-    inst._zod.parse = (payload, ctx) => {
-        if (def.innerType._zod.optin === "optional") {
-            return def.innerType._zod.run(payload, ctx);
-        }
-        if (payload.value === undefined) {
-            return payload;
-        }
-        return def.innerType._zod.run(payload, ctx);
-    };
-});
-export const $ZodNullable = /*@__PURE__*/ core.$constructor("$ZodNullable", (inst, def) => {
-    $ZodType.init(inst, def);
-    util.defineLazy(inst._zod, "optin", () => def.innerType._zod.optin);
-    util.defineLazy(inst._zod, "optout", () => def.innerType._zod.optout);
-    util.defineLazy(inst._zod, "pattern", () => {
-        const pattern = def.innerType._zod.pattern;
-        return pattern ? new RegExp(`^(${util.cleanRegex(pattern.source)}|null)$`) : undefined;
-    });
-    util.defineLazy(inst._zod, "values", () => {
-        return def.innerType._zod.values ? new Set([...def.innerType._zod.values, null]) : undefined;
-    });
-    inst._zod.parse = (payload, ctx) => {
-        if (payload.value === null)
-            return payload;
-        return def.innerType._zod.run(payload, ctx);
-    };
-});
-export const $ZodDefault = /*@__PURE__*/ core.$constructor("$ZodDefault", (inst, def) => {
-    $ZodType.init(inst, def);
-    // inst._zod.qin = "true";
-    inst._zod.optin = "optional";
-    util.defineLazy(inst._zod, "values", () => def.innerType._zod.values);
-    inst._zod.parse = (payload, ctx) => {
-        if (payload.value === undefined) {
-            payload.value = def.defaultValue;
-            /**
-             * $ZodDefault always returns the default value immediately.
-             * It doesn't pass the default value into the validator ("prefault"). There's no reason to pass the default value through validation. The validity of the default is enforced by TypeScript statically. Otherwise, it's the responsibility of the user to ensure the default is valid. In the case of pipes with divergent in/out types, you can specify the default on the `in` schema of your ZodPipe to set a "prefault" for the pipe.   */
-            return payload;
-        }
-        const result = def.innerType._zod.run(payload, ctx);
-        if (result instanceof Promise) {
-            return result.then((result) => handleDefaultResult(result, def));
-        }
-        return handleDefaultResult(result, def);
-    };
-});
-function handleDefaultResult(payload, def) {
-    if (payload.value === undefined) {
-        payload.value = def.defaultValue;
-    }
-    return payload;
 }
-export const $ZodPrefault = /*@__PURE__*/ core.$constructor("$ZodPrefault", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.optin = "optional";
-    util.defineLazy(inst._zod, "values", () => def.innerType._zod.values);
-    inst._zod.parse = (payload, ctx) => {
-        if (payload.value === undefined) {
-            payload.value = def.defaultValue;
-        }
-        return def.innerType._zod.run(payload, ctx);
-    };
+export const ZodMiniMap = /*@__PURE__*/ core.$constructor("ZodMiniMap", (inst, def) => {
+    core.$ZodMap.init(inst, def);
+    ZodMiniType.init(inst, def);
 });
-export const $ZodNonOptional = /*@__PURE__*/ core.$constructor("$ZodNonOptional", (inst, def) => {
-    $ZodType.init(inst, def);
-    util.defineLazy(inst._zod, "values", () => {
-        const v = def.innerType._zod.values;
-        return v ? new Set([...v].filter((x) => x !== undefined)) : undefined;
+export function map(keyType, valueType, params) {
+    return new ZodMiniMap({
+        type: "map",
+        keyType: keyType,
+        valueType: valueType,
+        ...util.normalizeParams(params),
     });
-    inst._zod.parse = (payload, ctx) => {
-        const result = def.innerType._zod.run(payload, ctx);
-        if (result instanceof Promise) {
-            return result.then((result) => handleNonOptionalResult(result, inst));
-        }
-        return handleNonOptionalResult(result, inst);
-    };
-});
-function handleNonOptionalResult(payload, inst) {
-    if (!payload.issues.length && payload.value === undefined) {
-        payload.issues.push({
-            code: "invalid_type",
-            expected: "nonoptional",
-            input: payload.value,
-            inst,
-        });
-    }
-    return payload;
 }
-export const $ZodSuccess = /*@__PURE__*/ core.$constructor("$ZodSuccess", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload, ctx) => {
-        const result = def.innerType._zod.run(payload, ctx);
-        if (result instanceof Promise) {
-            return result.then((result) => {
-                payload.value = result.issues.length === 0;
-                return payload;
-            });
-        }
-        payload.value = result.issues.length === 0;
-        return payload;
-    };
+export const ZodMiniSet = /*@__PURE__*/ core.$constructor("ZodMiniSet", (inst, def) => {
+    core.$ZodSet.init(inst, def);
+    ZodMiniType.init(inst, def);
 });
-export const $ZodCatch = /*@__PURE__*/ core.$constructor("$ZodCatch", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.optin = "optional";
-    util.defineLazy(inst._zod, "optout", () => def.innerType._zod.optout);
-    util.defineLazy(inst._zod, "values", () => def.innerType._zod.values);
-    inst._zod.parse = (payload, ctx) => {
-        const result = def.innerType._zod.run(payload, ctx);
-        if (result instanceof Promise) {
-            return result.then((result) => {
-                payload.value = result.value;
-                if (result.issues.length) {
-                    payload.value = def.catchValue({
-                        ...payload,
-                        error: {
-                            issues: result.issues.map((iss) => util.finalizeIssue(iss, ctx, core.config())),
-                        },
-                        input: payload.value,
-                    });
-                    payload.issues = [];
-                }
-                return payload;
-            });
-        }
-        payload.value = result.value;
-        if (result.issues.length) {
-            payload.value = def.catchValue({
-                ...payload,
-                error: {
-                    issues: result.issues.map((iss) => util.finalizeIssue(iss, ctx, core.config())),
-                },
-                input: payload.value,
-            });
-            payload.issues = [];
-        }
-        return payload;
-    };
-});
-export const $ZodNaN = /*@__PURE__*/ core.$constructor("$ZodNaN", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload, _ctx) => {
-        if (typeof payload.value !== "number" || !Number.isNaN(payload.value)) {
-            payload.issues.push({
-                input: payload.value,
-                inst,
-                expected: "nan",
-                code: "invalid_type",
-            });
-            return payload;
-        }
-        return payload;
-    };
-});
-export const $ZodPipe = /*@__PURE__*/ core.$constructor("$ZodPipe", (inst, def) => {
-    $ZodType.init(inst, def);
-    util.defineLazy(inst._zod, "values", () => def.in._zod.values);
-    util.defineLazy(inst._zod, "optin", () => def.in._zod.optin);
-    util.defineLazy(inst._zod, "optout", () => def.out._zod.optout);
-    inst._zod.parse = (payload, ctx) => {
-        const left = def.in._zod.run(payload, ctx);
-        if (left instanceof Promise) {
-            return left.then((left) => handlePipeResult(left, def, ctx));
-        }
-        return handlePipeResult(left, def, ctx);
-    };
-});
-function handlePipeResult(left, def, ctx) {
-    if (util.aborted(left)) {
-        return left;
-    }
-    return def.out._zod.run({ value: left.value, issues: left.issues }, ctx);
+export function set(valueType, params) {
+    return new ZodMiniSet({
+        type: "set",
+        valueType: valueType,
+        ...util.normalizeParams(params),
+    });
 }
-export const $ZodReadonly = /*@__PURE__*/ core.$constructor("$ZodReadonly", (inst, def) => {
-    $ZodType.init(inst, def);
-    util.defineLazy(inst._zod, "propValues", () => def.innerType._zod.propValues);
-    util.defineLazy(inst._zod, "values", () => def.innerType._zod.values);
-    util.defineLazy(inst._zod, "optin", () => def.innerType._zod.optin);
-    util.defineLazy(inst._zod, "optout", () => def.innerType._zod.optout);
-    inst._zod.parse = (payload, ctx) => {
-        const result = def.innerType._zod.run(payload, ctx);
-        if (result instanceof Promise) {
-            return result.then(handleReadonlyResult);
-        }
-        return handleReadonlyResult(result);
-    };
+export const ZodMiniEnum = /*@__PURE__*/ core.$constructor("ZodMiniEnum", (inst, def) => {
+    core.$ZodEnum.init(inst, def);
+    ZodMiniType.init(inst, def);
 });
-function handleReadonlyResult(payload) {
-    payload.value = Object.freeze(payload.value);
-    return payload;
+function _enum(values, params) {
+    const entries = Array.isArray(values) ? Object.fromEntries(values.map((v) => [v, v])) : values;
+    return new ZodMiniEnum({
+        type: "enum",
+        entries,
+        ...util.normalizeParams(params),
+    });
 }
-export const $ZodTemplateLiteral = /*@__PURE__*/ core.$constructor("$ZodTemplateLiteral", (inst, def) => {
-    $ZodType.init(inst, def);
-    const regexParts = [];
-    for (const part of def.parts) {
-        if (part instanceof $ZodType) {
-            if (!part._zod.pattern) {
-                // if (!source)
-                throw new Error(`Invalid template literal part, no pattern found: ${[...part._zod.traits].shift()}`);
-            }
-            const source = part._zod.pattern instanceof RegExp ? part._zod.pattern.source : part._zod.pattern;
-            if (!source)
-                throw new Error(`Invalid template literal part: ${part._zod.traits}`);
-            const start = source.startsWith("^") ? 1 : 0;
-            const end = source.endsWith("$") ? source.length - 1 : source.length;
-            regexParts.push(source.slice(start, end));
-        }
-        else if (part === null || util.primitiveTypes.has(typeof part)) {
-            regexParts.push(util.escapeRegex(`${part}`));
-        }
-        else {
-            throw new Error(`Invalid template literal part: ${part}`);
-        }
-    }
-    inst._zod.pattern = new RegExp(`^${regexParts.join("")}$`);
-    inst._zod.parse = (payload, _ctx) => {
-        if (typeof payload.value !== "string") {
-            payload.issues.push({
-                input: payload.value,
-                inst,
-                expected: "template_literal",
-                code: "invalid_type",
-            });
-            return payload;
-        }
-        inst._zod.pattern.lastIndex = 0;
-        if (!inst._zod.pattern.test(payload.value)) {
-            payload.issues.push({
-                input: payload.value,
-                inst,
-                code: "invalid_format",
-                format: "template_literal",
-                pattern: inst._zod.pattern.source,
-            });
-            return payload;
-        }
-        return payload;
-    };
+export { _enum as enum };
+/** @deprecated This API has been merged into `z.enum()`. Use `z.enum()` instead.
+ *
+ * ```ts
+ * enum Colors { red, green, blue }
+ * z.enum(Colors);
+ * ```
+ */
+export function nativeEnum(entries, params) {
+    return new ZodMiniEnum({
+        type: "enum",
+        entries,
+        ...util.normalizeParams(params),
+    });
+}
+export const ZodMiniLiteral = /*@__PURE__*/ core.$constructor("ZodMiniLiteral", (inst, def) => {
+    core.$ZodLiteral.init(inst, def);
+    ZodMiniType.init(inst, def);
 });
-export const $ZodPromise = /*@__PURE__*/ core.$constructor("$ZodPromise", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload, ctx) => {
-        return Promise.resolve(payload.value).then((inner) => def.innerType._zod.run({ value: inner, issues: [] }, ctx));
-    };
+export function literal(value, params) {
+    return new ZodMiniLiteral({
+        type: "literal",
+        values: Array.isArray(value) ? value : [value],
+        ...util.normalizeParams(params),
+    });
+}
+export const ZodMiniFile = /*@__PURE__*/ core.$constructor("ZodMiniFile", (inst, def) => {
+    core.$ZodFile.init(inst, def);
+    ZodMiniType.init(inst, def);
 });
-export const $ZodLazy = /*@__PURE__*/ core.$constructor("$ZodLazy", (inst, def) => {
-    $ZodType.init(inst, def);
-    util.defineLazy(inst._zod, "innerType", () => def.getter());
-    util.defineLazy(inst._zod, "pattern", () => inst._zod.innerType._zod.pattern);
-    util.defineLazy(inst._zod, "propValues", () => inst._zod.innerType._zod.propValues);
-    util.defineLazy(inst._zod, "optin", () => inst._zod.innerType._zod.optin);
-    util.defineLazy(inst._zod, "optout", () => inst._zod.innerType._zod.optout);
-    inst._zod.parse = (payload, ctx) => {
-        const inner = inst._zod.innerType;
-        return inner._zod.run(payload, ctx);
-    };
+export function file(params) {
+    return core._file(ZodMiniFile, params);
+}
+export const ZodMiniTransform = /*@__PURE__*/ core.$constructor("ZodMiniTransform", (inst, def) => {
+    core.$ZodTransform.init(inst, def);
+    ZodMiniType.init(inst, def);
 });
-export const $ZodCustom = /*@__PURE__*/ core.$constructor("$ZodCustom", (inst, def) => {
-    checks.$ZodCheck.init(inst, def);
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload, _) => {
-        return payload;
-    };
-    inst._zod.check = (payload) => {
-        const input = payload.value;
-        const r = def.fn(input);
-        if (r instanceof Promise) {
-            return r.then((r) => handleRefineResult(r, payload, input, inst));
-        }
-        handleRefineResult(r, payload, input, inst);
-        return;
-    };
+export function transform(fn) {
+    return new ZodMiniTransform({
+        type: "transform",
+        transform: fn,
+    });
+}
+export const ZodMiniOptional = /*@__PURE__*/ core.$constructor("ZodMiniOptional", (inst, def) => {
+    core.$ZodOptional.init(inst, def);
+    ZodMiniType.init(inst, def);
 });
-function handleRefineResult(result, payload, input, inst) {
-    if (!result) {
-        const _iss = {
-            code: "custom",
-            input,
-            inst, // incorporates params.error into issue reporting
-            path: [...(inst._zod.def.path ?? [])], // incorporates params.error into issue reporting
-            continue: !inst._zod.def.abort,
-            // params: inst._zod.def.params,
-        };
-        if (inst._zod.def.params)
-            _iss.params = inst._zod.def.params;
-        payload.issues.push(util.issue(_iss));
-    }
+export function optional(innerType) {
+    return new ZodMiniOptional({
+        type: "optional",
+        innerType: innerType,
+    });
+}
+export const ZodMiniNullable = /*@__PURE__*/ core.$constructor("ZodMiniNullable", (inst, def) => {
+    core.$ZodNullable.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function nullable(innerType) {
+    return new ZodMiniNullable({
+        type: "nullable",
+        innerType: innerType,
+    });
+}
+// nullish
+export function nullish(innerType) {
+    return optional(nullable(innerType));
+}
+export const ZodMiniDefault = /*@__PURE__*/ core.$constructor("ZodMiniDefault", (inst, def) => {
+    core.$ZodDefault.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function _default(innerType, defaultValue) {
+    return new ZodMiniDefault({
+        type: "default",
+        innerType: innerType,
+        get defaultValue() {
+            return typeof defaultValue === "function" ? defaultValue() : defaultValue;
+        },
+    });
+}
+export const ZodMiniPrefault = /*@__PURE__*/ core.$constructor("ZodMiniPrefault", (inst, def) => {
+    core.$ZodPrefault.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function prefault(innerType, defaultValue) {
+    return new ZodMiniPrefault({
+        type: "prefault",
+        innerType: innerType,
+        get defaultValue() {
+            return typeof defaultValue === "function" ? defaultValue() : defaultValue;
+        },
+    });
+}
+export const ZodMiniNonOptional = /*@__PURE__*/ core.$constructor("ZodMiniNonOptional", (inst, def) => {
+    core.$ZodNonOptional.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function nonoptional(innerType, params) {
+    return new ZodMiniNonOptional({
+        type: "nonoptional",
+        innerType: innerType,
+        ...util.normalizeParams(params),
+    });
+}
+export const ZodMiniSuccess = /*@__PURE__*/ core.$constructor("ZodMiniSuccess", (inst, def) => {
+    core.$ZodSuccess.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function success(innerType) {
+    return new ZodMiniSuccess({
+        type: "success",
+        innerType: innerType,
+    });
+}
+export const ZodMiniCatch = /*@__PURE__*/ core.$constructor("ZodMiniCatch", (inst, def) => {
+    core.$ZodCatch.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+function _catch(innerType, catchValue) {
+    return new ZodMiniCatch({
+        type: "catch",
+        innerType: innerType,
+        catchValue: (typeof catchValue === "function" ? catchValue : () => catchValue),
+    });
+}
+export { _catch as catch };
+export const ZodMiniNaN = /*@__PURE__*/ core.$constructor("ZodMiniNaN", (inst, def) => {
+    core.$ZodNaN.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function nan(params) {
+    return core._nan(ZodMiniNaN, params);
+}
+export const ZodMiniPipe = /*@__PURE__*/ core.$constructor("ZodMiniPipe", (inst, def) => {
+    core.$ZodPipe.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function pipe(in_, out) {
+    return new ZodMiniPipe({
+        type: "pipe",
+        in: in_,
+        out: out,
+    });
+}
+export const ZodMiniReadonly = /*@__PURE__*/ core.$constructor("ZodMiniReadonly", (inst, def) => {
+    core.$ZodReadonly.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function readonly(innerType) {
+    return new ZodMiniReadonly({
+        type: "readonly",
+        innerType: innerType,
+    });
+}
+export const ZodMiniTemplateLiteral = /*@__PURE__*/ core.$constructor("ZodMiniTemplateLiteral", (inst, def) => {
+    core.$ZodTemplateLiteral.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function templateLiteral(parts, params) {
+    return new ZodMiniTemplateLiteral({
+        type: "template_literal",
+        parts,
+        ...util.normalizeParams(params),
+    });
+}
+export const ZodMiniLazy = /*@__PURE__*/ core.$constructor("ZodMiniLazy", (inst, def) => {
+    core.$ZodLazy.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+// export function lazy<T extends object>(getter: () => T): T {
+//   return util.createTransparentProxy<T>(getter);
+// }
+function _lazy(getter) {
+    return new ZodMiniLazy({
+        type: "lazy",
+        getter: getter,
+    });
+}
+export { _lazy as lazy };
+export const ZodMiniPromise = /*@__PURE__*/ core.$constructor("ZodMiniPromise", (inst, def) => {
+    core.$ZodPromise.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+export function promise(innerType) {
+    return new ZodMiniPromise({
+        type: "promise",
+        innerType: innerType,
+    });
+}
+export const ZodMiniCustom = /*@__PURE__*/ core.$constructor("ZodMiniCustom", (inst, def) => {
+    core.$ZodCustom.init(inst, def);
+    ZodMiniType.init(inst, def);
+});
+// custom checks
+export function check(fn, params) {
+    const ch = new core.$ZodCheck({
+        check: "custom",
+        ...util.normalizeParams(params),
+    });
+    ch._zod.check = fn;
+    return ch;
+}
+// ZodCustom
+// custom schema
+export function custom(fn, _params) {
+    return core._custom(ZodMiniCustom, fn ?? (() => true), _params);
+}
+// refine
+export function refine(fn, _params = {}) {
+    return core._refine(ZodMiniCustom, fn, _params);
+}
+// instanceof
+class Class {
+    constructor(..._args) { }
+}
+function _instanceof(cls, params = {
+    error: `Input not instance of ${cls.name}`,
+}) {
+    const inst = custom((data) => data instanceof cls, params);
+    inst._zod.bag.Class = cls;
+    return inst;
+}
+export { _instanceof as instanceof };
+// stringbool
+export const stringbool = (...args) => core._stringbool({
+    Pipe: ZodMiniPipe,
+    Boolean: ZodMiniBoolean,
+    String: ZodMiniString,
+    Transform: ZodMiniTransform,
+}, ...args);
+export function json() {
+    const jsonSchema = _lazy(() => {
+        return union([string(), number(), boolean(), _null(), array(jsonSchema), record(string(), jsonSchema)]);
+    });
+    return jsonSchema;
 }
