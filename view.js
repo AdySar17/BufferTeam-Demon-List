@@ -1,24 +1,32 @@
-import { entityKind, is } from "../entity.js";
+import { entityKind } from "../entity.js";
 import { SelectionProxyHandler } from "../selection-proxy.js";
 import { getTableColumns } from "../utils.js";
 import { QueryBuilder } from "./query-builders/query-builder.js";
-import { gelTable } from "./table.js";
-import { GelViewBase } from "./view-base.js";
-import { GelViewConfig } from "./view-common.js";
-class DefaultViewBuilderCore {
+import { mysqlTable } from "./table.js";
+import { MySqlViewBase } from "./view-base.js";
+import { MySqlViewConfig } from "./view-common.js";
+class ViewBuilderCore {
   constructor(name, schema) {
     this.name = name;
     this.schema = schema;
   }
-  static [entityKind] = "GelDefaultViewBuilderCore";
+  static [entityKind] = "MySqlViewBuilder";
   config = {};
-  with(config) {
-    this.config.with = config;
+  algorithm(algorithm) {
+    this.config.algorithm = algorithm;
+    return this;
+  }
+  sqlSecurity(sqlSecurity) {
+    this.config.sqlSecurity = sqlSecurity;
+    return this;
+  }
+  withCheckOption(withCheckOption) {
+    this.config.withCheckOption = withCheckOption ?? "cascaded";
     return this;
   }
 }
-class ViewBuilder extends DefaultViewBuilderCore {
-  static [entityKind] = "GelViewBuilder";
+class ViewBuilder extends ViewBuilderCore {
+  static [entityKind] = "MySqlViewBuilder";
   as(qb) {
     if (typeof qb === "function") {
       qb = qb(new QueryBuilder());
@@ -31,8 +39,8 @@ class ViewBuilder extends DefaultViewBuilderCore {
     });
     const aliasedSelection = new Proxy(qb.getSelectedFields(), selectionProxy);
     return new Proxy(
-      new GelView({
-        GelConfig: this.config,
+      new MySqlView({
+        mysqlConfig: this.config,
         config: {
           name: this.name,
           schema: this.schema,
@@ -44,17 +52,17 @@ class ViewBuilder extends DefaultViewBuilderCore {
     );
   }
 }
-class ManualViewBuilder extends DefaultViewBuilderCore {
-  static [entityKind] = "GelManualViewBuilder";
+class ManualViewBuilder extends ViewBuilderCore {
+  static [entityKind] = "MySqlManualViewBuilder";
   columns;
   constructor(name, columns, schema) {
     super(name, schema);
-    this.columns = getTableColumns(gelTable(name, columns));
+    this.columns = getTableColumns(mysqlTable(name, columns));
   }
   existing() {
     return new Proxy(
-      new GelView({
-        GelConfig: void 0,
+      new MySqlView({
+        mysqlConfig: void 0,
         config: {
           name: this.name,
           schema: this.schema,
@@ -72,8 +80,8 @@ class ManualViewBuilder extends DefaultViewBuilderCore {
   }
   as(query) {
     return new Proxy(
-      new GelView({
-        GelConfig: this.config,
+      new MySqlView({
+        mysqlConfig: this.config,
         config: {
           name: this.name,
           schema: this.schema,
@@ -90,179 +98,29 @@ class ManualViewBuilder extends DefaultViewBuilderCore {
     );
   }
 }
-class MaterializedViewBuilderCore {
-  constructor(name, schema) {
-    this.name = name;
-    this.schema = schema;
-  }
-  static [entityKind] = "GelMaterializedViewBuilderCore";
-  config = {};
-  using(using) {
-    this.config.using = using;
-    return this;
-  }
-  with(config) {
-    this.config.with = config;
-    return this;
-  }
-  tablespace(tablespace) {
-    this.config.tablespace = tablespace;
-    return this;
-  }
-  withNoData() {
-    this.config.withNoData = true;
-    return this;
-  }
-}
-class MaterializedViewBuilder extends MaterializedViewBuilderCore {
-  static [entityKind] = "GelMaterializedViewBuilder";
-  as(qb) {
-    if (typeof qb === "function") {
-      qb = qb(new QueryBuilder());
-    }
-    const selectionProxy = new SelectionProxyHandler({
-      alias: this.name,
-      sqlBehavior: "error",
-      sqlAliasedBehavior: "alias",
-      replaceOriginalName: true
-    });
-    const aliasedSelection = new Proxy(qb.getSelectedFields(), selectionProxy);
-    return new Proxy(
-      new GelMaterializedView({
-        GelConfig: {
-          with: this.config.with,
-          using: this.config.using,
-          tablespace: this.config.tablespace,
-          withNoData: this.config.withNoData
-        },
-        config: {
-          name: this.name,
-          schema: this.schema,
-          selectedFields: aliasedSelection,
-          query: qb.getSQL().inlineParams()
-        }
-      }),
-      selectionProxy
-    );
-  }
-}
-class ManualMaterializedViewBuilder extends MaterializedViewBuilderCore {
-  static [entityKind] = "GelManualMaterializedViewBuilder";
-  columns;
-  constructor(name, columns, schema) {
-    super(name, schema);
-    this.columns = getTableColumns(gelTable(name, columns));
-  }
-  existing() {
-    return new Proxy(
-      new GelMaterializedView({
-        GelConfig: {
-          tablespace: this.config.tablespace,
-          using: this.config.using,
-          with: this.config.with,
-          withNoData: this.config.withNoData
-        },
-        config: {
-          name: this.name,
-          schema: this.schema,
-          selectedFields: this.columns,
-          query: void 0
-        }
-      }),
-      new SelectionProxyHandler({
-        alias: this.name,
-        sqlBehavior: "error",
-        sqlAliasedBehavior: "alias",
-        replaceOriginalName: true
-      })
-    );
-  }
-  as(query) {
-    return new Proxy(
-      new GelMaterializedView({
-        GelConfig: {
-          tablespace: this.config.tablespace,
-          using: this.config.using,
-          with: this.config.with,
-          withNoData: this.config.withNoData
-        },
-        config: {
-          name: this.name,
-          schema: this.schema,
-          selectedFields: this.columns,
-          query: query.inlineParams()
-        }
-      }),
-      new SelectionProxyHandler({
-        alias: this.name,
-        sqlBehavior: "error",
-        sqlAliasedBehavior: "alias",
-        replaceOriginalName: true
-      })
-    );
-  }
-}
-class GelView extends GelViewBase {
-  static [entityKind] = "GelView";
-  [GelViewConfig];
-  constructor({ GelConfig, config }) {
+class MySqlView extends MySqlViewBase {
+  static [entityKind] = "MySqlView";
+  [MySqlViewConfig];
+  constructor({ mysqlConfig, config }) {
     super(config);
-    if (GelConfig) {
-      this[GelViewConfig] = {
-        with: GelConfig.with
-      };
-    }
+    this[MySqlViewConfig] = mysqlConfig;
   }
 }
-const GelMaterializedViewConfig = Symbol.for("drizzle:GelMaterializedViewConfig");
-class GelMaterializedView extends GelViewBase {
-  static [entityKind] = "GelMaterializedView";
-  [GelMaterializedViewConfig];
-  constructor({ GelConfig, config }) {
-    super(config);
-    this[GelMaterializedViewConfig] = {
-      with: GelConfig?.with,
-      using: GelConfig?.using,
-      tablespace: GelConfig?.tablespace,
-      withNoData: GelConfig?.withNoData
-    };
-  }
-}
-function gelViewWithSchema(name, selection, schema) {
+function mysqlViewWithSchema(name, selection, schema) {
   if (selection) {
     return new ManualViewBuilder(name, selection, schema);
   }
   return new ViewBuilder(name, schema);
 }
-function gelMaterializedViewWithSchema(name, selection, schema) {
-  if (selection) {
-    return new ManualMaterializedViewBuilder(name, selection, schema);
-  }
-  return new MaterializedViewBuilder(name, schema);
-}
-function gelView(name, columns) {
-  return gelViewWithSchema(name, columns, void 0);
-}
-function gelMaterializedView(name, columns) {
-  return gelMaterializedViewWithSchema(name, columns, void 0);
-}
-function isGelView(obj) {
-  return is(obj, GelView);
-}
-function isGelMaterializedView(obj) {
-  return is(obj, GelMaterializedView);
+function mysqlView(name, selection) {
+  return mysqlViewWithSchema(name, selection, void 0);
 }
 export {
-  DefaultViewBuilderCore,
-  GelMaterializedView,
-  GelMaterializedViewConfig,
-  GelView,
-  ManualMaterializedViewBuilder,
   ManualViewBuilder,
-  MaterializedViewBuilder,
-  MaterializedViewBuilderCore,
+  MySqlView,
   ViewBuilder,
-  gelMaterializedViewWithSchema,
-  gelViewWithSchema
+  ViewBuilderCore,
+  mysqlView,
+  mysqlViewWithSchema
 };
 //# sourceMappingURL=view.js.map

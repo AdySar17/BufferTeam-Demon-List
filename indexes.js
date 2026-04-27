@@ -1,96 +1,35 @@
-import { SQL } from "../sql/sql.js";
-import { entityKind, is } from "../entity.js";
-import { IndexedColumn } from "./columns/index.js";
+import { entityKind } from "../entity.js";
 class IndexBuilderOn {
-  constructor(unique, name) {
-    this.unique = unique;
+  constructor(name, unique) {
     this.name = name;
+    this.unique = unique;
   }
-  static [entityKind] = "GelIndexBuilderOn";
+  static [entityKind] = "MySqlIndexBuilderOn";
   on(...columns) {
-    return new IndexBuilder(
-      columns.map((it) => {
-        if (is(it, SQL)) {
-          return it;
-        }
-        it = it;
-        const clonedIndexedColumn = new IndexedColumn(it.name, !!it.keyAsName, it.columnType, it.indexConfig);
-        it.indexConfig = JSON.parse(JSON.stringify(it.defaultConfig));
-        return clonedIndexedColumn;
-      }),
-      this.unique,
-      false,
-      this.name
-    );
-  }
-  onOnly(...columns) {
-    return new IndexBuilder(
-      columns.map((it) => {
-        if (is(it, SQL)) {
-          return it;
-        }
-        it = it;
-        const clonedIndexedColumn = new IndexedColumn(it.name, !!it.keyAsName, it.columnType, it.indexConfig);
-        it.indexConfig = it.defaultConfig;
-        return clonedIndexedColumn;
-      }),
-      this.unique,
-      true,
-      this.name
-    );
-  }
-  /**
-   * Specify what index method to use. Choices are `btree`, `hash`, `gist`, `sGelist`, `gin`, `brin`, or user-installed access methods like `bloom`. The default method is `btree.
-   *
-   * If you have the `Gel_vector` extension installed in your database, you can use the `hnsw` and `ivfflat` options, which are predefined types.
-   *
-   * **You can always specify any string you want in the method, in case Drizzle doesn't have it natively in its types**
-   *
-   * @param method The name of the index method to be used
-   * @param columns
-   * @returns
-   */
-  using(method, ...columns) {
-    return new IndexBuilder(
-      columns.map((it) => {
-        if (is(it, SQL)) {
-          return it;
-        }
-        it = it;
-        const clonedIndexedColumn = new IndexedColumn(it.name, !!it.keyAsName, it.columnType, it.indexConfig);
-        it.indexConfig = JSON.parse(JSON.stringify(it.defaultConfig));
-        return clonedIndexedColumn;
-      }),
-      this.unique,
-      true,
-      this.name,
-      method
-    );
+    return new IndexBuilder(this.name, columns, this.unique);
   }
 }
 class IndexBuilder {
-  static [entityKind] = "GelIndexBuilder";
+  static [entityKind] = "MySqlIndexBuilder";
   /** @internal */
   config;
-  constructor(columns, unique, only, name, method = "btree") {
+  constructor(name, columns, unique) {
     this.config = {
       name,
       columns,
-      unique,
-      only,
-      method
+      unique
     };
   }
-  concurrently() {
-    this.config.concurrently = true;
+  using(using) {
+    this.config.using = using;
     return this;
   }
-  with(obj) {
-    this.config.with = obj;
+  algorithm(algorithm) {
+    this.config.algorithm = algorithm;
     return this;
   }
-  where(condition) {
-    this.config.where = condition;
+  lock(lock) {
+    this.config.lock = lock;
     return this;
   }
   /** @internal */
@@ -99,17 +38,17 @@ class IndexBuilder {
   }
 }
 class Index {
-  static [entityKind] = "GelIndex";
+  static [entityKind] = "MySqlIndex";
   config;
   constructor(config, table) {
     this.config = { ...config, table };
   }
 }
 function index(name) {
-  return new IndexBuilderOn(false, name);
+  return new IndexBuilderOn(name, false);
 }
 function uniqueIndex(name) {
-  return new IndexBuilderOn(true, name);
+  return new IndexBuilderOn(name, true);
 }
 export {
   Index,

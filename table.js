@@ -1,27 +1,23 @@
 import { entityKind } from "../entity.js";
 import { Table } from "../table.js";
-import { getGelColumnBuilders } from "./columns/all.js";
-const InlineForeignKeys = Symbol.for("drizzle:GelInlineForeignKeys");
-const EnableRLS = Symbol.for("drizzle:EnableRLS");
-class GelTable extends Table {
-  static [entityKind] = "GelTable";
+import { getMySqlColumnBuilders } from "./columns/all.js";
+const InlineForeignKeys = Symbol.for("drizzle:MySqlInlineForeignKeys");
+class MySqlTable extends Table {
+  static [entityKind] = "MySqlTable";
   /** @internal */
   static Symbol = Object.assign({}, Table.Symbol, {
-    InlineForeignKeys,
-    EnableRLS
+    InlineForeignKeys
   });
-  /**@internal */
+  /** @internal */
+  [Table.Symbol.Columns];
+  /** @internal */
   [InlineForeignKeys] = [];
   /** @internal */
-  [EnableRLS] = false;
-  /** @internal */
   [Table.Symbol.ExtraConfigBuilder] = void 0;
-  /** @internal */
-  [Table.Symbol.ExtraConfigColumns] = {};
 }
-function gelTableWithSchema(name, columns, extraConfig, schema, baseName = name) {
-  const rawTable = new GelTable(name, schema, baseName);
-  const parsedColumns = typeof columns === "function" ? columns(getGelColumnBuilders()) : columns;
+function mysqlTableWithSchema(name, columns, extraConfig, schema, baseName = name) {
+  const rawTable = new MySqlTable(name, schema, baseName);
+  const parsedColumns = typeof columns === "function" ? columns(getMySqlColumnBuilders()) : columns;
   const builtColumns = Object.fromEntries(
     Object.entries(parsedColumns).map(([name2, colBuilderBase]) => {
       const colBuilder = colBuilderBase;
@@ -31,41 +27,27 @@ function gelTableWithSchema(name, columns, extraConfig, schema, baseName = name)
       return [name2, column];
     })
   );
-  const builtColumnsForExtraConfig = Object.fromEntries(
-    Object.entries(parsedColumns).map(([name2, colBuilderBase]) => {
-      const colBuilder = colBuilderBase;
-      colBuilder.setName(name2);
-      const column = colBuilder.buildExtraConfigColumn(rawTable);
-      return [name2, column];
-    })
-  );
   const table = Object.assign(rawTable, builtColumns);
   table[Table.Symbol.Columns] = builtColumns;
-  table[Table.Symbol.ExtraConfigColumns] = builtColumnsForExtraConfig;
+  table[Table.Symbol.ExtraConfigColumns] = builtColumns;
   if (extraConfig) {
-    table[GelTable.Symbol.ExtraConfigBuilder] = extraConfig;
+    table[MySqlTable.Symbol.ExtraConfigBuilder] = extraConfig;
   }
-  return Object.assign(table, {
-    enableRLS: () => {
-      table[GelTable.Symbol.EnableRLS] = true;
-      return table;
-    }
-  });
+  return table;
 }
-const gelTable = (name, columns, extraConfig) => {
-  return gelTableWithSchema(name, columns, extraConfig, void 0);
+const mysqlTable = (name, columns, extraConfig) => {
+  return mysqlTableWithSchema(name, columns, extraConfig, void 0, name);
 };
-function gelTableCreator(customizeTableName) {
+function mysqlTableCreator(customizeTableName) {
   return (name, columns, extraConfig) => {
-    return gelTableWithSchema(customizeTableName(name), columns, extraConfig, void 0, name);
+    return mysqlTableWithSchema(customizeTableName(name), columns, extraConfig, void 0, name);
   };
 }
 export {
-  EnableRLS,
-  GelTable,
   InlineForeignKeys,
-  gelTable,
-  gelTableCreator,
-  gelTableWithSchema
+  MySqlTable,
+  mysqlTable,
+  mysqlTableCreator,
+  mysqlTableWithSchema
 };
 //# sourceMappingURL=table.js.map

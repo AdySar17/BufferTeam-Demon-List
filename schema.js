@@ -1,48 +1,29 @@
 import { entityKind, is } from "../entity.js";
-import { SQL, sql } from "../sql/sql.js";
-import { gelSequenceWithSchema } from "./sequence.js";
-import { gelTableWithSchema } from "./table.js";
-class GelSchema {
+import { mysqlTableWithSchema } from "./table.js";
+import { mysqlViewWithSchema } from "./view.js";
+class MySqlSchema {
   constructor(schemaName) {
     this.schemaName = schemaName;
   }
-  static [entityKind] = "GelSchema";
+  static [entityKind] = "MySqlSchema";
   table = (name, columns, extraConfig) => {
-    return gelTableWithSchema(name, columns, extraConfig, this.schemaName);
+    return mysqlTableWithSchema(name, columns, extraConfig, this.schemaName);
   };
-  // view = ((name, columns) => {
-  // 	return gelViewWithSchema(name, columns, this.schemaName);
-  // }) as typeof gelView;
-  // materializedView = ((name, columns) => {
-  // 	return gelMaterializedViewWithSchema(name, columns, this.schemaName);
-  // }) as typeof gelMaterializedView;
-  // enum: typeof gelEnum = ((name, values) => {
-  // 	return gelEnumWithSchema(name, values, this.schemaName);
-  // });
-  sequence = (name, options) => {
-    return gelSequenceWithSchema(name, options, this.schemaName);
+  view = (name, columns) => {
+    return mysqlViewWithSchema(name, columns, this.schemaName);
   };
-  getSQL() {
-    return new SQL([sql.identifier(this.schemaName)]);
-  }
-  shouldOmitSQLParens() {
-    return true;
-  }
 }
-function isGelSchema(obj) {
-  return is(obj, GelSchema);
+function isMySqlSchema(obj) {
+  return is(obj, MySqlSchema);
 }
-function gelSchema(name) {
-  if (name === "public") {
-    throw new Error(
-      `You can't specify 'public' as schema name. Postgres is using public schema by default. If you want to use 'public' schema, just use GelTable() instead of creating a schema`
-    );
-  }
-  return new GelSchema(name);
+function mysqlDatabase(name) {
+  return new MySqlSchema(name);
 }
+const mysqlSchema = mysqlDatabase;
 export {
-  GelSchema,
-  gelSchema,
-  isGelSchema
+  MySqlSchema,
+  isMySqlSchema,
+  mysqlDatabase,
+  mysqlSchema
 };
 //# sourceMappingURL=schema.js.map

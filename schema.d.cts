@@ -1,15 +1,24 @@
 import { entityKind } from "../entity.cjs";
-import { SQL, type SQLWrapper } from "../sql/sql.cjs";
-import type { gelSequence } from "./sequence.cjs";
-import { type GelTableFn } from "./table.cjs";
-export declare class GelSchema<TName extends string = string> implements SQLWrapper {
+import { type MySqlTableFn } from "./table.cjs";
+import { type mysqlView } from "./view.cjs";
+export declare class MySqlSchema<TName extends string = string> {
     readonly schemaName: TName;
     static readonly [entityKind]: string;
     constructor(schemaName: TName);
-    table: GelTableFn<TName>;
-    sequence: typeof gelSequence;
-    getSQL(): SQL;
-    shouldOmitSQLParens(): boolean;
+    table: MySqlTableFn<TName>;
+    view: typeof mysqlView;
 }
-export declare function isGelSchema(obj: unknown): obj is GelSchema;
-export declare function gelSchema<T extends string>(name: T): GelSchema<T>;
+/** @deprecated - use `instanceof MySqlSchema` */
+export declare function isMySqlSchema(obj: unknown): obj is MySqlSchema;
+/**
+ * Create a MySQL schema.
+ * https://dev.mysql.com/doc/refman/8.0/en/create-database.html
+ *
+ * @param name mysql use schema name
+ * @returns MySQL schema
+ */
+export declare function mysqlDatabase<TName extends string>(name: TName): MySqlSchema<TName>;
+/**
+ * @see mysqlDatabase
+ */
+export declare const mysqlSchema: typeof mysqlDatabase;

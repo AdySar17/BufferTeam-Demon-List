@@ -1,22 +1,17 @@
-import { type Client, type Config } from '@libsql/client/ws';
-import { type DrizzleConfig } from "../../utils.js";
-import { type LibSQLDatabase } from "../driver-core.js";
-export declare function drizzle<TSchema extends Record<string, unknown> = Record<string, never>, TClient extends Client = Client>(...params: [
-    TClient | string
-] | [
-    TClient | string,
-    DrizzleConfig<TSchema>
-] | [
-    (DrizzleConfig<TSchema> & ({
-        connection: string | Config;
-    } | {
-        client: TClient;
-    }))
-]): LibSQLDatabase<TSchema> & {
-    $client: TClient;
-};
-export declare namespace drizzle {
-    function mock<TSchema extends Record<string, unknown> = Record<string, never>>(config?: DrizzleConfig<TSchema>): LibSQLDatabase<TSchema> & {
-        $client: '$client is not available on drizzle.mock()';
-    };
-}
+export * from "./alias.js";
+export * from "./checks.js";
+export * from "./columns/index.js";
+export * from "./db.js";
+export * from "./dialect.js";
+export * from "./foreign-keys.js";
+export * from "./indexes.js";
+export * from "./primary-keys.js";
+export * from "./query-builders/index.js";
+export * from "./schema.js";
+export * from "./session.js";
+export * from "./subquery.js";
+export * from "./table.js";
+export * from "./unique-constraint.js";
+export * from "./utils.js";
+export * from "./view-common.js";
+export * from "./view.js";

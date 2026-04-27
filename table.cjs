@@ -18,38 +18,33 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var table_exports = {};
 __export(table_exports, {
-  EnableRLS: () => EnableRLS,
-  GelTable: () => GelTable,
   InlineForeignKeys: () => InlineForeignKeys,
-  gelTable: () => gelTable,
-  gelTableCreator: () => gelTableCreator,
-  gelTableWithSchema: () => gelTableWithSchema
+  MySqlTable: () => MySqlTable,
+  mysqlTable: () => mysqlTable,
+  mysqlTableCreator: () => mysqlTableCreator,
+  mysqlTableWithSchema: () => mysqlTableWithSchema
 });
 module.exports = __toCommonJS(table_exports);
 var import_entity = require("../entity.cjs");
 var import_table = require("../table.cjs");
 var import_all = require("./columns/all.cjs");
-const InlineForeignKeys = Symbol.for("drizzle:GelInlineForeignKeys");
-const EnableRLS = Symbol.for("drizzle:EnableRLS");
-class GelTable extends import_table.Table {
-  static [import_entity.entityKind] = "GelTable";
+const InlineForeignKeys = Symbol.for("drizzle:MySqlInlineForeignKeys");
+class MySqlTable extends import_table.Table {
+  static [import_entity.entityKind] = "MySqlTable";
   /** @internal */
   static Symbol = Object.assign({}, import_table.Table.Symbol, {
-    InlineForeignKeys,
-    EnableRLS
+    InlineForeignKeys
   });
-  /**@internal */
+  /** @internal */
+  [import_table.Table.Symbol.Columns];
+  /** @internal */
   [InlineForeignKeys] = [];
   /** @internal */
-  [EnableRLS] = false;
-  /** @internal */
   [import_table.Table.Symbol.ExtraConfigBuilder] = void 0;
-  /** @internal */
-  [import_table.Table.Symbol.ExtraConfigColumns] = {};
 }
-function gelTableWithSchema(name, columns, extraConfig, schema, baseName = name) {
-  const rawTable = new GelTable(name, schema, baseName);
-  const parsedColumns = typeof columns === "function" ? columns((0, import_all.getGelColumnBuilders)()) : columns;
+function mysqlTableWithSchema(name, columns, extraConfig, schema, baseName = name) {
+  const rawTable = new MySqlTable(name, schema, baseName);
+  const parsedColumns = typeof columns === "function" ? columns((0, import_all.getMySqlColumnBuilders)()) : columns;
   const builtColumns = Object.fromEntries(
     Object.entries(parsedColumns).map(([name2, colBuilderBase]) => {
       const colBuilder = colBuilderBase;
@@ -59,42 +54,28 @@ function gelTableWithSchema(name, columns, extraConfig, schema, baseName = name)
       return [name2, column];
     })
   );
-  const builtColumnsForExtraConfig = Object.fromEntries(
-    Object.entries(parsedColumns).map(([name2, colBuilderBase]) => {
-      const colBuilder = colBuilderBase;
-      colBuilder.setName(name2);
-      const column = colBuilder.buildExtraConfigColumn(rawTable);
-      return [name2, column];
-    })
-  );
   const table = Object.assign(rawTable, builtColumns);
   table[import_table.Table.Symbol.Columns] = builtColumns;
-  table[import_table.Table.Symbol.ExtraConfigColumns] = builtColumnsForExtraConfig;
+  table[import_table.Table.Symbol.ExtraConfigColumns] = builtColumns;
   if (extraConfig) {
-    table[GelTable.Symbol.ExtraConfigBuilder] = extraConfig;
+    table[MySqlTable.Symbol.ExtraConfigBuilder] = extraConfig;
   }
-  return Object.assign(table, {
-    enableRLS: () => {
-      table[GelTable.Symbol.EnableRLS] = true;
-      return table;
-    }
-  });
+  return table;
 }
-const gelTable = (name, columns, extraConfig) => {
-  return gelTableWithSchema(name, columns, extraConfig, void 0);
+const mysqlTable = (name, columns, extraConfig) => {
+  return mysqlTableWithSchema(name, columns, extraConfig, void 0, name);
 };
-function gelTableCreator(customizeTableName) {
+function mysqlTableCreator(customizeTableName) {
   return (name, columns, extraConfig) => {
-    return gelTableWithSchema(customizeTableName(name), columns, extraConfig, void 0, name);
+    return mysqlTableWithSchema(customizeTableName(name), columns, extraConfig, void 0, name);
   };
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  EnableRLS,
-  GelTable,
   InlineForeignKeys,
-  gelTable,
-  gelTableCreator,
-  gelTableWithSchema
+  MySqlTable,
+  mysqlTable,
+  mysqlTableCreator,
+  mysqlTableWithSchema
 });
 //# sourceMappingURL=table.cjs.map

@@ -1,1 +1,1 @@
-export declare const GelViewConfig: unique symbol;
+export declare const MySqlViewConfig: unique symbol;

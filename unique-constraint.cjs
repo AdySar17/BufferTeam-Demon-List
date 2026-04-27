@@ -38,22 +38,16 @@ class UniqueConstraintBuilder {
     this.name = name;
     this.columns = columns;
   }
-  static [import_entity.entityKind] = "GelUniqueConstraintBuilder";
+  static [import_entity.entityKind] = "MySqlUniqueConstraintBuilder";
   /** @internal */
   columns;
   /** @internal */
-  nullsNotDistinctConfig = false;
-  nullsNotDistinct() {
-    this.nullsNotDistinctConfig = true;
-    return this;
-  }
-  /** @internal */
   build(table) {
-    return new UniqueConstraint(table, this.columns, this.nullsNotDistinctConfig, this.name);
+    return new UniqueConstraint(table, this.columns, this.name);
   }
 }
 class UniqueOnConstraintBuilder {
-  static [import_entity.entityKind] = "GelUniqueOnConstraintBuilder";
+  static [import_entity.entityKind] = "MySqlUniqueOnConstraintBuilder";
   /** @internal */
   name;
   constructor(name) {
@@ -64,13 +58,12 @@ class UniqueOnConstraintBuilder {
   }
 }
 class UniqueConstraint {
-  constructor(table, columns, nullsNotDistinct, name) {
+  constructor(table, columns, name) {
     this.table = table;
     this.columns = columns;
     this.name = name ?? uniqueKeyName(this.table, this.columns.map((column) => column.name));
-    this.nullsNotDistinct = nullsNotDistinct;
   }
-  static [import_entity.entityKind] = "GelUniqueConstraint";
+  static [import_entity.entityKind] = "MySqlUniqueConstraint";
   columns;
   name;
   nullsNotDistinct = false;

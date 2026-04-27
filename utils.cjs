@@ -18,42 +18,52 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var utils_exports = {};
 __export(utils_exports, {
+  convertIndexToString: () => convertIndexToString,
   extractUsedTable: () => extractUsedTable,
-  getMaterializedViewConfig: () => getMaterializedViewConfig,
   getTableConfig: () => getTableConfig,
-  getViewConfig: () => getViewConfig
+  getViewConfig: () => getViewConfig,
+  toArray: () => toArray
 });
 module.exports = __toCommonJS(utils_exports);
 var import_entity = require("../entity.cjs");
-var import_sql = require("../sql/sql.cjs");
+var import__ = require("../index.cjs");
 var import_subquery = require("../subquery.cjs");
 var import_table = require("../table.cjs");
 var import_view_common = require("../view-common.cjs");
 var import_checks = require("./checks.cjs");
 var import_foreign_keys = require("./foreign-keys.cjs");
 var import_indexes = require("./indexes.cjs");
-var import_policies = require("./policies.cjs");
 var import_primary_keys = require("./primary-keys.cjs");
 var import_table2 = require("./table.cjs");
 var import_unique_constraint = require("./unique-constraint.cjs");
 var import_view_common2 = require("./view-common.cjs");
-var import_view = require("./view.cjs");
+function extractUsedTable(table) {
+  if ((0, import_entity.is)(table, import_table2.MySqlTable)) {
+    return [`${table[import_table.Table.Symbol.BaseName]}`];
+  }
+  if ((0, import_entity.is)(table, import_subquery.Subquery)) {
+    return table._.usedTables ?? [];
+  }
+  if ((0, import_entity.is)(table, import__.SQL)) {
+    return table.usedTables ?? [];
+  }
+  return [];
+}
 function getTableConfig(table) {
-  const columns = Object.values(table[import_table.Table.Symbol.Columns]);
+  const columns = Object.values(table[import_table2.MySqlTable.Symbol.Columns]);
   const indexes = [];
   const checks = [];
   const primaryKeys = [];
-  const foreignKeys = Object.values(table[import_table2.GelTable.Symbol.InlineForeignKeys]);
   const uniqueConstraints = [];
+  const foreignKeys = Object.values(table[import_table2.MySqlTable.Symbol.InlineForeignKeys]);
   const name = table[import_table.Table.Symbol.Name];
   const schema = table[import_table.Table.Symbol.Schema];
-  const policies = [];
-  const enableRLS = table[import_table2.GelTable.Symbol.EnableRLS];
-  const extraConfigBuilder = table[import_table2.GelTable.Symbol.ExtraConfigBuilder];
+  const baseName = table[import_table.Table.Symbol.BaseName];
+  const extraConfigBuilder = table[import_table2.MySqlTable.Symbol.ExtraConfigBuilder];
   if (extraConfigBuilder !== void 0) {
-    const extraConfig = extraConfigBuilder(table[import_table.Table.Symbol.ExtraConfigColumns]);
+    const extraConfig = extraConfigBuilder(table[import_table2.MySqlTable.Symbol.Columns]);
     const extraValues = Array.isArray(extraConfig) ? extraConfig.flat(1) : Object.values(extraConfig);
-    for (const builder of extraValues) {
+    for (const builder of Object.values(extraValues)) {
       if ((0, import_entity.is)(builder, import_indexes.IndexBuilder)) {
         indexes.push(builder.build(table));
       } else if ((0, import_entity.is)(builder, import_checks.CheckBuilder)) {
@@ -64,8 +74,6 @@ function getTableConfig(table) {
         primaryKeys.push(builder.build(table));
       } else if ((0, import_entity.is)(builder, import_foreign_keys.ForeignKeyBuilder)) {
         foreignKeys.push(builder.build(table));
-      } else if ((0, import_entity.is)(builder, import_policies.GelPolicy)) {
-        policies.push(builder);
       }
     }
   }
@@ -78,39 +86,29 @@ function getTableConfig(table) {
     uniqueConstraints,
     name,
     schema,
-    policies,
-    enableRLS
+    baseName
   };
-}
-function extractUsedTable(table) {
-  if ((0, import_entity.is)(table, import_table2.GelTable)) {
-    return [`${table[import_table.Table.Symbol.BaseName]}`];
-  }
-  if ((0, import_entity.is)(table, import_subquery.Subquery)) {
-    return table._.usedTables ?? [];
-  }
-  if ((0, import_entity.is)(table, import_sql.SQL)) {
-    return table.usedTables ?? [];
-  }
-  return [];
 }
 function getViewConfig(view) {
   return {
     ...view[import_view_common.ViewBaseConfig],
-    ...view[import_view_common2.GelViewConfig]
+    ...view[import_view_common2.MySqlViewConfig]
   };
 }
-function getMaterializedViewConfig(view) {
-  return {
-    ...view[import_view_common.ViewBaseConfig],
-    ...view[import_view.GelMaterializedViewConfig]
-  };
+function convertIndexToString(indexes) {
+  return indexes.map((idx) => {
+    return typeof idx === "object" ? idx.config.name : idx;
+  });
+}
+function toArray(value) {
+  return Array.isArray(value) ? value : [value];
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  convertIndexToString,
   extractUsedTable,
-  getMaterializedViewConfig,
   getTableConfig,
-  getViewConfig
+  getViewConfig,
+  toArray
 });
 //# sourceMappingURL=utils.cjs.map

@@ -1,25 +1,24 @@
 import { entityKind } from "../entity.js";
-import type { GelColumn } from "./columns/index.js";
-import type { GelTable } from "./table.js";
+import type { MySqlColumn } from "./columns/index.js";
+import type { MySqlTable } from "./table.js";
 export declare function unique(name?: string): UniqueOnConstraintBuilder;
-export declare function uniqueKeyName(table: GelTable, columns: string[]): string;
+export declare function uniqueKeyName(table: MySqlTable, columns: string[]): string;
 export declare class UniqueConstraintBuilder {
     private name?;
     static readonly [entityKind]: string;
-    constructor(columns: GelColumn[], name?: string | undefined);
-    nullsNotDistinct(): this;
+    constructor(columns: MySqlColumn[], name?: string | undefined);
 }
 export declare class UniqueOnConstraintBuilder {
     static readonly [entityKind]: string;
     constructor(name?: string);
-    on(...columns: [GelColumn, ...GelColumn[]]): UniqueConstraintBuilder;
+    on(...columns: [MySqlColumn, ...MySqlColumn[]]): UniqueConstraintBuilder;
 }
 export declare class UniqueConstraint {
-    readonly table: GelTable;
+    readonly table: MySqlTable;
     static readonly [entityKind]: string;
-    readonly columns: GelColumn[];
+    readonly columns: MySqlColumn[];
     readonly name?: string;
     readonly nullsNotDistinct: boolean;
-    constructor(table: GelTable, columns: GelColumn[], nullsNotDistinct: boolean, name?: string);
+    constructor(table: MySqlTable, columns: MySqlColumn[], name?: string);
     getName(): string | undefined;
 }

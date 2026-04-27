@@ -3,10 +3,6 @@ var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
@@ -15,38 +11,45 @@ var __copyProps = (to, from, except, desc) => {
   }
   return to;
 };
+var __reExport = (target, mod, secondTarget) => (__copyProps(target, mod, "default"), secondTarget && __copyProps(secondTarget, mod, "default"));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var ws_exports = {};
-__export(ws_exports, {
-  drizzle: () => drizzle
-});
-module.exports = __toCommonJS(ws_exports);
-var import_ws = require("@libsql/client/ws");
-var import_utils = require("../../utils.cjs");
-var import_driver_core = require("../driver-core.cjs");
-function drizzle(...params) {
-  if (typeof params[0] === "string") {
-    const instance = (0, import_ws.createClient)({
-      url: params[0]
-    });
-    return (0, import_driver_core.construct)(instance, params[1]);
-  }
-  if ((0, import_utils.isConfig)(params[0])) {
-    const { connection, client, ...drizzleConfig } = params[0];
-    if (client) return (0, import_driver_core.construct)(client, drizzleConfig);
-    const instance = typeof connection === "string" ? (0, import_ws.createClient)({ url: connection }) : (0, import_ws.createClient)(connection);
-    return (0, import_driver_core.construct)(instance, drizzleConfig);
-  }
-  return (0, import_driver_core.construct)(params[0], params[1]);
-}
-((drizzle2) => {
-  function mock(config) {
-    return (0, import_driver_core.construct)({}, config);
-  }
-  drizzle2.mock = mock;
-})(drizzle || (drizzle = {}));
+var mysql_core_exports = {};
+module.exports = __toCommonJS(mysql_core_exports);
+__reExport(mysql_core_exports, require("./alias.cjs"), module.exports);
+__reExport(mysql_core_exports, require("./checks.cjs"), module.exports);
+__reExport(mysql_core_exports, require("./columns/index.cjs"), module.exports);
+__reExport(mysql_core_exports, require("./db.cjs"), module.exports);
+__reExport(mysql_core_exports, require("./dialect.cjs"), module.exports);
+__reExport(mysql_core_exports, require("./foreign-keys.cjs"), module.exports);
+__reExport(mysql_core_exports, require("./indexes.cjs"), module.exports);
+__reExport(mysql_core_exports, require("./primary-keys.cjs"), module.exports);
+__reExport(mysql_core_exports, require("./query-builders/index.cjs"), module.exports);
+__reExport(mysql_core_exports, require("./schema.cjs"), module.exports);
+__reExport(mysql_core_exports, require("./session.cjs"), module.exports);
+__reExport(mysql_core_exports, require("./subquery.cjs"), module.exports);
+__reExport(mysql_core_exports, require("./table.cjs"), module.exports);
+__reExport(mysql_core_exports, require("./unique-constraint.cjs"), module.exports);
+__reExport(mysql_core_exports, require("./utils.cjs"), module.exports);
+__reExport(mysql_core_exports, require("./view-common.cjs"), module.exports);
+__reExport(mysql_core_exports, require("./view.cjs"), module.exports);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  drizzle
+  ...require("./alias.cjs"),
+  ...require("./checks.cjs"),
+  ...require("./columns/index.cjs"),
+  ...require("./db.cjs"),
+  ...require("./dialect.cjs"),
+  ...require("./foreign-keys.cjs"),
+  ...require("./indexes.cjs"),
+  ...require("./primary-keys.cjs"),
+  ...require("./query-builders/index.cjs"),
+  ...require("./schema.cjs"),
+  ...require("./session.cjs"),
+  ...require("./subquery.cjs"),
+  ...require("./table.cjs"),
+  ...require("./unique-constraint.cjs"),
+  ...require("./utils.cjs"),
+  ...require("./view-common.cjs"),
+  ...require("./view.cjs")
 });
 //# sourceMappingURL=index.cjs.map

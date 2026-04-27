@@ -1,5 +1,5 @@
-const GelViewConfig = Symbol.for("drizzle:GelViewConfig");
+const MySqlViewConfig = Symbol.for("drizzle:MySqlViewConfig");
 export {
-  GelViewConfig
+  MySqlViewConfig
 };
 //# sourceMappingURL=view-common.js.map

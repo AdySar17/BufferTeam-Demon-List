@@ -18,16 +18,16 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var view_base_exports = {};
 __export(view_base_exports, {
-  GelViewBase: () => GelViewBase
+  MySqlViewBase: () => MySqlViewBase
 });
 module.exports = __toCommonJS(view_base_exports);
 var import_entity = require("../entity.cjs");
 var import_sql = require("../sql/sql.cjs");
-class GelViewBase extends import_sql.View {
-  static [import_entity.entityKind] = "GelViewBase";
+class MySqlViewBase extends import_sql.View {
+  static [import_entity.entityKind] = "MySqlViewBase";
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  GelViewBase
+  MySqlViewBase
 });
 //# sourceMappingURL=view-base.cjs.map

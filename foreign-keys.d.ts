@@ -1,19 +1,19 @@
 import { entityKind } from "../entity.js";
-import type { AnyGelColumn, GelColumn } from "./columns/index.js";
-import type { GelTable } from "./table.js";
+import type { AnyMySqlColumn, MySqlColumn } from "./columns/index.js";
+import type { MySqlTable } from "./table.js";
 export type UpdateDeleteAction = 'cascade' | 'restrict' | 'no action' | 'set null' | 'set default';
 export type Reference = () => {
     readonly name?: string;
-    readonly columns: GelColumn[];
-    readonly foreignTable: GelTable;
-    readonly foreignColumns: GelColumn[];
+    readonly columns: MySqlColumn[];
+    readonly foreignTable: MySqlTable;
+    readonly foreignColumns: MySqlColumn[];
 };
 export declare class ForeignKeyBuilder {
     static readonly [entityKind]: string;
     constructor(config: () => {
         name?: string;
-        columns: GelColumn[];
-        foreignColumns: GelColumn[];
+        columns: MySqlColumn[];
+        foreignColumns: MySqlColumn[];
     }, actions?: {
         onUpdate?: UpdateDeleteAction;
         onDelete?: UpdateDeleteAction;
@@ -23,22 +23,25 @@ export declare class ForeignKeyBuilder {
 }
 export type AnyForeignKeyBuilder = ForeignKeyBuilder;
 export declare class ForeignKey {
-    readonly table: GelTable;
+    readonly table: MySqlTable;
     static readonly [entityKind]: string;
     readonly reference: Reference;
     readonly onUpdate: UpdateDeleteAction | undefined;
     readonly onDelete: UpdateDeleteAction | undefined;
-    constructor(table: GelTable, builder: ForeignKeyBuilder);
+    constructor(table: MySqlTable, builder: ForeignKeyBuilder);
     getName(): string;
 }
-type ColumnsWithTable<TTableName extends string, TColumns extends GelColumn[]> = {
-    [Key in keyof TColumns]: AnyGelColumn<{
+type ColumnsWithTable<TTableName extends string, TColumns extends MySqlColumn[]> = {
+    [Key in keyof TColumns]: AnyMySqlColumn<{
         tableName: TTableName;
     }>;
 };
-export declare function foreignKey<TTableName extends string, TForeignTableName extends string, TColumns extends [AnyGelColumn<{
+export type GetColumnsTable<TColumns extends MySqlColumn | MySqlColumn[]> = (TColumns extends MySqlColumn ? TColumns : TColumns extends MySqlColumn[] ? TColumns[number] : never) extends AnyMySqlColumn<{
+    tableName: infer TTableName extends string;
+}> ? TTableName : never;
+export declare function foreignKey<TTableName extends string, TForeignTableName extends string, TColumns extends [AnyMySqlColumn<{
     tableName: TTableName;
-}>, ...AnyGelColumn<{
+}>, ...AnyMySqlColumn<{
     tableName: TTableName;
 }>[]]>(config: {
     name?: string;

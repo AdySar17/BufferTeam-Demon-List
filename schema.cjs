@@ -18,57 +18,39 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var schema_exports = {};
 __export(schema_exports, {
-  GelSchema: () => GelSchema,
-  gelSchema: () => gelSchema,
-  isGelSchema: () => isGelSchema
+  MySqlSchema: () => MySqlSchema,
+  isMySqlSchema: () => isMySqlSchema,
+  mysqlDatabase: () => mysqlDatabase,
+  mysqlSchema: () => mysqlSchema
 });
 module.exports = __toCommonJS(schema_exports);
 var import_entity = require("../entity.cjs");
-var import_sql = require("../sql/sql.cjs");
-var import_sequence = require("./sequence.cjs");
 var import_table = require("./table.cjs");
-class GelSchema {
+var import_view = require("./view.cjs");
+class MySqlSchema {
   constructor(schemaName) {
     this.schemaName = schemaName;
   }
-  static [import_entity.entityKind] = "GelSchema";
+  static [import_entity.entityKind] = "MySqlSchema";
   table = (name, columns, extraConfig) => {
-    return (0, import_table.gelTableWithSchema)(name, columns, extraConfig, this.schemaName);
+    return (0, import_table.mysqlTableWithSchema)(name, columns, extraConfig, this.schemaName);
   };
-  // view = ((name, columns) => {
-  // 	return gelViewWithSchema(name, columns, this.schemaName);
-  // }) as typeof gelView;
-  // materializedView = ((name, columns) => {
-  // 	return gelMaterializedViewWithSchema(name, columns, this.schemaName);
-  // }) as typeof gelMaterializedView;
-  // enum: typeof gelEnum = ((name, values) => {
-  // 	return gelEnumWithSchema(name, values, this.schemaName);
-  // });
-  sequence = (name, options) => {
-    return (0, import_sequence.gelSequenceWithSchema)(name, options, this.schemaName);
+  view = (name, columns) => {
+    return (0, import_view.mysqlViewWithSchema)(name, columns, this.schemaName);
   };
-  getSQL() {
-    return new import_sql.SQL([import_sql.sql.identifier(this.schemaName)]);
-  }
-  shouldOmitSQLParens() {
-    return true;
-  }
 }
-function isGelSchema(obj) {
-  return (0, import_entity.is)(obj, GelSchema);
+function isMySqlSchema(obj) {
+  return (0, import_entity.is)(obj, MySqlSchema);
 }
-function gelSchema(name) {
-  if (name === "public") {
-    throw new Error(
-      `You can't specify 'public' as schema name. Postgres is using public schema by default. If you want to use 'public' schema, just use GelTable() instead of creating a schema`
-    );
-  }
-  return new GelSchema(name);
+function mysqlDatabase(name) {
+  return new MySqlSchema(name);
 }
+const mysqlSchema = mysqlDatabase;
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  GelSchema,
-  gelSchema,
-  isGelSchema
+  MySqlSchema,
+  isMySqlSchema,
+  mysqlDatabase,
+  mysqlSchema
 });
 //# sourceMappingURL=schema.cjs.map

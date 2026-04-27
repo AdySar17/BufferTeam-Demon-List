@@ -3,17 +3,16 @@ import { entityKind } from "../entity.js";
 import type { TypedQueryBuilder } from "../query-builders/query-builder.js";
 import type { AddAliasToSelection } from "../query-builders/select.types.js";
 import type { ColumnsSelection, SQL } from "../sql/sql.js";
-import type { RequireAtLeastOne } from "../utils.js";
-import type { GelColumnBuilderBase } from "./columns/common.js";
+import type { MySqlColumnBuilderBase } from "./columns/index.js";
 import { QueryBuilder } from "./query-builders/query-builder.js";
-import { GelViewBase } from "./view-base.js";
-import { GelViewConfig } from "./view-common.js";
-export type ViewWithConfig = RequireAtLeastOne<{
-    checkOption: 'local' | 'cascaded';
-    securityBarrier: boolean;
-    securityInvoker: boolean;
-}>;
-export declare class DefaultViewBuilderCore<TConfig extends {
+import { MySqlViewBase } from "./view-base.js";
+import { MySqlViewConfig } from "./view-common.js";
+export interface ViewBuilderConfig {
+    algorithm?: 'undefined' | 'merge' | 'temptable';
+    sqlSecurity?: 'definer' | 'invoker';
+    withCheckOption?: 'cascaded' | 'local';
+}
+export declare class ViewBuilderCore<TConfig extends {
     name: string;
     columns?: unknown;
 }> {
@@ -25,95 +24,33 @@ export declare class DefaultViewBuilderCore<TConfig extends {
         readonly columns: TConfig['columns'];
     };
     constructor(name: TConfig['name'], schema: string | undefined);
-    protected config: {
-        with?: ViewWithConfig;
-    };
-    with(config: ViewWithConfig): this;
+    protected config: ViewBuilderConfig;
+    algorithm(algorithm: Exclude<ViewBuilderConfig['algorithm'], undefined>): this;
+    sqlSecurity(sqlSecurity: Exclude<ViewBuilderConfig['sqlSecurity'], undefined>): this;
+    withCheckOption(withCheckOption?: Exclude<ViewBuilderConfig['withCheckOption'], undefined>): this;
 }
-export declare class ViewBuilder<TName extends string = string> extends DefaultViewBuilderCore<{
+export declare class ViewBuilder<TName extends string = string> extends ViewBuilderCore<{
     name: TName;
 }> {
     static readonly [entityKind]: string;
-    as<TSelectedFields extends ColumnsSelection>(qb: TypedQueryBuilder<TSelectedFields> | ((qb: QueryBuilder) => TypedQueryBuilder<TSelectedFields>)): GelViewWithSelection<TName, false, AddAliasToSelection<TSelectedFields, TName, 'gel'>>;
+    as<TSelectedFields extends ColumnsSelection>(qb: TypedQueryBuilder<TSelectedFields> | ((qb: QueryBuilder) => TypedQueryBuilder<TSelectedFields>)): MySqlViewWithSelection<TName, false, AddAliasToSelection<TSelectedFields, TName, 'mysql'>>;
 }
-export declare class ManualViewBuilder<TName extends string = string, TColumns extends Record<string, GelColumnBuilderBase> = Record<string, GelColumnBuilderBase>> extends DefaultViewBuilderCore<{
-    name: TName;
-    columns: TColumns;
-}> {
-    static readonly [entityKind]: string;
-    private columns;
-    constructor(name: TName, columns: TColumns, schema: string | undefined);
-    existing(): GelViewWithSelection<TName, true, BuildColumns<TName, TColumns, 'gel'>>;
-    as(query: SQL): GelViewWithSelection<TName, false, BuildColumns<TName, TColumns, 'gel'>>;
-}
-export type GelMaterializedViewWithConfig = RequireAtLeastOne<{
-    fillfactor: number;
-    toastTupleTarget: number;
-    parallelWorkers: number;
-    autovacuumEnabled: boolean;
-    vacuumIndexCleanup: 'auto' | 'off' | 'on';
-    vacuumTruncate: boolean;
-    autovacuumVacuumThreshold: number;
-    autovacuumVacuumScaleFactor: number;
-    autovacuumVacuumCostDelay: number;
-    autovacuumVacuumCostLimit: number;
-    autovacuumFreezeMinAge: number;
-    autovacuumFreezeMaxAge: number;
-    autovacuumFreezeTableAge: number;
-    autovacuumMultixactFreezeMinAge: number;
-    autovacuumMultixactFreezeMaxAge: number;
-    autovacuumMultixactFreezeTableAge: number;
-    logAutovacuumMinDuration: number;
-    userCatalogTable: boolean;
-}>;
-export declare class MaterializedViewBuilderCore<TConfig extends {
-    name: string;
-    columns?: unknown;
-}> {
-    protected name: TConfig['name'];
-    protected schema: string | undefined;
-    static readonly [entityKind]: string;
-    _: {
-        readonly name: TConfig['name'];
-        readonly columns: TConfig['columns'];
-    };
-    constructor(name: TConfig['name'], schema: string | undefined);
-    protected config: {
-        with?: GelMaterializedViewWithConfig;
-        using?: string;
-        tablespace?: string;
-        withNoData?: boolean;
-    };
-    using(using: string): this;
-    with(config: GelMaterializedViewWithConfig): this;
-    tablespace(tablespace: string): this;
-    withNoData(): this;
-}
-export declare class MaterializedViewBuilder<TName extends string = string> extends MaterializedViewBuilderCore<{
-    name: TName;
-}> {
-    static readonly [entityKind]: string;
-    as<TSelectedFields extends ColumnsSelection>(qb: TypedQueryBuilder<TSelectedFields> | ((qb: QueryBuilder) => TypedQueryBuilder<TSelectedFields>)): GelMaterializedViewWithSelection<TName, false, AddAliasToSelection<TSelectedFields, TName, 'gel'>>;
-}
-export declare class ManualMaterializedViewBuilder<TName extends string = string, TColumns extends Record<string, GelColumnBuilderBase> = Record<string, GelColumnBuilderBase>> extends MaterializedViewBuilderCore<{
+export declare class ManualViewBuilder<TName extends string = string, TColumns extends Record<string, MySqlColumnBuilderBase> = Record<string, MySqlColumnBuilderBase>> extends ViewBuilderCore<{
     name: TName;
     columns: TColumns;
 }> {
     static readonly [entityKind]: string;
     private columns;
     constructor(name: TName, columns: TColumns, schema: string | undefined);
-    existing(): GelMaterializedViewWithSelection<TName, true, BuildColumns<TName, TColumns, 'gel'>>;
-    as(query: SQL): GelMaterializedViewWithSelection<TName, false, BuildColumns<TName, TColumns, 'gel'>>;
+    existing(): MySqlViewWithSelection<TName, true, BuildColumns<TName, TColumns, 'mysql'>>;
+    as(query: SQL): MySqlViewWithSelection<TName, false, BuildColumns<TName, TColumns, 'mysql'>>;
 }
-export declare class GelView<TName extends string = string, TExisting extends boolean = boolean, TSelectedFields extends ColumnsSelection = ColumnsSelection> extends GelViewBase<TName, TExisting, TSelectedFields> {
+export declare class MySqlView<TName extends string = string, TExisting extends boolean = boolean, TSelectedFields extends ColumnsSelection = ColumnsSelection> extends MySqlViewBase<TName, TExisting, TSelectedFields> {
     static readonly [entityKind]: string;
-    [GelViewConfig]: {
-        with?: ViewWithConfig;
-    } | undefined;
-    constructor({ GelConfig, config }: {
-        GelConfig: {
-            with?: ViewWithConfig;
-        } | undefined;
+    protected $MySqlViewBrand: 'MySqlView';
+    [MySqlViewConfig]: ViewBuilderConfig | undefined;
+    constructor({ mysqlConfig, config }: {
+        mysqlConfig: ViewBuilderConfig | undefined;
         config: {
             name: TName;
             schema: string | undefined;
@@ -122,29 +59,6 @@ export declare class GelView<TName extends string = string, TExisting extends bo
         };
     });
 }
-export type GelViewWithSelection<TName extends string = string, TExisting extends boolean = boolean, TSelectedFields extends ColumnsSelection = ColumnsSelection> = GelView<TName, TExisting, TSelectedFields> & TSelectedFields;
-export declare const GelMaterializedViewConfig: unique symbol;
-export declare class GelMaterializedView<TName extends string = string, TExisting extends boolean = boolean, TSelectedFields extends ColumnsSelection = ColumnsSelection> extends GelViewBase<TName, TExisting, TSelectedFields> {
-    static readonly [entityKind]: string;
-    readonly [GelMaterializedViewConfig]: {
-        readonly with?: GelMaterializedViewWithConfig;
-        readonly using?: string;
-        readonly tablespace?: string;
-        readonly withNoData?: boolean;
-    } | undefined;
-    constructor({ GelConfig, config }: {
-        GelConfig: {
-            with: GelMaterializedViewWithConfig | undefined;
-            using: string | undefined;
-            tablespace: string | undefined;
-            withNoData: boolean | undefined;
-        } | undefined;
-        config: {
-            name: TName;
-            schema: string | undefined;
-            selectedFields: ColumnsSelection;
-            query: SQL | undefined;
-        };
-    });
-}
-export type GelMaterializedViewWithSelection<TName extends string = string, TExisting extends boolean = boolean, TSelectedFields extends ColumnsSelection = ColumnsSelection> = GelMaterializedView<TName, TExisting, TSelectedFields> & TSelectedFields;
+export type MySqlViewWithSelection<TName extends string, TExisting extends boolean, TSelectedFields extends ColumnsSelection> = MySqlView<TName, TExisting, TSelectedFields> & TSelectedFields;
+export declare function mysqlView<TName extends string>(name: TName): ViewBuilder<TName>;
+export declare function mysqlView<TName extends string, TColumns extends Record<string, MySqlColumnBuilderBase>>(name: TName, columns: TColumns): ManualViewBuilder<TName, TColumns>;

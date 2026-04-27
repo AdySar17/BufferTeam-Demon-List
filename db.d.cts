@@ -1,37 +1,35 @@
+import type { ResultSetHeader } from 'mysql2/promise';
 import type { Cache } from "../cache/core/cache.cjs";
 import { entityKind } from "../entity.cjs";
-import type { GelDialect } from "./dialect.cjs";
-import { GelDeleteBase, GelInsertBuilder, GelSelectBuilder, GelUpdateBuilder, QueryBuilder } from "./query-builders/index.cjs";
-import type { GelQueryResultHKT, GelSession, GelTransaction } from "./session.cjs";
-import type { GelTable } from "./table.cjs";
-import type { TypedQueryBuilder } from "../query-builders/query-builder.cjs";
 import type { ExtractTablesWithRelations, RelationalSchemaConfig, TablesRelationalConfig } from "../relations.cjs";
-import { type ColumnsSelection, type SQL, type SQLWrapper } from "../sql/sql.cjs";
+import { type SQL, type SQLWrapper } from "../sql/sql.cjs";
 import { WithSubquery } from "../subquery.cjs";
 import type { DrizzleTypeError } from "../utils.cjs";
-import type { GelColumn } from "./columns/index.cjs";
-import { GelCountBuilder } from "./query-builders/count.cjs";
+import type { MySqlDialect } from "./dialect.cjs";
+import { MySqlCountBuilder } from "./query-builders/count.cjs";
+import { MySqlDeleteBase, MySqlInsertBuilder, MySqlSelectBuilder, MySqlUpdateBuilder } from "./query-builders/index.cjs";
 import { RelationalQueryBuilder } from "./query-builders/query.cjs";
-import { GelRaw } from "./query-builders/raw.cjs";
 import type { SelectedFields } from "./query-builders/select.types.cjs";
-import type { WithSubqueryWithSelection } from "./subquery.cjs";
-import type { GelViewBase } from "./view-base.cjs";
-export declare class GelDatabase<TQueryResult extends GelQueryResultHKT, TFullSchema extends Record<string, unknown> = Record<string, never>, TSchema extends TablesRelationalConfig = ExtractTablesWithRelations<TFullSchema>> {
+import type { Mode, MySqlQueryResultHKT, MySqlQueryResultKind, MySqlSession, MySqlTransaction, MySqlTransactionConfig, PreparedQueryHKTBase } from "./session.cjs";
+import type { WithBuilder } from "./subquery.cjs";
+import type { MySqlTable } from "./table.cjs";
+import type { MySqlViewBase } from "./view-base.cjs";
+export declare class MySqlDatabase<TQueryResult extends MySqlQueryResultHKT, TPreparedQueryHKT extends PreparedQueryHKTBase, TFullSchema extends Record<string, unknown> = {}, TSchema extends TablesRelationalConfig = ExtractTablesWithRelations<TFullSchema>> {
+    protected readonly mode: Mode;
     static readonly [entityKind]: string;
     readonly _: {
         readonly schema: TSchema | undefined;
         readonly fullSchema: TFullSchema;
         readonly tableNamesMap: Record<string, string>;
-        readonly session: GelSession<TQueryResult, TFullSchema, TSchema>;
     };
     query: TFullSchema extends Record<string, never> ? DrizzleTypeError<'Seems like the schema generic is missing - did you forget to add it to your DB type?'> : {
-        [K in keyof TSchema]: RelationalQueryBuilder<TSchema, TSchema[K]>;
+        [K in keyof TSchema]: RelationalQueryBuilder<TPreparedQueryHKT, TSchema, TSchema[K]>;
     };
     constructor(
     /** @internal */
-    dialect: GelDialect, 
+    dialect: MySqlDialect, 
     /** @internal */
-    session: GelSession<any, any, any>, schema: RelationalSchemaConfig<TSchema> | undefined);
+    session: MySqlSession<any, any, any, any>, schema: RelationalSchemaConfig<TSchema> | undefined, mode: Mode);
     /**
      * Creates a subquery that defines a temporary named result set as a CTE.
      *
@@ -64,10 +62,11 @@ export declare class GelDatabase<TQueryResult extends GelQueryResultHKT, TFullSc
      * const result = await db.with(sq).select({ name: sq.name }).from(sq);
      * ```
      */
-    $with<TAlias extends string>(alias: TAlias): {
-        as<TSelection extends ColumnsSelection>(qb: TypedQueryBuilder<TSelection> | ((qb: QueryBuilder) => TypedQueryBuilder<TSelection>)): WithSubqueryWithSelection<TSelection, TAlias>;
+    $with: WithBuilder;
+    $count(source: MySqlTable | MySqlViewBase | SQL | SQLWrapper, filters?: SQL<unknown>): MySqlCountBuilder<MySqlSession<any, any, any, any>>;
+    $cache: {
+        invalidate: Cache['onMutate'];
     };
-    $count(source: GelTable | GelViewBase | SQL | SQLWrapper, filters?: SQL<unknown>): GelCountBuilder<GelSession<any, any, any>>;
     /**
      * Incorporates a previously defined CTE (using `$with`) into the main query.
      *
@@ -89,20 +88,15 @@ export declare class GelDatabase<TQueryResult extends GelQueryResultHKT, TFullSc
      */
     with(...queries: WithSubquery[]): {
         select: {
-            (): GelSelectBuilder<undefined>;
-            <TSelection extends SelectedFields>(fields: TSelection): GelSelectBuilder<TSelection>;
+            (): MySqlSelectBuilder<undefined, TPreparedQueryHKT>;
+            <TSelection extends SelectedFields>(fields: TSelection): MySqlSelectBuilder<TSelection, TPreparedQueryHKT>;
         };
         selectDistinct: {
-            (): GelSelectBuilder<undefined>;
-            <TSelection extends SelectedFields>(fields: TSelection): GelSelectBuilder<TSelection>;
+            (): MySqlSelectBuilder<undefined, TPreparedQueryHKT>;
+            <TSelection extends SelectedFields>(fields: TSelection): MySqlSelectBuilder<TSelection, TPreparedQueryHKT>;
         };
-        selectDistinctOn: {
-            (on: (GelColumn | SQLWrapper)[]): GelSelectBuilder<undefined>;
-            <TSelection extends SelectedFields>(on: (GelColumn | SQLWrapper)[], fields: TSelection): GelSelectBuilder<TSelection>;
-        };
-        update: <TTable extends GelTable>(table: TTable) => GelUpdateBuilder<TTable, TQueryResult>;
-        insert: <TTable extends GelTable>(table: TTable) => GelInsertBuilder<TTable, TQueryResult>;
-        delete: <TTable extends GelTable>(table: TTable) => GelDeleteBase<TTable, TQueryResult>;
+        update: <TTable extends MySqlTable>(table: TTable) => MySqlUpdateBuilder<TTable, TQueryResult, TPreparedQueryHKT>;
+        delete: <TTable extends MySqlTable>(table: TTable) => MySqlDeleteBase<TTable, TQueryResult, TPreparedQueryHKT>;
     };
     /**
      * Creates a select query.
@@ -140,8 +134,8 @@ export declare class GelDatabase<TQueryResult extends GelQueryResultHKT, TFullSc
      *   .from(cars);
      * ```
      */
-    select(): GelSelectBuilder<undefined>;
-    select<TSelection extends SelectedFields>(fields: TSelection): GelSelectBuilder<TSelection>;
+    select(): MySqlSelectBuilder<undefined, TPreparedQueryHKT>;
+    select<TSelection extends SelectedFields>(fields: TSelection): MySqlSelectBuilder<TSelection, TPreparedQueryHKT>;
     /**
      * Adds `distinct` expression to the select query.
      *
@@ -166,38 +160,8 @@ export declare class GelDatabase<TQueryResult extends GelQueryResultHKT, TFullSc
      *   .orderBy(cars.brand);
      * ```
      */
-    selectDistinct(): GelSelectBuilder<undefined>;
-    selectDistinct<TSelection extends SelectedFields>(fields: TSelection): GelSelectBuilder<TSelection>;
-    /**
-     * Adds `distinct on` expression to the select query.
-     *
-     * Calling this method will specify how the unique rows are determined.
-     *
-     * Use `.from()` method to specify which table to select from.
-     *
-     * See docs: {@link https://orm.drizzle.team/docs/select#distinct}
-     *
-     * @param on The expression defining uniqueness.
-     * @param fields The selection object.
-     *
-     * @example
-     * ```ts
-     * // Select the first row for each unique brand from the 'cars' table
-     * await db.selectDistinctOn([cars.brand])
-     *   .from(cars)
-     *   .orderBy(cars.brand);
-     *
-     * // Selects the first occurrence of each unique car brand along with its color from the 'cars' table
-     * await db.selectDistinctOn([cars.brand], { brand: cars.brand, color: cars.color })
-     *   .from(cars)
-     *   .orderBy(cars.brand, cars.color);
-     * ```
-     */
-    selectDistinctOn(on: (GelColumn | SQLWrapper)[]): GelSelectBuilder<undefined>;
-    selectDistinctOn<TSelection extends SelectedFields>(on: (GelColumn | SQLWrapper)[], fields: TSelection): GelSelectBuilder<TSelection>;
-    $cache: {
-        invalidate: Cache['onMutate'];
-    };
+    selectDistinct(): MySqlSelectBuilder<undefined, TPreparedQueryHKT>;
+    selectDistinct<TSelection extends SelectedFields>(fields: TSelection): MySqlSelectBuilder<TSelection, TPreparedQueryHKT>;
     /**
      * Creates an update query.
      *
@@ -217,15 +181,9 @@ export declare class GelDatabase<TQueryResult extends GelQueryResultHKT, TFullSc
      *
      * // Update rows with filters and conditions
      * await db.update(cars).set({ color: 'red' }).where(eq(cars.brand, 'BMW'));
-     *
-     * // Update with returning clause
-     * const updatedCar: Car[] = await db.update(cars)
-     *   .set({ color: 'red' })
-     *   .where(eq(cars.id, 1))
-     *   .returning();
      * ```
      */
-    update<TTable extends GelTable>(table: TTable): GelUpdateBuilder<TTable, TQueryResult>;
+    update<TTable extends MySqlTable>(table: TTable): MySqlUpdateBuilder<TTable, TQueryResult, TPreparedQueryHKT>;
     /**
      * Creates an insert query.
      *
@@ -243,14 +201,9 @@ export declare class GelDatabase<TQueryResult extends GelQueryResultHKT, TFullSc
      *
      * // Insert multiple rows
      * await db.insert(cars).values([{ brand: 'BMW' }, { brand: 'Porsche' }]);
-     *
-     * // Insert with returning clause
-     * const insertedCar: Car[] = await db.insert(cars)
-     *   .values({ brand: 'BMW' })
-     *   .returning();
      * ```
      */
-    insert<TTable extends GelTable>(table: TTable): GelInsertBuilder<TTable, TQueryResult>;
+    insert<TTable extends MySqlTable>(table: TTable): MySqlInsertBuilder<TTable, TQueryResult, TPreparedQueryHKT>;
     /**
      * Creates a delete query.
      *
@@ -268,19 +221,16 @@ export declare class GelDatabase<TQueryResult extends GelQueryResultHKT, TFullSc
      *
      * // Delete rows with filters and conditions
      * await db.delete(cars).where(eq(cars.color, 'green'));
-     *
-     * // Delete with returning clause
-     * const deletedCar: Car[] = await db.delete(cars)
-     *   .where(eq(cars.id, 1))
-     *   .returning();
      * ```
      */
-    delete<TTable extends GelTable>(table: TTable): GelDeleteBase<TTable, TQueryResult>;
-    execute<TRow extends Record<string, unknown> = Record<string, unknown>>(query: SQLWrapper | string): GelRaw<TRow[]>;
-    transaction<T>(transaction: (tx: GelTransaction<TQueryResult, TFullSchema, TSchema>) => Promise<T>): Promise<T>;
+    delete<TTable extends MySqlTable>(table: TTable): MySqlDeleteBase<TTable, TQueryResult, TPreparedQueryHKT>;
+    execute<T extends {
+        [column: string]: any;
+    } = ResultSetHeader>(query: SQLWrapper | string): Promise<MySqlQueryResultKind<TQueryResult, T>>;
+    transaction<T>(transaction: (tx: MySqlTransaction<TQueryResult, TPreparedQueryHKT, TFullSchema, TSchema>, config?: MySqlTransactionConfig) => Promise<T>, config?: MySqlTransactionConfig): Promise<T>;
 }
-export type GelWithReplicas<Q> = Q & {
+export type MySQLWithReplicas<Q> = Q & {
     $primary: Q;
     $replicas: Q[];
 };
-export declare const withReplicas: <HKT extends GelQueryResultHKT, TFullSchema extends Record<string, unknown>, TSchema extends TablesRelationalConfig, Q extends GelDatabase<HKT, TFullSchema, TSchema extends Record<string, unknown> ? ExtractTablesWithRelations<TFullSchema> : TSchema>>(primary: Q, replicas: [Q, ...Q[]], getReplica?: (replicas: Q[]) => Q) => GelWithReplicas<Q>;
+export declare const withReplicas: <HKT extends MySqlQueryResultHKT, TPreparedQueryHKT extends PreparedQueryHKTBase, TFullSchema extends Record<string, unknown>, TSchema extends TablesRelationalConfig, Q extends MySqlDatabase<HKT, TPreparedQueryHKT, TFullSchema, TSchema extends Record<string, unknown> ? ExtractTablesWithRelations<TFullSchema> : TSchema>>(primary: Q, replicas: [Q, ...Q[]], getReplica?: (replicas: Q[]) => Q) => MySQLWithReplicas<Q>;

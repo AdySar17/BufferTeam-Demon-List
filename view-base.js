@@ -1,9 +1,9 @@
 import { entityKind } from "../entity.js";
 import { View } from "../sql/sql.js";
-class GelViewBase extends View {
-  static [entityKind] = "GelViewBase";
+class MySqlViewBase extends View {
+  static [entityKind] = "MySqlViewBase";
 }
 export {
-  GelViewBase
+  MySqlViewBase
 };
 //# sourceMappingURL=view-base.js.map

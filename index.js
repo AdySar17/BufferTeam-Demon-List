@@ -1,28 +1,18 @@
-import { createClient } from "@libsql/client/ws";
-import { isConfig } from "../../utils.js";
-import { construct } from "../driver-core.js";
-function drizzle(...params) {
-  if (typeof params[0] === "string") {
-    const instance = createClient({
-      url: params[0]
-    });
-    return construct(instance, params[1]);
-  }
-  if (isConfig(params[0])) {
-    const { connection, client, ...drizzleConfig } = params[0];
-    if (client) return construct(client, drizzleConfig);
-    const instance = typeof connection === "string" ? createClient({ url: connection }) : createClient(connection);
-    return construct(instance, drizzleConfig);
-  }
-  return construct(params[0], params[1]);
-}
-((drizzle2) => {
-  function mock(config) {
-    return construct({}, config);
-  }
-  drizzle2.mock = mock;
-})(drizzle || (drizzle = {}));
-export {
-  drizzle
-};
+export * from "./alias.js";
+export * from "./checks.js";
+export * from "./columns/index.js";
+export * from "./db.js";
+export * from "./dialect.js";
+export * from "./foreign-keys.js";
+export * from "./indexes.js";
+export * from "./primary-keys.js";
+export * from "./query-builders/index.js";
+export * from "./schema.js";
+export * from "./session.js";
+export * from "./subquery.js";
+export * from "./table.js";
+export * from "./unique-constraint.js";
+export * from "./utils.js";
+export * from "./view-common.js";
+export * from "./view.js";
 //# sourceMappingURL=index.js.map

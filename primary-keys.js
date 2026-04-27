@@ -1,5 +1,5 @@
 import { entityKind } from "../entity.js";
-import { GelTable } from "./table.js";
+import { MySqlTable } from "./table.js";
 function primaryKey(...config) {
   if (config[0].columns) {
     return new PrimaryKeyBuilder(config[0].columns, config[0].name);
@@ -7,7 +7,7 @@ function primaryKey(...config) {
   return new PrimaryKeyBuilder(config);
 }
 class PrimaryKeyBuilder {
-  static [entityKind] = "GelPrimaryKeyBuilder";
+  static [entityKind] = "MySqlPrimaryKeyBuilder";
   /** @internal */
   columns;
   /** @internal */
@@ -27,11 +27,11 @@ class PrimaryKey {
     this.columns = columns;
     this.name = name;
   }
-  static [entityKind] = "GelPrimaryKey";
+  static [entityKind] = "MySqlPrimaryKey";
   columns;
   name;
   getName() {
-    return this.name ?? `${this.table[GelTable.Symbol.Name]}_${this.columns.map((column) => column.name).join("_")}_pk`;
+    return this.name ?? `${this.table[MySqlTable.Symbol.Name]}_${this.columns.map((column) => column.name).join("_")}_pk`;
   }
 }
 export {

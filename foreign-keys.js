@@ -1,13 +1,13 @@
 import { entityKind } from "../entity.js";
 import { TableName } from "../table.utils.js";
 class ForeignKeyBuilder {
-  static [entityKind] = "GelForeignKeyBuilder";
+  static [entityKind] = "MySqlForeignKeyBuilder";
   /** @internal */
   reference;
   /** @internal */
-  _onUpdate = "no action";
+  _onUpdate;
   /** @internal */
-  _onDelete = "no action";
+  _onDelete;
   constructor(config, actions) {
     this.reference = () => {
       const { name, columns, foreignColumns } = config();
@@ -19,11 +19,11 @@ class ForeignKeyBuilder {
     }
   }
   onUpdate(action) {
-    this._onUpdate = action === void 0 ? "no action" : action;
+    this._onUpdate = action;
     return this;
   }
   onDelete(action) {
-    this._onDelete = action === void 0 ? "no action" : action;
+    this._onDelete = action;
     return this;
   }
   /** @internal */
@@ -38,7 +38,7 @@ class ForeignKey {
     this.onUpdate = builder._onUpdate;
     this.onDelete = builder._onDelete;
   }
-  static [entityKind] = "GelForeignKey";
+  static [entityKind] = "MySqlForeignKey";
   reference;
   onUpdate;
   onDelete;

@@ -18,17 +18,12 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var view_exports = {};
 __export(view_exports, {
-  DefaultViewBuilderCore: () => DefaultViewBuilderCore,
-  GelMaterializedView: () => GelMaterializedView,
-  GelMaterializedViewConfig: () => GelMaterializedViewConfig,
-  GelView: () => GelView,
-  ManualMaterializedViewBuilder: () => ManualMaterializedViewBuilder,
   ManualViewBuilder: () => ManualViewBuilder,
-  MaterializedViewBuilder: () => MaterializedViewBuilder,
-  MaterializedViewBuilderCore: () => MaterializedViewBuilderCore,
+  MySqlView: () => MySqlView,
   ViewBuilder: () => ViewBuilder,
-  gelMaterializedViewWithSchema: () => gelMaterializedViewWithSchema,
-  gelViewWithSchema: () => gelViewWithSchema
+  ViewBuilderCore: () => ViewBuilderCore,
+  mysqlView: () => mysqlView,
+  mysqlViewWithSchema: () => mysqlViewWithSchema
 });
 module.exports = __toCommonJS(view_exports);
 var import_entity = require("../entity.cjs");
@@ -38,20 +33,28 @@ var import_query_builder = require("./query-builders/query-builder.cjs");
 var import_table = require("./table.cjs");
 var import_view_base = require("./view-base.cjs");
 var import_view_common = require("./view-common.cjs");
-class DefaultViewBuilderCore {
+class ViewBuilderCore {
   constructor(name, schema) {
     this.name = name;
     this.schema = schema;
   }
-  static [import_entity.entityKind] = "GelDefaultViewBuilderCore";
+  static [import_entity.entityKind] = "MySqlViewBuilder";
   config = {};
-  with(config) {
-    this.config.with = config;
+  algorithm(algorithm) {
+    this.config.algorithm = algorithm;
+    return this;
+  }
+  sqlSecurity(sqlSecurity) {
+    this.config.sqlSecurity = sqlSecurity;
+    return this;
+  }
+  withCheckOption(withCheckOption) {
+    this.config.withCheckOption = withCheckOption ?? "cascaded";
     return this;
   }
 }
-class ViewBuilder extends DefaultViewBuilderCore {
-  static [import_entity.entityKind] = "GelViewBuilder";
+class ViewBuilder extends ViewBuilderCore {
+  static [import_entity.entityKind] = "MySqlViewBuilder";
   as(qb) {
     if (typeof qb === "function") {
       qb = qb(new import_query_builder.QueryBuilder());
@@ -64,8 +67,8 @@ class ViewBuilder extends DefaultViewBuilderCore {
     });
     const aliasedSelection = new Proxy(qb.getSelectedFields(), selectionProxy);
     return new Proxy(
-      new GelView({
-        GelConfig: this.config,
+      new MySqlView({
+        mysqlConfig: this.config,
         config: {
           name: this.name,
           schema: this.schema,
@@ -77,17 +80,17 @@ class ViewBuilder extends DefaultViewBuilderCore {
     );
   }
 }
-class ManualViewBuilder extends DefaultViewBuilderCore {
-  static [import_entity.entityKind] = "GelManualViewBuilder";
+class ManualViewBuilder extends ViewBuilderCore {
+  static [import_entity.entityKind] = "MySqlManualViewBuilder";
   columns;
   constructor(name, columns, schema) {
     super(name, schema);
-    this.columns = (0, import_utils.getTableColumns)((0, import_table.gelTable)(name, columns));
+    this.columns = (0, import_utils.getTableColumns)((0, import_table.mysqlTable)(name, columns));
   }
   existing() {
     return new Proxy(
-      new GelView({
-        GelConfig: void 0,
+      new MySqlView({
+        mysqlConfig: void 0,
         config: {
           name: this.name,
           schema: this.schema,
@@ -105,8 +108,8 @@ class ManualViewBuilder extends DefaultViewBuilderCore {
   }
   as(query) {
     return new Proxy(
-      new GelView({
-        GelConfig: this.config,
+      new MySqlView({
+        mysqlConfig: this.config,
         config: {
           name: this.name,
           schema: this.schema,
@@ -123,180 +126,30 @@ class ManualViewBuilder extends DefaultViewBuilderCore {
     );
   }
 }
-class MaterializedViewBuilderCore {
-  constructor(name, schema) {
-    this.name = name;
-    this.schema = schema;
-  }
-  static [import_entity.entityKind] = "GelMaterializedViewBuilderCore";
-  config = {};
-  using(using) {
-    this.config.using = using;
-    return this;
-  }
-  with(config) {
-    this.config.with = config;
-    return this;
-  }
-  tablespace(tablespace) {
-    this.config.tablespace = tablespace;
-    return this;
-  }
-  withNoData() {
-    this.config.withNoData = true;
-    return this;
-  }
-}
-class MaterializedViewBuilder extends MaterializedViewBuilderCore {
-  static [import_entity.entityKind] = "GelMaterializedViewBuilder";
-  as(qb) {
-    if (typeof qb === "function") {
-      qb = qb(new import_query_builder.QueryBuilder());
-    }
-    const selectionProxy = new import_selection_proxy.SelectionProxyHandler({
-      alias: this.name,
-      sqlBehavior: "error",
-      sqlAliasedBehavior: "alias",
-      replaceOriginalName: true
-    });
-    const aliasedSelection = new Proxy(qb.getSelectedFields(), selectionProxy);
-    return new Proxy(
-      new GelMaterializedView({
-        GelConfig: {
-          with: this.config.with,
-          using: this.config.using,
-          tablespace: this.config.tablespace,
-          withNoData: this.config.withNoData
-        },
-        config: {
-          name: this.name,
-          schema: this.schema,
-          selectedFields: aliasedSelection,
-          query: qb.getSQL().inlineParams()
-        }
-      }),
-      selectionProxy
-    );
-  }
-}
-class ManualMaterializedViewBuilder extends MaterializedViewBuilderCore {
-  static [import_entity.entityKind] = "GelManualMaterializedViewBuilder";
-  columns;
-  constructor(name, columns, schema) {
-    super(name, schema);
-    this.columns = (0, import_utils.getTableColumns)((0, import_table.gelTable)(name, columns));
-  }
-  existing() {
-    return new Proxy(
-      new GelMaterializedView({
-        GelConfig: {
-          tablespace: this.config.tablespace,
-          using: this.config.using,
-          with: this.config.with,
-          withNoData: this.config.withNoData
-        },
-        config: {
-          name: this.name,
-          schema: this.schema,
-          selectedFields: this.columns,
-          query: void 0
-        }
-      }),
-      new import_selection_proxy.SelectionProxyHandler({
-        alias: this.name,
-        sqlBehavior: "error",
-        sqlAliasedBehavior: "alias",
-        replaceOriginalName: true
-      })
-    );
-  }
-  as(query) {
-    return new Proxy(
-      new GelMaterializedView({
-        GelConfig: {
-          tablespace: this.config.tablespace,
-          using: this.config.using,
-          with: this.config.with,
-          withNoData: this.config.withNoData
-        },
-        config: {
-          name: this.name,
-          schema: this.schema,
-          selectedFields: this.columns,
-          query: query.inlineParams()
-        }
-      }),
-      new import_selection_proxy.SelectionProxyHandler({
-        alias: this.name,
-        sqlBehavior: "error",
-        sqlAliasedBehavior: "alias",
-        replaceOriginalName: true
-      })
-    );
-  }
-}
-class GelView extends import_view_base.GelViewBase {
-  static [import_entity.entityKind] = "GelView";
-  [import_view_common.GelViewConfig];
-  constructor({ GelConfig, config }) {
+class MySqlView extends import_view_base.MySqlViewBase {
+  static [import_entity.entityKind] = "MySqlView";
+  [import_view_common.MySqlViewConfig];
+  constructor({ mysqlConfig, config }) {
     super(config);
-    if (GelConfig) {
-      this[import_view_common.GelViewConfig] = {
-        with: GelConfig.with
-      };
-    }
+    this[import_view_common.MySqlViewConfig] = mysqlConfig;
   }
 }
-const GelMaterializedViewConfig = Symbol.for("drizzle:GelMaterializedViewConfig");
-class GelMaterializedView extends import_view_base.GelViewBase {
-  static [import_entity.entityKind] = "GelMaterializedView";
-  [GelMaterializedViewConfig];
-  constructor({ GelConfig, config }) {
-    super(config);
-    this[GelMaterializedViewConfig] = {
-      with: GelConfig?.with,
-      using: GelConfig?.using,
-      tablespace: GelConfig?.tablespace,
-      withNoData: GelConfig?.withNoData
-    };
-  }
-}
-function gelViewWithSchema(name, selection, schema) {
+function mysqlViewWithSchema(name, selection, schema) {
   if (selection) {
     return new ManualViewBuilder(name, selection, schema);
   }
   return new ViewBuilder(name, schema);
 }
-function gelMaterializedViewWithSchema(name, selection, schema) {
-  if (selection) {
-    return new ManualMaterializedViewBuilder(name, selection, schema);
-  }
-  return new MaterializedViewBuilder(name, schema);
-}
-function gelView(name, columns) {
-  return gelViewWithSchema(name, columns, void 0);
-}
-function gelMaterializedView(name, columns) {
-  return gelMaterializedViewWithSchema(name, columns, void 0);
-}
-function isGelView(obj) {
-  return (0, import_entity.is)(obj, GelView);
-}
-function isGelMaterializedView(obj) {
-  return (0, import_entity.is)(obj, GelMaterializedView);
+function mysqlView(name, selection) {
+  return mysqlViewWithSchema(name, selection, void 0);
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  DefaultViewBuilderCore,
-  GelMaterializedView,
-  GelMaterializedViewConfig,
-  GelView,
-  ManualMaterializedViewBuilder,
   ManualViewBuilder,
-  MaterializedViewBuilder,
-  MaterializedViewBuilderCore,
+  MySqlView,
   ViewBuilder,
-  gelMaterializedViewWithSchema,
-  gelViewWithSchema
+  ViewBuilderCore,
+  mysqlView,
+  mysqlViewWithSchema
 });
 //# sourceMappingURL=view.cjs.map

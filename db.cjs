@@ -18,32 +18,30 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var db_exports = {};
 __export(db_exports, {
-  GelDatabase: () => GelDatabase,
+  MySqlDatabase: () => MySqlDatabase,
   withReplicas: () => withReplicas
 });
 module.exports = __toCommonJS(db_exports);
 var import_entity = require("../entity.cjs");
-var import_query_builders = require("./query-builders/index.cjs");
 var import_selection_proxy = require("../selection-proxy.cjs");
 var import_sql = require("../sql/sql.cjs");
 var import_subquery = require("../subquery.cjs");
 var import_count = require("./query-builders/count.cjs");
+var import_query_builders = require("./query-builders/index.cjs");
 var import_query = require("./query-builders/query.cjs");
-var import_raw = require("./query-builders/raw.cjs");
-class GelDatabase {
-  constructor(dialect, session, schema) {
+class MySqlDatabase {
+  constructor(dialect, session, schema, mode) {
     this.dialect = dialect;
     this.session = session;
+    this.mode = mode;
     this._ = schema ? {
       schema: schema.schema,
       fullSchema: schema.fullSchema,
-      tableNamesMap: schema.tableNamesMap,
-      session
+      tableNamesMap: schema.tableNamesMap
     } : {
       schema: void 0,
       fullSchema: {},
-      tableNamesMap: {},
-      session
+      tableNamesMap: {}
     };
     this.query = {};
     if (this._.schema) {
@@ -55,14 +53,15 @@ class GelDatabase {
           schema.fullSchema[tableName],
           columns,
           dialect,
-          session
+          session,
+          this.mode
         );
       }
     }
     this.$cache = { invalidate: async (_params) => {
     } };
   }
-  static [import_entity.entityKind] = "GelDatabase";
+  static [import_entity.entityKind] = "MySqlDatabase";
   query;
   /**
    * Creates a subquery that defines a temporary named result set as a CTE.
@@ -96,23 +95,28 @@ class GelDatabase {
    * const result = await db.with(sq).select({ name: sq.name }).from(sq);
    * ```
    */
-  $with(alias) {
+  $with = (alias, selection) => {
     const self = this;
-    return {
-      as(qb) {
-        if (typeof qb === "function") {
-          qb = qb(new import_query_builders.QueryBuilder(self.dialect));
-        }
-        return new Proxy(
-          new import_subquery.WithSubquery(qb.getSQL(), qb.getSelectedFields(), alias, true),
-          new import_selection_proxy.SelectionProxyHandler({ alias, sqlAliasedBehavior: "alias", sqlBehavior: "error" })
-        );
+    const as = (qb) => {
+      if (typeof qb === "function") {
+        qb = qb(new import_query_builders.QueryBuilder(self.dialect));
       }
+      return new Proxy(
+        new import_subquery.WithSubquery(
+          qb.getSQL(),
+          selection ?? ("getSelectedFields" in qb ? qb.getSelectedFields() ?? {} : {}),
+          alias,
+          true
+        ),
+        new import_selection_proxy.SelectionProxyHandler({ alias, sqlAliasedBehavior: "alias", sqlBehavior: "error" })
+      );
     };
-  }
+    return { as };
+  };
   $count(source, filters) {
-    return new import_count.GelCountBuilder({ source, filters, session: this.session });
+    return new import_count.MySqlCountBuilder({ source, filters, session: this.session });
   }
+  $cache;
   /**
    * Incorporates a previously defined CTE (using `$with`) into the main query.
    *
@@ -135,7 +139,7 @@ class GelDatabase {
   with(...queries) {
     const self = this;
     function select(fields) {
-      return new import_query_builders.GelSelectBuilder({
+      return new import_query_builders.MySqlSelectBuilder({
         fields: fields ?? void 0,
         session: self.session,
         dialect: self.dialect,
@@ -143,7 +147,7 @@ class GelDatabase {
       });
     }
     function selectDistinct(fields) {
-      return new import_query_builders.GelSelectBuilder({
+      return new import_query_builders.MySqlSelectBuilder({
         fields: fields ?? void 0,
         session: self.session,
         dialect: self.dialect,
@@ -151,50 +155,25 @@ class GelDatabase {
         distinct: true
       });
     }
-    function selectDistinctOn(on, fields) {
-      return new import_query_builders.GelSelectBuilder({
-        fields: fields ?? void 0,
-        session: self.session,
-        dialect: self.dialect,
-        withList: queries,
-        distinct: { on }
-      });
-    }
     function update(table) {
-      return new import_query_builders.GelUpdateBuilder(table, self.session, self.dialect, queries);
-    }
-    function insert(table) {
-      return new import_query_builders.GelInsertBuilder(table, self.session, self.dialect, queries);
+      return new import_query_builders.MySqlUpdateBuilder(table, self.session, self.dialect, queries);
     }
     function delete_(table) {
-      return new import_query_builders.GelDeleteBase(table, self.session, self.dialect, queries);
+      return new import_query_builders.MySqlDeleteBase(table, self.session, self.dialect, queries);
     }
-    return { select, selectDistinct, selectDistinctOn, update, insert, delete: delete_ };
+    return { select, selectDistinct, update, delete: delete_ };
   }
   select(fields) {
-    return new import_query_builders.GelSelectBuilder({
-      fields: fields ?? void 0,
-      session: this.session,
-      dialect: this.dialect
-    });
+    return new import_query_builders.MySqlSelectBuilder({ fields: fields ?? void 0, session: this.session, dialect: this.dialect });
   }
   selectDistinct(fields) {
-    return new import_query_builders.GelSelectBuilder({
+    return new import_query_builders.MySqlSelectBuilder({
       fields: fields ?? void 0,
       session: this.session,
       dialect: this.dialect,
       distinct: true
     });
   }
-  selectDistinctOn(on, fields) {
-    return new import_query_builders.GelSelectBuilder({
-      fields: fields ?? void 0,
-      session: this.session,
-      dialect: this.dialect,
-      distinct: { on }
-    });
-  }
-  $cache;
   /**
    * Creates an update query.
    *
@@ -214,16 +193,10 @@ class GelDatabase {
    *
    * // Update rows with filters and conditions
    * await db.update(cars).set({ color: 'red' }).where(eq(cars.brand, 'BMW'));
-   *
-   * // Update with returning clause
-   * const updatedCar: Car[] = await db.update(cars)
-   *   .set({ color: 'red' })
-   *   .where(eq(cars.id, 1))
-   *   .returning();
    * ```
    */
   update(table) {
-    return new import_query_builders.GelUpdateBuilder(table, this.session, this.dialect);
+    return new import_query_builders.MySqlUpdateBuilder(table, this.session, this.dialect);
   }
   /**
    * Creates an insert query.
@@ -242,15 +215,10 @@ class GelDatabase {
    *
    * // Insert multiple rows
    * await db.insert(cars).values([{ brand: 'BMW' }, { brand: 'Porsche' }]);
-   *
-   * // Insert with returning clause
-   * const insertedCar: Car[] = await db.insert(cars)
-   *   .values({ brand: 'BMW' })
-   *   .returning();
    * ```
    */
   insert(table) {
-    return new import_query_builders.GelInsertBuilder(table, this.session, this.dialect);
+    return new import_query_builders.MySqlInsertBuilder(table, this.session, this.dialect);
   }
   /**
    * Creates a delete query.
@@ -269,46 +237,23 @@ class GelDatabase {
    *
    * // Delete rows with filters and conditions
    * await db.delete(cars).where(eq(cars.color, 'green'));
-   *
-   * // Delete with returning clause
-   * const deletedCar: Car[] = await db.delete(cars)
-   *   .where(eq(cars.id, 1))
-   *   .returning();
    * ```
    */
   delete(table) {
-    return new import_query_builders.GelDeleteBase(table, this.session, this.dialect);
+    return new import_query_builders.MySqlDeleteBase(table, this.session, this.dialect);
   }
-  // TODO views are not implemented
-  // refreshMaterializedView<TView extends GelMaterializedView>(view: TView): GelRefreshMaterializedView<TQueryResult> {
-  // 	return new GelRefreshMaterializedView(view, this.session, this.dialect);
-  // }
   execute(query) {
-    const sequel = typeof query === "string" ? import_sql.sql.raw(query) : query.getSQL();
-    const builtQuery = this.dialect.sqlToQuery(sequel);
-    const prepared = this.session.prepareQuery(
-      builtQuery,
-      void 0,
-      void 0,
-      false
-    );
-    return new import_raw.GelRaw(
-      () => prepared.execute(void 0),
-      sequel,
-      builtQuery,
-      (result) => prepared.mapResult(result, true)
-    );
+    return this.session.execute(typeof query === "string" ? import_sql.sql.raw(query) : query.getSQL());
   }
-  transaction(transaction) {
-    return this.session.transaction(transaction);
+  transaction(transaction, config) {
+    return this.session.transaction(transaction, config);
   }
 }
 const withReplicas = (primary, replicas, getReplica = () => replicas[Math.floor(Math.random() * replicas.length)]) => {
   const select = (...args) => getReplica(replicas).select(...args);
   const selectDistinct = (...args) => getReplica(replicas).selectDistinct(...args);
-  const selectDistinctOn = (...args) => getReplica(replicas).selectDistinctOn(...args);
-  const _with = (...args) => getReplica(replicas).with(...args);
-  const $with = (arg) => getReplica(replicas).$with(arg);
+  const $count = (...args) => getReplica(replicas).$count(...args);
+  const $with = (...args) => getReplica(replicas).with(...args);
   const update = (...args) => primary.update(...args);
   const insert = (...args) => primary.insert(...args);
   const $delete = (...args) => primary.delete(...args);
@@ -321,14 +266,12 @@ const withReplicas = (primary, replicas, getReplica = () => replicas[Math.floor(
     delete: $delete,
     execute,
     transaction,
-    // refreshMaterializedView,
     $primary: primary,
     $replicas: replicas,
     select,
     selectDistinct,
-    selectDistinctOn,
-    $with,
-    with: _with,
+    $count,
+    with: $with,
     get query() {
       return getReplica(replicas).query;
     }
@@ -336,7 +279,7 @@ const withReplicas = (primary, replicas, getReplica = () => replicas[Math.floor(
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  GelDatabase,
+  MySqlDatabase,
   withReplicas
 });
 //# sourceMappingURL=db.cjs.map

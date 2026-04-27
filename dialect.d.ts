@@ -1,25 +1,30 @@
 import { entityKind } from "../entity.js";
-import { GelColumn } from "./columns/index.js";
-import type { GelDeleteConfig, GelInsertConfig, GelUpdateConfig } from "./query-builders/index.js";
-import type { GelSelectConfig } from "./query-builders/select.types.js";
-import { GelTable } from "./table.js";
+import type { MigrationConfig, MigrationMeta } from "../migrator.js";
 import { type BuildRelationalQueryResult, type DBQueryConfig, type Relation, type TableRelationalConfig, type TablesRelationalConfig } from "../relations.js";
-import { type DriverValueEncoder, type QueryTypingsValue, type QueryWithTypings, SQL } from "../sql/sql.js";
+import { SQL } from "../sql/sql.js";
+import type { QueryWithTypings } from "../sql/sql.js";
 import { type Casing, type UpdateSet } from "../utils.js";
-import type { GelMaterializedView } from "./view.js";
-export interface GelDialectConfig {
+import { MySqlColumn } from "./columns/common.js";
+import type { MySqlDeleteConfig } from "./query-builders/delete.js";
+import type { MySqlInsertConfig } from "./query-builders/insert.js";
+import type { MySqlSelectConfig } from "./query-builders/select.types.js";
+import type { MySqlUpdateConfig } from "./query-builders/update.js";
+import type { MySqlSession } from "./session.js";
+import { MySqlTable } from "./table.js";
+export interface MySqlDialectConfig {
     casing?: Casing;
 }
-export declare class GelDialect {
+export declare class MySqlDialect {
     static readonly [entityKind]: string;
-    constructor(config?: GelDialectConfig);
+    constructor(config?: MySqlDialectConfig);
+    migrate(migrations: MigrationMeta[], session: MySqlSession, config: Omit<MigrationConfig, 'migrationsSchema'>): Promise<void>;
     escapeName(name: string): string;
-    escapeParam(num: number): string;
+    escapeParam(_num: number): string;
     escapeString(str: string): string;
     private buildWithCTE;
-    buildDeleteQuery({ table, where, returning, withList }: GelDeleteConfig): SQL;
-    buildUpdateSet(table: GelTable, set: UpdateSet): SQL;
-    buildUpdateQuery({ table, set, where, returning, withList, from, joins }: GelUpdateConfig): SQL;
+    buildDeleteQuery({ table, where, returning, withList, limit, orderBy }: MySqlDeleteConfig): SQL;
+    buildUpdateSet(table: MySqlTable, set: UpdateSet): SQL;
+    buildUpdateQuery({ table, set, where, returning, withList, limit, orderBy }: MySqlUpdateConfig): SQL;
     /**
      * Builds selection SQL with provided fields/expressions
      *
@@ -30,34 +35,42 @@ export declare class GelDialect {
      * `insert ... returning <selection>`
      *
      * If `isSingleTable` is true, then columns won't be prefixed with table name
-     * ^ Temporarily disabled behaviour, see comments within method for a reasoning
      */
     private buildSelection;
-    private buildJoins;
-    private buildFromTable;
-    buildSelectQuery({ withList, fields, fieldsFlat, where, having, table, joins, orderBy, groupBy, limit, offset, lockingClause, distinct, setOperators, }: GelSelectConfig): SQL;
-    buildSetOperations(leftSelect: SQL, setOperators: GelSelectConfig['setOperators']): SQL;
+    private buildLimit;
+    private buildOrderBy;
+    private buildIndex;
+    buildSelectQuery({ withList, fields, fieldsFlat, where, having, table, joins, orderBy, groupBy, limit, offset, lockingClause, distinct, setOperators, useIndex, forceIndex, ignoreIndex, }: MySqlSelectConfig): SQL;
+    buildSetOperations(leftSelect: SQL, setOperators: MySqlSelectConfig['setOperators']): SQL;
     buildSetOperationQuery({ leftSelect, setOperator: { type, isAll, rightSelect, limit, orderBy, offset }, }: {
         leftSelect: SQL;
-        setOperator: GelSelectConfig['setOperators'][number];
+        setOperator: MySqlSelectConfig['setOperators'][number];
     }): SQL;
-    buildInsertQuery({ table, values: valuesOrSelect, onConflict, returning, withList, select, overridingSystemValue_ }: GelInsertConfig): SQL;
-    buildRefreshMaterializedViewQuery({ view, concurrently, withNoData }: {
-        view: GelMaterializedView;
-        concurrently?: boolean;
-        withNoData?: boolean;
-    }): SQL;
-    prepareTyping(encoder: DriverValueEncoder<unknown, unknown>): QueryTypingsValue;
+    buildInsertQuery({ table, values: valuesOrSelect, ignore, onConflict, select }: MySqlInsertConfig): {
+        sql: SQL;
+        generatedIds: Record<string, unknown>[];
+    };
     sqlToQuery(sql: SQL, invokeSource?: 'indexes' | undefined): QueryWithTypings;
-    buildRelationalQueryWithoutPK({ fullSchema, schema, tableNamesMap, table, tableConfig, queryConfig: config, tableAlias, nestedQueryRelation, joinOn, }: {
+    buildRelationalQuery({ fullSchema, schema, tableNamesMap, table, tableConfig, queryConfig: config, tableAlias, nestedQueryRelation, joinOn, }: {
         fullSchema: Record<string, unknown>;
         schema: TablesRelationalConfig;
         tableNamesMap: Record<string, string>;
-        table: GelTable;
+        table: MySqlTable;
         tableConfig: TableRelationalConfig;
         queryConfig: true | DBQueryConfig<'many', true>;
         tableAlias: string;
         nestedQueryRelation?: Relation;
         joinOn?: SQL;
-    }): BuildRelationalQueryResult<GelTable, GelColumn>;
+    }): BuildRelationalQueryResult<MySqlTable, MySqlColumn>;
+    buildRelationalQueryWithoutLateralSubqueries({ fullSchema, schema, tableNamesMap, table, tableConfig, queryConfig: config, tableAlias, nestedQueryRelation, joinOn, }: {
+        fullSchema: Record<string, unknown>;
+        schema: TablesRelationalConfig;
+        tableNamesMap: Record<string, string>;
+        table: MySqlTable;
+        tableConfig: TableRelationalConfig;
+        queryConfig: true | DBQueryConfig<'many', true>;
+        tableAlias: string;
+        nestedQueryRelation?: Relation;
+        joinOn?: SQL;
+    }): BuildRelationalQueryResult<MySqlTable, MySqlColumn>;
 }

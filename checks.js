@@ -4,7 +4,7 @@ class CheckBuilder {
     this.name = name;
     this.value = value;
   }
-  static [entityKind] = "GelCheckBuilder";
+  static [entityKind] = "MySqlCheckBuilder";
   brand;
   /** @internal */
   build(table) {
@@ -17,7 +17,7 @@ class Check {
     this.name = builder.name;
     this.value = builder.value;
   }
-  static [entityKind] = "GelCheck";
+  static [entityKind] = "MySqlCheck";
   name;
   value;
 }

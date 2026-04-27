@@ -25,99 +25,38 @@ __export(indexes_exports, {
   uniqueIndex: () => uniqueIndex
 });
 module.exports = __toCommonJS(indexes_exports);
-var import_sql = require("../sql/sql.cjs");
 var import_entity = require("../entity.cjs");
-var import_columns = require("./columns/index.cjs");
 class IndexBuilderOn {
-  constructor(unique, name) {
-    this.unique = unique;
+  constructor(name, unique) {
     this.name = name;
+    this.unique = unique;
   }
-  static [import_entity.entityKind] = "GelIndexBuilderOn";
+  static [import_entity.entityKind] = "MySqlIndexBuilderOn";
   on(...columns) {
-    return new IndexBuilder(
-      columns.map((it) => {
-        if ((0, import_entity.is)(it, import_sql.SQL)) {
-          return it;
-        }
-        it = it;
-        const clonedIndexedColumn = new import_columns.IndexedColumn(it.name, !!it.keyAsName, it.columnType, it.indexConfig);
-        it.indexConfig = JSON.parse(JSON.stringify(it.defaultConfig));
-        return clonedIndexedColumn;
-      }),
-      this.unique,
-      false,
-      this.name
-    );
-  }
-  onOnly(...columns) {
-    return new IndexBuilder(
-      columns.map((it) => {
-        if ((0, import_entity.is)(it, import_sql.SQL)) {
-          return it;
-        }
-        it = it;
-        const clonedIndexedColumn = new import_columns.IndexedColumn(it.name, !!it.keyAsName, it.columnType, it.indexConfig);
-        it.indexConfig = it.defaultConfig;
-        return clonedIndexedColumn;
-      }),
-      this.unique,
-      true,
-      this.name
-    );
-  }
-  /**
-   * Specify what index method to use. Choices are `btree`, `hash`, `gist`, `sGelist`, `gin`, `brin`, or user-installed access methods like `bloom`. The default method is `btree.
-   *
-   * If you have the `Gel_vector` extension installed in your database, you can use the `hnsw` and `ivfflat` options, which are predefined types.
-   *
-   * **You can always specify any string you want in the method, in case Drizzle doesn't have it natively in its types**
-   *
-   * @param method The name of the index method to be used
-   * @param columns
-   * @returns
-   */
-  using(method, ...columns) {
-    return new IndexBuilder(
-      columns.map((it) => {
-        if ((0, import_entity.is)(it, import_sql.SQL)) {
-          return it;
-        }
-        it = it;
-        const clonedIndexedColumn = new import_columns.IndexedColumn(it.name, !!it.keyAsName, it.columnType, it.indexConfig);
-        it.indexConfig = JSON.parse(JSON.stringify(it.defaultConfig));
-        return clonedIndexedColumn;
-      }),
-      this.unique,
-      true,
-      this.name,
-      method
-    );
+    return new IndexBuilder(this.name, columns, this.unique);
   }
 }
 class IndexBuilder {
-  static [import_entity.entityKind] = "GelIndexBuilder";
+  static [import_entity.entityKind] = "MySqlIndexBuilder";
   /** @internal */
   config;
-  constructor(columns, unique, only, name, method = "btree") {
+  constructor(name, columns, unique) {
     this.config = {
       name,
       columns,
-      unique,
-      only,
-      method
+      unique
     };
   }
-  concurrently() {
-    this.config.concurrently = true;
+  using(using) {
+    this.config.using = using;
     return this;
   }
-  with(obj) {
-    this.config.with = obj;
+  algorithm(algorithm) {
+    this.config.algorithm = algorithm;
     return this;
   }
-  where(condition) {
-    this.config.where = condition;
+  lock(lock) {
+    this.config.lock = lock;
     return this;
   }
   /** @internal */
@@ -126,17 +65,17 @@ class IndexBuilder {
   }
 }
 class Index {
-  static [import_entity.entityKind] = "GelIndex";
+  static [import_entity.entityKind] = "MySqlIndex";
   config;
   constructor(config, table) {
     this.config = { ...config, table };
   }
 }
 function index(name) {
-  return new IndexBuilderOn(false, name);
+  return new IndexBuilderOn(name, false);
 }
 function uniqueIndex(name) {
-  return new IndexBuilderOn(true, name);
+  return new IndexBuilderOn(name, true);
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

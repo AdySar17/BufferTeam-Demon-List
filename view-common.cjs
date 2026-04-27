@@ -18,12 +18,12 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var view_common_exports = {};
 __export(view_common_exports, {
-  GelViewConfig: () => GelViewConfig
+  MySqlViewConfig: () => MySqlViewConfig
 });
 module.exports = __toCommonJS(view_common_exports);
-const GelViewConfig = Symbol.for("drizzle:GelViewConfig");
+const MySqlViewConfig = Symbol.for("drizzle:MySqlViewConfig");
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  GelViewConfig
+  MySqlViewConfig
 });
 //# sourceMappingURL=view-common.cjs.map

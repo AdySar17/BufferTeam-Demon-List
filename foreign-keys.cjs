@@ -26,13 +26,13 @@ module.exports = __toCommonJS(foreign_keys_exports);
 var import_entity = require("../entity.cjs");
 var import_table_utils = require("../table.utils.cjs");
 class ForeignKeyBuilder {
-  static [import_entity.entityKind] = "GelForeignKeyBuilder";
+  static [import_entity.entityKind] = "MySqlForeignKeyBuilder";
   /** @internal */
   reference;
   /** @internal */
-  _onUpdate = "no action";
+  _onUpdate;
   /** @internal */
-  _onDelete = "no action";
+  _onDelete;
   constructor(config, actions) {
     this.reference = () => {
       const { name, columns, foreignColumns } = config();
@@ -44,11 +44,11 @@ class ForeignKeyBuilder {
     }
   }
   onUpdate(action) {
-    this._onUpdate = action === void 0 ? "no action" : action;
+    this._onUpdate = action;
     return this;
   }
   onDelete(action) {
-    this._onDelete = action === void 0 ? "no action" : action;
+    this._onDelete = action;
     return this;
   }
   /** @internal */
@@ -63,7 +63,7 @@ class ForeignKey {
     this.onUpdate = builder._onUpdate;
     this.onDelete = builder._onDelete;
   }
-  static [import_entity.entityKind] = "GelForeignKey";
+  static [import_entity.entityKind] = "MySqlForeignKey";
   reference;
   onUpdate;
   onDelete;

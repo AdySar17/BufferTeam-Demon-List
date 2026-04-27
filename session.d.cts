@@ -1,69 +1,80 @@
-import type { Client, ResultSet, Transaction } from '@libsql/client';
-import type { BatchItem as BatchItem } from "../batch.cjs";
-import { type Cache } from "../cache/core/index.cjs";
+import { type Cache } from "../cache/core/cache.cjs";
 import type { WithCacheConfig } from "../cache/core/types.cjs";
 import { entityKind } from "../entity.cjs";
-import type { Logger } from "../logger.cjs";
 import type { RelationalSchemaConfig, TablesRelationalConfig } from "../relations.cjs";
-import { type Query } from "../sql/sql.cjs";
-import type { SQLiteAsyncDialect } from "../sqlite-core/dialect.cjs";
-import { SQLiteTransaction } from "../sqlite-core/index.cjs";
-import type { SelectedFieldsOrdered } from "../sqlite-core/query-builders/select.types.cjs";
-import type { PreparedQueryConfig as PreparedQueryConfigBase, SQLiteExecuteMethod, SQLiteTransactionConfig } from "../sqlite-core/session.cjs";
-import { SQLitePreparedQuery, SQLiteSession } from "../sqlite-core/session.cjs";
-export interface LibSQLSessionOptions {
-    logger?: Logger;
-    cache?: Cache;
+import { type Query, type SQL } from "../sql/sql.cjs";
+import type { Assume, Equal } from "../utils.cjs";
+import { MySqlDatabase } from "./db.cjs";
+import type { MySqlDialect } from "./dialect.cjs";
+import type { SelectedFieldsOrdered } from "./query-builders/select.types.cjs";
+export type Mode = 'default' | 'planetscale';
+export interface MySqlQueryResultHKT {
+    readonly $brand: 'MySqlQueryResultHKT';
+    readonly row: unknown;
+    readonly type: unknown;
 }
-type PreparedQueryConfig = Omit<PreparedQueryConfigBase, 'statement' | 'run'>;
-export declare class LibSQLSession<TFullSchema extends Record<string, unknown>, TSchema extends TablesRelationalConfig> extends SQLiteSession<'async', ResultSet, TFullSchema, TSchema> {
-    private client;
-    private schema;
-    private options;
-    private tx;
-    static readonly [entityKind]: string;
-    private logger;
+export interface AnyMySqlQueryResultHKT extends MySqlQueryResultHKT {
+    readonly type: any;
+}
+export type MySqlQueryResultKind<TKind extends MySqlQueryResultHKT, TRow> = (TKind & {
+    readonly row: TRow;
+})['type'];
+export interface MySqlPreparedQueryConfig {
+    execute: unknown;
+    iterator: unknown;
+}
+export interface MySqlPreparedQueryHKT {
+    readonly $brand: 'MySqlPreparedQueryHKT';
+    readonly config: unknown;
+    readonly type: unknown;
+}
+export type PreparedQueryKind<TKind extends MySqlPreparedQueryHKT, TConfig extends MySqlPreparedQueryConfig, TAssume extends boolean = false> = Equal<TAssume, true> extends true ? Assume<(TKind & {
+    readonly config: TConfig;
+})['type'], MySqlPreparedQuery<TConfig>> : (TKind & {
+    readonly config: TConfig;
+})['type'];
+export declare abstract class MySqlPreparedQuery<T extends MySqlPreparedQueryConfig> {
     private cache;
-    constructor(client: Client, dialect: SQLiteAsyncDialect, schema: RelationalSchemaConfig<TSchema> | undefined, options: LibSQLSessionOptions, tx: Transaction | undefined);
-    prepareQuery<T extends Omit<PreparedQueryConfig, 'run'>>(query: Query, fields: SelectedFieldsOrdered | undefined, executeMethod: SQLiteExecuteMethod, isResponseInArrayMode: boolean, customResultMapper?: (rows: unknown[][]) => unknown, queryMetadata?: {
+    private queryMetadata;
+    private cacheConfig?;
+    static readonly [entityKind]: string;
+    constructor(// cache instance
+    cache: Cache | undefined, queryMetadata: {
         type: 'select' | 'update' | 'delete' | 'insert';
         tables: string[];
-    }, cacheConfig?: WithCacheConfig): LibSQLPreparedQuery<T>;
-    batch<T extends BatchItem<'sqlite'>[] | readonly BatchItem<'sqlite'>[]>(queries: T): Promise<unknown[]>;
-    migrate<T extends BatchItem<'sqlite'>[] | readonly BatchItem<'sqlite'>[]>(queries: T): Promise<unknown[]>;
-    transaction<T>(transaction: (db: LibSQLTransaction<TFullSchema, TSchema>) => T | Promise<T>, _config?: SQLiteTransactionConfig): Promise<T>;
-    extractRawAllValueFromBatchResult(result: unknown): unknown;
-    extractRawGetValueFromBatchResult(result: unknown): unknown;
-    extractRawValuesValueFromBatchResult(result: unknown): unknown;
+    } | undefined, cacheConfig?: WithCacheConfig | undefined);
+    abstract execute(placeholderValues?: Record<string, unknown>): Promise<T['execute']>;
+    abstract iterator(placeholderValues?: Record<string, unknown>): AsyncGenerator<T['iterator']>;
 }
-export declare class LibSQLTransaction<TFullSchema extends Record<string, unknown>, TSchema extends TablesRelationalConfig> extends SQLiteTransaction<'async', ResultSet, TFullSchema, TSchema> {
-    static readonly [entityKind]: string;
-    transaction<T>(transaction: (tx: LibSQLTransaction<TFullSchema, TSchema>) => Promise<T>): Promise<T>;
+export interface MySqlTransactionConfig {
+    withConsistentSnapshot?: boolean;
+    accessMode?: 'read only' | 'read write';
+    isolationLevel: 'read uncommitted' | 'read committed' | 'repeatable read' | 'serializable';
 }
-export declare class LibSQLPreparedQuery<T extends PreparedQueryConfig = PreparedQueryConfig> extends SQLitePreparedQuery<{
-    type: 'async';
-    run: ResultSet;
-    all: T['all'];
-    get: T['get'];
-    values: T['values'];
-    execute: T['execute'];
-}> {
-    private client;
-    private logger;
-    private tx;
-    private _isResponseInArrayMode;
+export declare abstract class MySqlSession<TQueryResult extends MySqlQueryResultHKT = MySqlQueryResultHKT, TPreparedQueryHKT extends PreparedQueryHKTBase = PreparedQueryHKTBase, TFullSchema extends Record<string, unknown> = Record<string, never>, TSchema extends TablesRelationalConfig = Record<string, never>> {
+    protected dialect: MySqlDialect;
     static readonly [entityKind]: string;
-    constructor(client: Client, query: Query, logger: Logger, cache: Cache, queryMetadata: {
+    constructor(dialect: MySqlDialect);
+    abstract prepareQuery<T extends MySqlPreparedQueryConfig, TPreparedQueryHKT extends MySqlPreparedQueryHKT>(query: Query, fields: SelectedFieldsOrdered | undefined, customResultMapper?: (rows: unknown[][]) => T['execute'], generatedIds?: Record<string, unknown>[], returningIds?: SelectedFieldsOrdered, queryMetadata?: {
         type: 'select' | 'update' | 'delete' | 'insert';
         tables: string[];
-    } | undefined, cacheConfig: WithCacheConfig | undefined, 
-    /** @internal */ fields: SelectedFieldsOrdered | undefined, tx: Transaction | undefined, executeMethod: SQLiteExecuteMethod, _isResponseInArrayMode: boolean, 
-    /** @internal */ customResultMapper?: ((rows: unknown[][], mapColumnValue?: (value: unknown) => unknown) => unknown) | undefined);
-    run(placeholderValues?: Record<string, unknown>): Promise<ResultSet>;
-    all(placeholderValues?: Record<string, unknown>): Promise<T['all']>;
-    mapAllResult(rows: unknown, isFromBatch?: boolean): unknown;
-    get(placeholderValues?: Record<string, unknown>): Promise<T['get']>;
-    mapGetResult(rows: unknown, isFromBatch?: boolean): unknown;
-    values(placeholderValues?: Record<string, unknown>): Promise<T['values']>;
+    }, cacheConfig?: WithCacheConfig): PreparedQueryKind<TPreparedQueryHKT, T>;
+    execute<T>(query: SQL): Promise<T>;
+    abstract all<T = unknown>(query: SQL): Promise<T[]>;
+    count(sql: SQL): Promise<number>;
+    abstract transaction<T>(transaction: (tx: MySqlTransaction<TQueryResult, TPreparedQueryHKT, TFullSchema, TSchema>) => Promise<T>, config?: MySqlTransactionConfig): Promise<T>;
+    protected getSetTransactionSQL(config: MySqlTransactionConfig): SQL | undefined;
+    protected getStartTransactionSQL(config: MySqlTransactionConfig): SQL | undefined;
 }
-export {};
+export declare abstract class MySqlTransaction<TQueryResult extends MySqlQueryResultHKT, TPreparedQueryHKT extends PreparedQueryHKTBase, TFullSchema extends Record<string, unknown> = Record<string, never>, TSchema extends TablesRelationalConfig = Record<string, never>> extends MySqlDatabase<TQueryResult, TPreparedQueryHKT, TFullSchema, TSchema> {
+    protected schema: RelationalSchemaConfig<TSchema> | undefined;
+    protected readonly nestedIndex: number;
+    static readonly [entityKind]: string;
+    constructor(dialect: MySqlDialect, session: MySqlSession, schema: RelationalSchemaConfig<TSchema> | undefined, nestedIndex: number, mode: Mode);
+    rollback(): never;
+    /** Nested transactions (aka savepoints) only work with InnoDB engine. */
+    abstract transaction<T>(transaction: (tx: MySqlTransaction<TQueryResult, TPreparedQueryHKT, TFullSchema, TSchema>) => Promise<T>): Promise<T>;
+}
+export interface PreparedQueryHKTBase extends MySqlPreparedQueryHKT {
+    type: MySqlPreparedQuery<Assume<this['config'], MySqlPreparedQueryConfig>>;
+}

@@ -32,7 +32,7 @@ function primaryKey(...config) {
   return new PrimaryKeyBuilder(config);
 }
 class PrimaryKeyBuilder {
-  static [import_entity.entityKind] = "GelPrimaryKeyBuilder";
+  static [import_entity.entityKind] = "MySqlPrimaryKeyBuilder";
   /** @internal */
   columns;
   /** @internal */
@@ -52,11 +52,11 @@ class PrimaryKey {
     this.columns = columns;
     this.name = name;
   }
-  static [import_entity.entityKind] = "GelPrimaryKey";
+  static [import_entity.entityKind] = "MySqlPrimaryKey";
   columns;
   name;
   getName() {
-    return this.name ?? `${this.table[import_table.GelTable.Symbol.Name]}_${this.columns.map((column) => column.name).join("_")}_pk`;
+    return this.name ?? `${this.table[import_table.MySqlTable.Symbol.Name]}_${this.columns.map((column) => column.name).join("_")}_pk`;
   }
 }
 // Annotate the CommonJS export names for ESM import in node:
