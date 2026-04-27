@@ -1,4 +1,4 @@
-"use strict";
+import { createRequire } from 'module'; const require = createRequire(import.meta.url);
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -9,10 +9,16 @@ var __typeError = (msg) => {
   throw TypeError(msg);
 };
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __require = /* @__PURE__ */ ((x5) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x5, {
+  get: (a5, b5) => (typeof require !== "undefined" ? require : a5)[b5]
+}) : x5)(function(x5) {
+  if (typeof require !== "undefined") return require.apply(this, arguments);
+  throw Error('Dynamic require of "' + x5 + '" is not supported');
+});
 var __esm = (fn, res) => function __init() {
   return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
 };
-var __commonJS = (cb, mod) => function __require() {
+var __commonJS = (cb, mod) => function __require2() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
 var __export = (target, all) => {
@@ -244,7 +250,10 @@ var init_ansi_styles = __esm({
 });
 
 // ../node_modules/.pnpm/chalk@5.4.1/node_modules/chalk/source/vendor/supports-color/index.js
-function hasFlag(flag, argv = globalThis.Deno ? globalThis.Deno.args : import_node_process.default.argv) {
+import process2 from "process";
+import os from "os";
+import tty from "tty";
+function hasFlag(flag, argv = globalThis.Deno ? globalThis.Deno.args : process2.argv) {
   const prefix2 = flag.startsWith("-") ? "" : flag.length === 1 ? "-" : "--";
   const position = argv.indexOf(prefix2 + flag);
   const terminatorPosition = argv.indexOf("--");
@@ -299,8 +308,8 @@ function _supportsColor(haveStream, { streamIsTTY, sniffFlags = true } = {}) {
   if (env.TERM === "dumb") {
     return min;
   }
-  if (import_node_process.default.platform === "win32") {
-    const osRelease = import_node_os.default.release().split(".");
+  if (process2.platform === "win32") {
+    const osRelease = os.release().split(".");
     if (Number(osRelease[0]) >= 10 && Number(osRelease[2]) >= 10586) {
       return Number(osRelease[2]) >= 14931 ? 3 : 2;
     }
@@ -353,22 +362,19 @@ function createSupportsColor(stream, options = {}) {
   });
   return translateLevel(level);
 }
-var import_node_process, import_node_os, import_node_tty, env, flagForceColor, supportsColor, supports_color_default;
+var env, flagForceColor, supportsColor, supports_color_default;
 var init_supports_color = __esm({
   "../node_modules/.pnpm/chalk@5.4.1/node_modules/chalk/source/vendor/supports-color/index.js"() {
     "use strict";
-    import_node_process = __toESM(require("process"), 1);
-    import_node_os = __toESM(require("os"), 1);
-    import_node_tty = __toESM(require("tty"), 1);
-    ({ env } = import_node_process.default);
+    ({ env } = process2);
     if (hasFlag("no-color") || hasFlag("no-colors") || hasFlag("color=false") || hasFlag("color=never")) {
       flagForceColor = 0;
     } else if (hasFlag("color") || hasFlag("colors") || hasFlag("color=true") || hasFlag("color=always")) {
       flagForceColor = 1;
     }
     supportsColor = {
-      stdout: createSupportsColor({ isTTY: import_node_tty.default.isatty(1) }),
-      stderr: createSupportsColor({ isTTY: import_node_tty.default.isatty(2) })
+      stdout: createSupportsColor({ isTTY: tty.isatty(1) }),
+      stderr: createSupportsColor({ isTTY: tty.isatty(2) })
     };
     supports_color_default = supportsColor;
   }
@@ -567,11 +573,11 @@ var init_source = __esm({
 
 // ../node_modules/.pnpm/fs.realpath@1.0.0/node_modules/fs.realpath/old.js
 var require_old = __commonJS({
-  "../node_modules/.pnpm/fs.realpath@1.0.0/node_modules/fs.realpath/old.js"(exports2) {
+  "../node_modules/.pnpm/fs.realpath@1.0.0/node_modules/fs.realpath/old.js"(exports) {
     "use strict";
-    var pathModule = require("path");
+    var pathModule = __require("path");
     var isWindows = process.platform === "win32";
-    var fs5 = require("fs");
+    var fs5 = __require("fs");
     var DEBUG = process.env.NODE_DEBUG && /fs/.test(process.env.NODE_DEBUG);
     function rethrow() {
       var callback;
@@ -618,7 +624,7 @@ var require_old = __commonJS({
       splitRootRe = /^[\/]*/;
     }
     var splitRootRe;
-    exports2.realpathSync = function realpathSync(p5, cache5) {
+    exports.realpathSync = function realpathSync(p5, cache5) {
       p5 = pathModule.resolve(p5);
       if (cache5 && Object.prototype.hasOwnProperty.call(cache5, p5)) {
         return cache5[p5];
@@ -681,7 +687,7 @@ var require_old = __commonJS({
       if (cache5) cache5[original] = p5;
       return p5;
     };
-    exports2.realpath = function realpath(p5, cache5, cb) {
+    exports.realpath = function realpath(p5, cache5, cb) {
       if (typeof cb !== "function") {
         cb = maybeCallback(cache5);
         cache5 = null;
@@ -768,15 +774,15 @@ var require_old = __commonJS({
 
 // ../node_modules/.pnpm/fs.realpath@1.0.0/node_modules/fs.realpath/index.js
 var require_fs = __commonJS({
-  "../node_modules/.pnpm/fs.realpath@1.0.0/node_modules/fs.realpath/index.js"(exports2, module2) {
+  "../node_modules/.pnpm/fs.realpath@1.0.0/node_modules/fs.realpath/index.js"(exports, module) {
     "use strict";
-    module2.exports = realpath;
+    module.exports = realpath;
     realpath.realpath = realpath;
     realpath.sync = realpathSync;
     realpath.realpathSync = realpathSync;
     realpath.monkeypatch = monkeypatch;
     realpath.unmonkeypatch = unmonkeypatch;
-    var fs5 = require("fs");
+    var fs5 = __require("fs");
     var origRealpath = fs5.realpath;
     var origRealpathSync = fs5.realpathSync;
     var version = process.version;
@@ -828,18 +834,18 @@ var require_fs = __commonJS({
 
 // ../node_modules/.pnpm/minimatch@5.1.6/node_modules/minimatch/lib/path.js
 var require_path = __commonJS({
-  "../node_modules/.pnpm/minimatch@5.1.6/node_modules/minimatch/lib/path.js"(exports2, module2) {
+  "../node_modules/.pnpm/minimatch@5.1.6/node_modules/minimatch/lib/path.js"(exports, module) {
     "use strict";
     var isWindows = typeof process === "object" && process && process.platform === "win32";
-    module2.exports = isWindows ? { sep: "\\" } : { sep: "/" };
+    module.exports = isWindows ? { sep: "\\" } : { sep: "/" };
   }
 });
 
 // ../node_modules/.pnpm/balanced-match@1.0.2/node_modules/balanced-match/index.js
 var require_balanced_match = __commonJS({
-  "../node_modules/.pnpm/balanced-match@1.0.2/node_modules/balanced-match/index.js"(exports2, module2) {
+  "../node_modules/.pnpm/balanced-match@1.0.2/node_modules/balanced-match/index.js"(exports, module) {
     "use strict";
-    module2.exports = balanced;
+    module.exports = balanced;
     function balanced(a5, b5, str) {
       if (a5 instanceof RegExp) a5 = maybeMatch(a5, str);
       if (b5 instanceof RegExp) b5 = maybeMatch(b5, str);
@@ -895,10 +901,10 @@ var require_balanced_match = __commonJS({
 
 // ../node_modules/.pnpm/brace-expansion@2.0.1/node_modules/brace-expansion/index.js
 var require_brace_expansion = __commonJS({
-  "../node_modules/.pnpm/brace-expansion@2.0.1/node_modules/brace-expansion/index.js"(exports2, module2) {
+  "../node_modules/.pnpm/brace-expansion@2.0.1/node_modules/brace-expansion/index.js"(exports, module) {
     "use strict";
     var balanced = require_balanced_match();
-    module2.exports = expandTop;
+    module.exports = expandTop;
     var escSlash = "\0SLASH" + Math.random() + "\0";
     var escOpen = "\0OPEN" + Math.random() + "\0";
     var escClose = "\0CLOSE" + Math.random() + "\0";
@@ -1046,16 +1052,16 @@ var require_brace_expansion = __commonJS({
 
 // ../node_modules/.pnpm/minimatch@5.1.6/node_modules/minimatch/minimatch.js
 var require_minimatch = __commonJS({
-  "../node_modules/.pnpm/minimatch@5.1.6/node_modules/minimatch/minimatch.js"(exports2, module2) {
+  "../node_modules/.pnpm/minimatch@5.1.6/node_modules/minimatch/minimatch.js"(exports, module) {
     "use strict";
-    var minimatch2 = module2.exports = (p5, pattern, options = {}) => {
+    var minimatch2 = module.exports = (p5, pattern, options = {}) => {
       assertValidPattern2(pattern);
       if (!options.nocomment && pattern.charAt(0) === "#") {
         return false;
       }
       return new Minimatch2(pattern, options).match(p5);
     };
-    module2.exports = minimatch2;
+    module.exports = minimatch2;
     var path3 = require_path();
     minimatch2.sep = path3.sep;
     var GLOBSTAR2 = Symbol("globstar **");
@@ -1603,10 +1609,10 @@ var require_minimatch = __commonJS({
 
 // ../node_modules/.pnpm/inherits@2.0.4/node_modules/inherits/inherits_browser.js
 var require_inherits_browser = __commonJS({
-  "../node_modules/.pnpm/inherits@2.0.4/node_modules/inherits/inherits_browser.js"(exports2, module2) {
+  "../node_modules/.pnpm/inherits@2.0.4/node_modules/inherits/inherits_browser.js"(exports, module) {
     "use strict";
     if (typeof Object.create === "function") {
-      module2.exports = function inherits(ctor, superCtor) {
+      module.exports = function inherits(ctor, superCtor) {
         if (superCtor) {
           ctor.super_ = superCtor;
           ctor.prototype = Object.create(superCtor.prototype, {
@@ -1620,7 +1626,7 @@ var require_inherits_browser = __commonJS({
         }
       };
     } else {
-      module2.exports = function inherits(ctor, superCtor) {
+      module.exports = function inherits(ctor, superCtor) {
         if (superCtor) {
           ctor.super_ = superCtor;
           var TempCtor = function() {
@@ -1636,14 +1642,14 @@ var require_inherits_browser = __commonJS({
 
 // ../node_modules/.pnpm/inherits@2.0.4/node_modules/inherits/inherits.js
 var require_inherits = __commonJS({
-  "../node_modules/.pnpm/inherits@2.0.4/node_modules/inherits/inherits.js"(exports2, module2) {
+  "../node_modules/.pnpm/inherits@2.0.4/node_modules/inherits/inherits.js"(exports, module) {
     "use strict";
     try {
-      util2 = require("util");
+      util2 = __require("util");
       if (typeof util2.inherits !== "function") throw "";
-      module2.exports = util2.inherits;
+      module.exports = util2.inherits;
     } catch (e6) {
-      module2.exports = require_inherits_browser();
+      module.exports = require_inherits_browser();
     }
     var util2;
   }
@@ -1651,22 +1657,22 @@ var require_inherits = __commonJS({
 
 // ../node_modules/.pnpm/glob@8.1.0/node_modules/glob/common.js
 var require_common = __commonJS({
-  "../node_modules/.pnpm/glob@8.1.0/node_modules/glob/common.js"(exports2) {
+  "../node_modules/.pnpm/glob@8.1.0/node_modules/glob/common.js"(exports) {
     "use strict";
-    exports2.setopts = setopts;
-    exports2.ownProp = ownProp;
-    exports2.makeAbs = makeAbs;
-    exports2.finish = finish;
-    exports2.mark = mark;
-    exports2.isIgnored = isIgnored;
-    exports2.childrenIgnored = childrenIgnored;
+    exports.setopts = setopts;
+    exports.ownProp = ownProp;
+    exports.makeAbs = makeAbs;
+    exports.finish = finish;
+    exports.mark = mark;
+    exports.isIgnored = isIgnored;
+    exports.childrenIgnored = childrenIgnored;
     function ownProp(obj, field) {
       return Object.prototype.hasOwnProperty.call(obj, field);
     }
-    var fs5 = require("fs");
-    var path3 = require("path");
+    var fs5 = __require("fs");
+    var path3 = __require("path");
     var minimatch2 = require_minimatch();
-    var isAbsolute = require("path").isAbsolute;
+    var isAbsolute = __require("path").isAbsolute;
     var Minimatch2 = minimatch2.Minimatch;
     function alphasort(a5, b5) {
       return a5.localeCompare(b5, "en");
@@ -1850,18 +1856,18 @@ var require_common = __commonJS({
 
 // ../node_modules/.pnpm/glob@8.1.0/node_modules/glob/sync.js
 var require_sync = __commonJS({
-  "../node_modules/.pnpm/glob@8.1.0/node_modules/glob/sync.js"(exports2, module2) {
+  "../node_modules/.pnpm/glob@8.1.0/node_modules/glob/sync.js"(exports, module) {
     "use strict";
-    module2.exports = globSync;
+    module.exports = globSync;
     globSync.GlobSync = GlobSync;
     var rp = require_fs();
     var minimatch2 = require_minimatch();
     var Minimatch2 = minimatch2.Minimatch;
     var Glob = require_glob().Glob;
-    var util2 = require("util");
-    var path3 = require("path");
-    var assert = require("assert");
-    var isAbsolute = require("path").isAbsolute;
+    var util2 = __require("util");
+    var path3 = __require("path");
+    var assert = __require("assert");
+    var isAbsolute = __require("path").isAbsolute;
     var common = require_common();
     var setopts = common.setopts;
     var ownProp = common.ownProp;
@@ -2206,9 +2212,9 @@ var require_sync = __commonJS({
 
 // ../node_modules/.pnpm/wrappy@1.0.2/node_modules/wrappy/wrappy.js
 var require_wrappy = __commonJS({
-  "../node_modules/.pnpm/wrappy@1.0.2/node_modules/wrappy/wrappy.js"(exports2, module2) {
+  "../node_modules/.pnpm/wrappy@1.0.2/node_modules/wrappy/wrappy.js"(exports, module) {
     "use strict";
-    module2.exports = wrappy;
+    module.exports = wrappy;
     function wrappy(fn, cb) {
       if (fn && cb) return wrappy(fn)(cb);
       if (typeof fn !== "function")
@@ -2237,11 +2243,11 @@ var require_wrappy = __commonJS({
 
 // ../node_modules/.pnpm/once@1.4.0/node_modules/once/once.js
 var require_once = __commonJS({
-  "../node_modules/.pnpm/once@1.4.0/node_modules/once/once.js"(exports2, module2) {
+  "../node_modules/.pnpm/once@1.4.0/node_modules/once/once.js"(exports, module) {
     "use strict";
     var wrappy = require_wrappy();
-    module2.exports = wrappy(once);
-    module2.exports.strict = wrappy(onceStrict);
+    module.exports = wrappy(once);
+    module.exports.strict = wrappy(onceStrict);
     once.proto = once(function() {
       Object.defineProperty(Function.prototype, "once", {
         value: function() {
@@ -2282,12 +2288,12 @@ var require_once = __commonJS({
 
 // ../node_modules/.pnpm/inflight@1.0.6/node_modules/inflight/inflight.js
 var require_inflight = __commonJS({
-  "../node_modules/.pnpm/inflight@1.0.6/node_modules/inflight/inflight.js"(exports2, module2) {
+  "../node_modules/.pnpm/inflight@1.0.6/node_modules/inflight/inflight.js"(exports, module) {
     "use strict";
     var wrappy = require_wrappy();
     var reqs = /* @__PURE__ */ Object.create(null);
     var once = require_once();
-    module2.exports = wrappy(inflight);
+    module.exports = wrappy(inflight);
     function inflight(key, cb) {
       if (reqs[key]) {
         reqs[key].push(cb);
@@ -2329,23 +2335,23 @@ var require_inflight = __commonJS({
 
 // ../node_modules/.pnpm/glob@8.1.0/node_modules/glob/glob.js
 var require_glob = __commonJS({
-  "../node_modules/.pnpm/glob@8.1.0/node_modules/glob/glob.js"(exports2, module2) {
+  "../node_modules/.pnpm/glob@8.1.0/node_modules/glob/glob.js"(exports, module) {
     "use strict";
-    module2.exports = glob2;
+    module.exports = glob2;
     var rp = require_fs();
     var minimatch2 = require_minimatch();
     var Minimatch2 = minimatch2.Minimatch;
     var inherits = require_inherits();
-    var EE = require("events").EventEmitter;
-    var path3 = require("path");
-    var assert = require("assert");
-    var isAbsolute = require("path").isAbsolute;
+    var EE = __require("events").EventEmitter;
+    var path3 = __require("path");
+    var assert = __require("assert");
+    var isAbsolute = __require("path").isAbsolute;
     var globSync = require_sync();
     var common = require_common();
     var setopts = common.setopts;
     var ownProp = common.ownProp;
     var inflight = require_inflight();
-    var util2 = require("util");
+    var util2 = __require("util");
     var childrenIgnored = common.childrenIgnored;
     var isIgnored = common.isIgnored;
     var once = require_once();
@@ -2886,14 +2892,14 @@ var require_glob = __commonJS({
 
 // ../node_modules/.pnpm/hanji@0.0.5/node_modules/hanji/readline.js
 var require_readline = __commonJS({
-  "../node_modules/.pnpm/hanji@0.0.5/node_modules/hanji/readline.js"(exports2) {
+  "../node_modules/.pnpm/hanji@0.0.5/node_modules/hanji/readline.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.prepareReadLine = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.prepareReadLine = void 0;
     var prepareReadLine = () => {
       const stdin = process.stdin;
       const stdout = process.stdout;
-      const readline = require("readline");
+      const readline = __require("readline");
       const rl = readline.createInterface({
         input: stdin,
         escapeCodeTimeout: 50
@@ -2905,13 +2911,13 @@ var require_readline = __commonJS({
         closable: rl
       };
     };
-    exports2.prepareReadLine = prepareReadLine;
+    exports.prepareReadLine = prepareReadLine;
   }
 });
 
 // ../node_modules/.pnpm/sisteransi@1.0.5/node_modules/sisteransi/src/index.js
 var require_src = __commonJS({
-  "../node_modules/.pnpm/sisteransi@1.0.5/node_modules/sisteransi/src/index.js"(exports2, module2) {
+  "../node_modules/.pnpm/sisteransi@1.0.5/node_modules/sisteransi/src/index.js"(exports, module) {
     "use strict";
     var ESC = "\x1B";
     var CSI = `${ESC}[`;
@@ -2961,16 +2967,16 @@ var require_src = __commonJS({
         return clear;
       }
     };
-    module2.exports = { cursor, scroll, erase, beep };
+    module.exports = { cursor, scroll, erase, beep };
   }
 });
 
 // ../node_modules/.pnpm/hanji@0.0.5/node_modules/hanji/utils.js
 var require_utils = __commonJS({
-  "../node_modules/.pnpm/hanji@0.0.5/node_modules/hanji/utils.js"(exports2) {
+  "../node_modules/.pnpm/hanji@0.0.5/node_modules/hanji/utils.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.clear = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.clear = void 0;
     var sisteransi_1 = require_src();
     var strip = (str) => {
       const pattern = [
@@ -2991,13 +2997,13 @@ var require_utils = __commonJS({
       }
       return sisteransi_1.erase.lines(rows);
     };
-    exports2.clear = clear;
+    exports.clear = clear;
   }
 });
 
 // ../node_modules/.pnpm/lodash.throttle@4.1.1/node_modules/lodash.throttle/index.js
 var require_lodash = __commonJS({
-  "../node_modules/.pnpm/lodash.throttle@4.1.1/node_modules/lodash.throttle/index.js"(exports2, module2) {
+  "../node_modules/.pnpm/lodash.throttle@4.1.1/node_modules/lodash.throttle/index.js"(exports, module) {
     "use strict";
     var FUNC_ERROR_TEXT = "Expected a function";
     var NAN = 0 / 0;
@@ -3140,15 +3146,15 @@ var require_lodash = __commonJS({
       var isBinary = reIsBinary.test(value);
       return isBinary || reIsOctal.test(value) ? freeParseInt(value.slice(2), isBinary ? 2 : 8) : reIsBadHex.test(value) ? NAN : +value;
     }
-    module2.exports = throttle;
+    module.exports = throttle;
   }
 });
 
 // ../node_modules/.pnpm/hanji@0.0.5/node_modules/hanji/index.js
 var require_hanji = __commonJS({
-  "../node_modules/.pnpm/hanji@0.0.5/node_modules/hanji/index.js"(exports2) {
+  "../node_modules/.pnpm/hanji@0.0.5/node_modules/hanji/index.js"(exports) {
     "use strict";
-    var __awaiter = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
+    var __awaiter = exports && exports.__awaiter || function(thisArg, _arguments, P, generator) {
       function adopt(value) {
         return value instanceof P ? value : new P(function(resolve) {
           resolve(value);
@@ -3175,11 +3181,11 @@ var require_hanji = __commonJS({
         step((generator = generator.apply(thisArg, _arguments || [])).next());
       });
     };
-    var __importDefault = exports2 && exports2.__importDefault || function(mod) {
+    var __importDefault = exports && exports.__importDefault || function(mod) {
       return mod && mod.__esModule ? mod : { "default": mod };
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.onTerminate = exports2.renderWithTask = exports2.render = exports2.TaskTerminal = exports2.TaskView = exports2.Terminal = exports2.deferred = exports2.SelectState = exports2.Prompt = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.onTerminate = exports.renderWithTask = exports.render = exports.TaskTerminal = exports.TaskView = exports.Terminal = exports.deferred = exports.SelectState = exports.Prompt = void 0;
     var readline_1 = require_readline();
     var sisteransi_1 = require_src();
     var utils_1 = require_utils();
@@ -3214,7 +3220,7 @@ var require_hanji = __commonJS({
         this.inputCallbacks.forEach((it) => it(str, key));
       }
     };
-    exports2.Prompt = Prompt3;
+    exports.Prompt = Prompt3;
     var SelectState3 = class {
       constructor(items) {
         this.items = items;
@@ -3242,7 +3248,7 @@ var require_hanji = __commonJS({
         return false;
       }
     };
-    exports2.SelectState = SelectState3;
+    exports.SelectState = SelectState3;
     var deferred = () => {
       let resolve;
       let reject;
@@ -3256,7 +3262,7 @@ var require_hanji = __commonJS({
         promise
       };
     };
-    exports2.deferred = deferred;
+    exports.deferred = deferred;
     var Terminal = class {
       constructor(view5, stdin, stdout, closable) {
         this.view = view5;
@@ -3301,7 +3307,7 @@ var require_hanji = __commonJS({
         };
         this.stdin.on("keypress", keypress);
         this.view.attach(this);
-        const { resolve, promise } = (0, exports2.deferred)();
+        const { resolve, promise } = (0, exports.deferred)();
         this.resolve = resolve;
         this.promise = promise;
         this.renderFunc = (0, lodash_throttle_1.default)((str) => {
@@ -3332,7 +3338,7 @@ var require_hanji = __commonJS({
         this.renderFunc(`${clearPrefix}${string}`);
       }
     };
-    exports2.Terminal = Terminal;
+    exports.Terminal = Terminal;
     var TaskView2 = class {
       constructor() {
         this.attachCallbacks = [];
@@ -3357,7 +3363,7 @@ var require_hanji = __commonJS({
         }
       }
     };
-    exports2.TaskView = TaskView2;
+    exports.TaskView = TaskView2;
     var TaskTerminal = class {
       constructor(view5, stdout) {
         this.view = view5;
@@ -3378,7 +3384,7 @@ var require_hanji = __commonJS({
         this.stdout.write(`${clearPrefix}${string}`);
       }
     };
-    exports2.TaskTerminal = TaskTerminal;
+    exports.TaskTerminal = TaskTerminal;
     function render7(view5) {
       const { stdin, stdout, closable } = (0, readline_1.prepareReadLine)();
       if (view5 instanceof Prompt3) {
@@ -3391,7 +3397,7 @@ var require_hanji = __commonJS({
       closable.close();
       return;
     }
-    exports2.render = render7;
+    exports.render = render7;
     function renderWithTask5(view5, task) {
       return __awaiter(this, void 0, void 0, function* () {
         const terminal = new TaskTerminal(view5, process.stdout);
@@ -3401,12 +3407,12 @@ var require_hanji = __commonJS({
         return result;
       });
     }
-    exports2.renderWithTask = renderWithTask5;
+    exports.renderWithTask = renderWithTask5;
     var terminateHandler;
     function onTerminate(callback) {
       terminateHandler = callback;
     }
-    exports2.onTerminate = onTerminate;
+    exports.onTerminate = onTerminate;
   }
 });
 
@@ -9416,6 +9422,7 @@ var init_sqliteSchema = __esm({
 });
 
 // src/utils.ts
+import { parse } from "url";
 function isPgArrayType(sqlType) {
   return sqlType.match(/.*\[\d*\].*|.*\[\].*/g) !== null;
 }
@@ -9429,11 +9436,10 @@ function findAddedAndRemoved(columnNames1, columnNames2) {
 function escapeSingleQuotes(str) {
   return str.replace(/'/g, "''");
 }
-var import_url, copy, prepareMigrationMeta, schemaRenameKey, tableRenameKey, columnRenameKey, normaliseSQLiteUrl, normalisePGliteUrl;
+var copy, prepareMigrationMeta, schemaRenameKey, tableRenameKey, columnRenameKey, normaliseSQLiteUrl, normalisePGliteUrl;
 var init_utils = __esm({
   "src/utils.ts"() {
     "use strict";
-    import_url = require("url");
     init_views();
     init_global();
     init_gelSchema();
@@ -9484,7 +9490,7 @@ var init_utils = __esm({
           return it;
         }
         try {
-          const url = (0, import_url.parse)(it);
+          const url = parse(it);
           if (url.protocol === null) {
             return `file:${it}`;
           }
@@ -9759,13 +9765,13 @@ Is ${source_default.bold.blue(
 });
 
 // src/serializer/index.ts
-var import_fs, glob, import_path, prepareFilenames;
+import fs from "fs";
+import Path from "path";
+var glob, prepareFilenames;
 var init_serializer = __esm({
   "src/serializer/index.ts"() {
     "use strict";
-    import_fs = __toESM(require("fs"));
     glob = __toESM(require_glob());
-    import_path = __toESM(require("path"));
     init_views();
     prepareFilenames = (path3) => {
       if (typeof path3 === "string") {
@@ -9775,9 +9781,9 @@ var init_serializer = __esm({
       const result = path3.reduce((result2, cur) => {
         const globbed = glob.sync(`${prefix2}${cur}`);
         globbed.forEach((it) => {
-          const fileName = import_fs.default.lstatSync(it).isDirectory() ? null : import_path.default.resolve(it);
-          const filenames = fileName ? [fileName] : import_fs.default.readdirSync(it).map((file) => import_path.default.join(import_path.default.resolve(it), file));
-          filenames.filter((file) => !import_fs.default.lstatSync(file).isDirectory()).forEach((file) => result2.add(file));
+          const fileName = fs.lstatSync(it).isDirectory() ? null : Path.resolve(it);
+          const filenames = fileName ? [fileName] : fs.readdirSync(it).map((file) => Path.join(Path.resolve(it), file));
+          filenames.filter((file) => !fs.lstatSync(file).isDirectory()).forEach((file) => result2.add(file));
         });
         return result2;
       }, /* @__PURE__ */ new Set());
@@ -9817,7 +9823,7 @@ var init_migrationPreparator = __esm({
 
 // ../node_modules/.pnpm/heap@0.2.7/node_modules/heap/lib/heap.js
 var require_heap = __commonJS({
-  "../node_modules/.pnpm/heap@0.2.7/node_modules/heap/lib/heap.js"(exports2, module2) {
+  "../node_modules/.pnpm/heap@0.2.7/node_modules/heap/lib/heap.js"(exports, module) {
     "use strict";
     (function() {
       var Heap, defaultCmp, floor, heapify, heappop, heappush, heappushpop, heapreplace, insort, min, nlargest, nsmallest, updateItem, _siftdown, _siftup;
@@ -10079,35 +10085,35 @@ var require_heap = __commonJS({
       (function(root, factory) {
         if (typeof define === "function" && define.amd) {
           return define([], factory);
-        } else if (typeof exports2 === "object") {
-          return module2.exports = factory();
+        } else if (typeof exports === "object") {
+          return module.exports = factory();
         } else {
           return root.Heap = factory();
         }
       })(this, function() {
         return Heap;
       });
-    }).call(exports2);
+    }).call(exports);
   }
 });
 
 // ../node_modules/.pnpm/heap@0.2.7/node_modules/heap/index.js
 var require_heap2 = __commonJS({
-  "../node_modules/.pnpm/heap@0.2.7/node_modules/heap/index.js"(exports2, module2) {
+  "../node_modules/.pnpm/heap@0.2.7/node_modules/heap/index.js"(exports, module) {
     "use strict";
-    module2.exports = require_heap();
+    module.exports = require_heap();
   }
 });
 
 // ../node_modules/.pnpm/@ewoudenberg+difflib@0.1.0/node_modules/@ewoudenberg/difflib/lib/difflib.js
 var require_difflib = __commonJS({
-  "../node_modules/.pnpm/@ewoudenberg+difflib@0.1.0/node_modules/@ewoudenberg/difflib/lib/difflib.js"(exports2) {
+  "../node_modules/.pnpm/@ewoudenberg+difflib@0.1.0/node_modules/@ewoudenberg/difflib/lib/difflib.js"(exports) {
     "use strict";
     (function() {
       var Differ, Heap, IS_CHARACTER_JUNK, IS_LINE_JUNK, SequenceMatcher, _any, _arrayCmp, _calculateRatio, _countLeading, _formatRangeContext, _formatRangeUnified, _has, assert, contextDiff, floor, getCloseMatches, max, min, ndiff, restore, unifiedDiff, indexOf = [].indexOf;
       ({ floor, max, min } = Math);
       Heap = require_heap2();
-      assert = require("assert");
+      assert = __require("assert");
       _calculateRatio = function(matches, length) {
         if (length) {
           return 2 * matches / length;
@@ -11016,34 +11022,34 @@ var require_difflib = __commonJS({
         }
         return lines;
       };
-      exports2._arrayCmp = _arrayCmp;
-      exports2.SequenceMatcher = SequenceMatcher;
-      exports2.getCloseMatches = getCloseMatches;
-      exports2._countLeading = _countLeading;
-      exports2.Differ = Differ;
-      exports2.IS_LINE_JUNK = IS_LINE_JUNK;
-      exports2.IS_CHARACTER_JUNK = IS_CHARACTER_JUNK;
-      exports2._formatRangeUnified = _formatRangeUnified;
-      exports2.unifiedDiff = unifiedDiff;
-      exports2._formatRangeContext = _formatRangeContext;
-      exports2.contextDiff = contextDiff;
-      exports2.ndiff = ndiff;
-      exports2.restore = restore;
-    }).call(exports2);
+      exports._arrayCmp = _arrayCmp;
+      exports.SequenceMatcher = SequenceMatcher;
+      exports.getCloseMatches = getCloseMatches;
+      exports._countLeading = _countLeading;
+      exports.Differ = Differ;
+      exports.IS_LINE_JUNK = IS_LINE_JUNK;
+      exports.IS_CHARACTER_JUNK = IS_CHARACTER_JUNK;
+      exports._formatRangeUnified = _formatRangeUnified;
+      exports.unifiedDiff = unifiedDiff;
+      exports._formatRangeContext = _formatRangeContext;
+      exports.contextDiff = contextDiff;
+      exports.ndiff = ndiff;
+      exports.restore = restore;
+    }).call(exports);
   }
 });
 
 // ../node_modules/.pnpm/@ewoudenberg+difflib@0.1.0/node_modules/@ewoudenberg/difflib/index.js
 var require_difflib2 = __commonJS({
-  "../node_modules/.pnpm/@ewoudenberg+difflib@0.1.0/node_modules/@ewoudenberg/difflib/index.js"(exports2, module2) {
+  "../node_modules/.pnpm/@ewoudenberg+difflib@0.1.0/node_modules/@ewoudenberg/difflib/index.js"(exports, module) {
     "use strict";
-    module2.exports = require_difflib();
+    module.exports = require_difflib();
   }
 });
 
 // ../node_modules/.pnpm/json-diff@1.0.6/node_modules/json-diff/lib/util.js
 var require_util = __commonJS({
-  "../node_modules/.pnpm/json-diff@1.0.6/node_modules/json-diff/lib/util.js"(exports2, module2) {
+  "../node_modules/.pnpm/json-diff@1.0.6/node_modules/json-diff/lib/util.js"(exports, module) {
     "use strict";
     var extendedTypeOf = function(obj) {
       const result = typeof obj;
@@ -11072,16 +11078,16 @@ var require_util = __commonJS({
         return data;
       }
     };
-    module2.exports = { extendedTypeOf, roundObj };
+    module.exports = { extendedTypeOf, roundObj };
   }
 });
 
 // ../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/styles.js
 var require_styles = __commonJS({
-  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/styles.js"(exports2, module2) {
+  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/styles.js"(exports, module) {
     "use strict";
     var styles3 = {};
-    module2["exports"] = styles3;
+    module["exports"] = styles3;
     var codes = {
       reset: [0, 0],
       bold: [1, 22],
@@ -11146,9 +11152,9 @@ var require_styles = __commonJS({
 
 // ../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/system/has-flag.js
 var require_has_flag = __commonJS({
-  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/system/has-flag.js"(exports2, module2) {
+  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/system/has-flag.js"(exports, module) {
     "use strict";
-    module2.exports = function(flag, argv) {
+    module.exports = function(flag, argv) {
       argv = argv || process.argv;
       var terminatorPos = argv.indexOf("--");
       var prefix2 = /^-{1,2}/.test(flag) ? "" : "--";
@@ -11160,9 +11166,9 @@ var require_has_flag = __commonJS({
 
 // ../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/system/supports-colors.js
 var require_supports_colors = __commonJS({
-  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/system/supports-colors.js"(exports2, module2) {
+  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/system/supports-colors.js"(exports, module) {
     "use strict";
-    var os3 = require("os");
+    var os3 = __require("os");
     var hasFlag2 = require_has_flag();
     var env4 = process.env;
     var forceColor = void 0;
@@ -11246,7 +11252,7 @@ var require_supports_colors = __commonJS({
       var level = supportsColor2(stream);
       return translateLevel2(level);
     }
-    module2.exports = {
+    module.exports = {
       supportsColor: getSupportLevel,
       stdout: getSupportLevel(process.stdout),
       stderr: getSupportLevel(process.stderr)
@@ -11256,9 +11262,9 @@ var require_supports_colors = __commonJS({
 
 // ../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/custom/trap.js
 var require_trap = __commonJS({
-  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/custom/trap.js"(exports2, module2) {
+  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/custom/trap.js"(exports, module) {
     "use strict";
-    module2["exports"] = function runTheTrap(text, options) {
+    module["exports"] = function runTheTrap(text, options) {
       var result = "";
       text = text || "Run the trap, drop the bass";
       text = text.split("");
@@ -11326,9 +11332,9 @@ var require_trap = __commonJS({
 
 // ../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/custom/zalgo.js
 var require_zalgo = __commonJS({
-  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/custom/zalgo.js"(exports2, module2) {
+  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/custom/zalgo.js"(exports, module) {
     "use strict";
-    module2["exports"] = function zalgo(text, options) {
+    module["exports"] = function zalgo(text, options) {
       text = text || "   he is here   ";
       var soul = {
         "up": [
@@ -11514,9 +11520,9 @@ var require_zalgo = __commonJS({
 
 // ../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/maps/america.js
 var require_america = __commonJS({
-  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/maps/america.js"(exports2, module2) {
+  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/maps/america.js"(exports, module) {
     "use strict";
-    module2["exports"] = function(colors) {
+    module["exports"] = function(colors) {
       return function(letter, i6, exploded) {
         if (letter === " ") return letter;
         switch (i6 % 3) {
@@ -11534,9 +11540,9 @@ var require_america = __commonJS({
 
 // ../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/maps/zebra.js
 var require_zebra = __commonJS({
-  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/maps/zebra.js"(exports2, module2) {
+  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/maps/zebra.js"(exports, module) {
     "use strict";
-    module2["exports"] = function(colors) {
+    module["exports"] = function(colors) {
       return function(letter, i6, exploded) {
         return i6 % 2 === 0 ? letter : colors.inverse(letter);
       };
@@ -11546,9 +11552,9 @@ var require_zebra = __commonJS({
 
 // ../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/maps/rainbow.js
 var require_rainbow = __commonJS({
-  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/maps/rainbow.js"(exports2, module2) {
+  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/maps/rainbow.js"(exports, module) {
     "use strict";
-    module2["exports"] = function(colors) {
+    module["exports"] = function(colors) {
       var rainbowColors = ["red", "yellow", "green", "blue", "magenta"];
       return function(letter, i6, exploded) {
         if (letter === " ") {
@@ -11563,9 +11569,9 @@ var require_rainbow = __commonJS({
 
 // ../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/maps/random.js
 var require_random = __commonJS({
-  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/maps/random.js"(exports2, module2) {
+  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/maps/random.js"(exports, module) {
     "use strict";
-    module2["exports"] = function(colors) {
+    module["exports"] = function(colors) {
       var available = [
         "underline",
         "inverse",
@@ -11594,12 +11600,12 @@ var require_random = __commonJS({
 
 // ../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/colors.js
 var require_colors = __commonJS({
-  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/colors.js"(exports2, module2) {
+  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/lib/colors.js"(exports, module) {
     "use strict";
     var colors = {};
-    module2["exports"] = colors;
+    module["exports"] = colors;
     colors.themes = {};
-    var util2 = require("util");
+    var util2 = __require("util");
     var ansiStyles2 = colors.styles = require_styles();
     var defineProps = Object.defineProperties;
     var newLineRegex = new RegExp(/[\r\n]+/g);
@@ -11739,16 +11745,16 @@ var require_colors = __commonJS({
 
 // ../node_modules/.pnpm/colors@1.4.0/node_modules/colors/safe.js
 var require_safe = __commonJS({
-  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/safe.js"(exports2, module2) {
+  "../node_modules/.pnpm/colors@1.4.0/node_modules/colors/safe.js"(exports, module) {
     "use strict";
     var colors = require_colors();
-    module2["exports"] = colors;
+    module["exports"] = colors;
   }
 });
 
 // ../node_modules/.pnpm/json-diff@1.0.6/node_modules/json-diff/lib/colorize.js
 var require_colorize = __commonJS({
-  "../node_modules/.pnpm/json-diff@1.0.6/node_modules/json-diff/lib/colorize.js"(exports2, module2) {
+  "../node_modules/.pnpm/json-diff@1.0.6/node_modules/json-diff/lib/colorize.js"(exports, module) {
     "use strict";
     var color = require_safe();
     var { extendedTypeOf } = require_util();
@@ -11855,13 +11861,13 @@ var require_colorize = __commonJS({
       });
       return output.join("");
     };
-    module2.exports = { colorize, colorizeToArray, colorizeToCallback };
+    module.exports = { colorize, colorizeToArray, colorizeToCallback };
   }
 });
 
 // ../node_modules/.pnpm/json-diff@1.0.6/node_modules/json-diff/lib/index.js
 var require_lib = __commonJS({
-  "../node_modules/.pnpm/json-diff@1.0.6/node_modules/json-diff/lib/index.js"(exports2, module2) {
+  "../node_modules/.pnpm/json-diff@1.0.6/node_modules/json-diff/lib/index.js"(exports, module) {
     "use strict";
     var { SequenceMatcher } = require_difflib2();
     var { extendedTypeOf, roundObj } = require_util();
@@ -12137,7 +12143,7 @@ var require_lib = __commonJS({
     function diffString(obj1, obj2, options = {}) {
       return colorize(diff2(obj1, obj2, options), options);
     }
-    module2.exports = { diff: diff2, diffString, colorize, colorizeToCallback };
+    module.exports = { diff: diff2, diffString, colorize, colorizeToCallback };
   }
 });
 
@@ -22223,15 +22229,15 @@ var init_vector = __esm({
 });
 
 // src/serializer/utils.ts
+import { CasingCache, toCamelCase, toSnakeCase } from "drizzle-orm/casing";
 function getColumnCasing(column6, casing2) {
   if (!column6.name) return "";
-  return !column6.keyAsName || casing2 === void 0 ? column6.name : casing2 === "camelCase" ? (0, import_casing.toCamelCase)(column6.name) : (0, import_casing.toSnakeCase)(column6.name);
+  return !column6.keyAsName || casing2 === void 0 ? column6.name : casing2 === "camelCase" ? toCamelCase(column6.name) : toSnakeCase(column6.name);
 }
-var import_casing, sqlToStr;
+var sqlToStr;
 var init_utils2 = __esm({
   "src/serializer/utils.ts"() {
     "use strict";
-    import_casing = require("drizzle-orm/casing");
     sqlToStr = (sql, casing2) => {
       return sql.toQuery({
         escapeName: () => {
@@ -22243,13 +22249,26 @@ var init_utils2 = __esm({
         escapeString: () => {
           throw new Error("we don't support params for `sql` default values");
         },
-        casing: new import_casing.CasingCache(casing2)
+        casing: new CasingCache(casing2)
       }).sql;
     };
   }
 });
 
 // src/serializer/pgSerializer.ts
+import { getTableName, is, SQL } from "drizzle-orm";
+import {
+  getMaterializedViewConfig,
+  getTableConfig,
+  getViewConfig,
+  PgArray,
+  PgColumn,
+  PgDialect,
+  PgEnumColumn,
+  PgRole,
+  PgView as PgView2,
+  uniqueKeyName
+} from "drizzle-orm/pg-core";
 function stringFromIdentityProperty(field) {
   return typeof field === "string" ? field : typeof field === "undefined" ? void 0 : String(field);
 }
@@ -22320,13 +22339,11 @@ function prepareRoles(entities) {
   }
   return { useRoles, includeRoles, excludeRoles };
 }
-var import_drizzle_orm, import_pg_core, indexName, generatePgSnapshot, trimChar, fromDatabase, defaultForColumn, getColumnsInfoQuery;
+var indexName, generatePgSnapshot, trimChar, fromDatabase, defaultForColumn, getColumnsInfoQuery;
 var init_pgSerializer = __esm({
   "src/serializer/pgSerializer.ts"() {
     "use strict";
     init_source();
-    import_drizzle_orm = require("drizzle-orm");
-    import_pg_core = require("drizzle-orm/pg-core");
     init_vector();
     init_outputs();
     init_utils();
@@ -22335,7 +22352,7 @@ var init_pgSerializer = __esm({
       return `${tableName}_${columns.join("_")}_index`;
     };
     generatePgSnapshot = (tables, enums, schemas, sequences, roles, policies, views, matViews, casing2, schemaFilter) => {
-      const dialect6 = new import_pg_core.PgDialect({ casing: casing2 });
+      const dialect6 = new PgDialect({ casing: casing2 });
       const result = {};
       const resultViews = {};
       const sequencesToReturn = {};
@@ -22355,7 +22372,7 @@ var init_pgSerializer = __esm({
           uniqueConstraints,
           policies: policies2,
           enableRLS
-        } = (0, import_pg_core.getTableConfig)(table6);
+        } = getTableConfig(table6);
         if (schemaFilter && !schemaFilter.includes(schema6 ?? "public")) {
           continue;
         }
@@ -22372,10 +22389,10 @@ var init_pgSerializer = __esm({
           const primaryKey = column6.primary;
           const sqlTypeLowered = column6.getSQLType().toLowerCase();
           const getEnumSchema = (column7) => {
-            while ((0, import_drizzle_orm.is)(column7, import_pg_core.PgArray)) {
+            while (is(column7, PgArray)) {
               column7 = column7.baseColumn;
             }
-            return (0, import_drizzle_orm.is)(column7, import_pg_core.PgEnumColumn) ? column7.enum.schema || "public" : void 0;
+            return is(column7, PgEnumColumn) ? column7.enum.schema || "public" : void 0;
           };
           const typeSchema = getEnumSchema(column6);
           const generated = column6.generated;
@@ -22392,7 +22409,7 @@ var init_pgSerializer = __esm({
             primaryKey,
             notNull,
             generated: generated ? {
-              as: (0, import_drizzle_orm.is)(generated.as, import_drizzle_orm.SQL) ? dialect6.sqlToQuery(generated.as).sql : typeof generated.as === "function" ? dialect6.sqlToQuery(generated.as()).sql : generated.as,
+              as: is(generated.as, SQL) ? dialect6.sqlToQuery(generated.as).sql : typeof generated.as === "function" ? dialect6.sqlToQuery(generated.as()).sql : generated.as,
               type: "stored"
             } : void 0,
             identity: identity ? {
@@ -22433,7 +22450,7 @@ ${withStyle.errorWarning(`We've found duplicated unique constraint names in ${so
             };
           }
           if (column6.default !== void 0) {
-            if ((0, import_drizzle_orm.is)(column6.default, import_drizzle_orm.SQL)) {
+            if (is(column6.default, SQL)) {
               columnToSet.default = sqlToStr(column6.default, casing2);
             } else {
               if (typeof column6.default === "string") {
@@ -22475,7 +22492,7 @@ ${withStyle.errorWarning(`We've found duplicated unique constraint names in ${so
         });
         uniqueConstraints?.map((unq) => {
           const columnNames = unq.columns.map((c5) => getColumnCasing(c5, casing2));
-          const name = unq.name ?? (0, import_pg_core.uniqueKeyName)(table6, columnNames);
+          const name = unq.name ?? uniqueKeyName(table6, columnNames);
           const existingUnique = uniqueConstraintObject[name];
           if (typeof existingUnique !== "undefined") {
             console.log(
@@ -22501,8 +22518,8 @@ ${withStyle.errorWarning(
           const onDelete = fk5.onDelete;
           const onUpdate = fk5.onUpdate;
           const reference = fk5.reference();
-          const tableTo = (0, import_drizzle_orm.getTableName)(reference.foreignTable);
-          const schemaTo = (0, import_pg_core.getTableConfig)(reference.foreignTable).schema;
+          const tableTo = getTableName(reference.foreignTable);
+          const schemaTo = getTableConfig(reference.foreignTable).schema;
           const originalColumnsFrom = reference.columns.map((it) => it.name);
           const columnsFrom = reference.columns.map((it) => getColumnCasing(it, casing2));
           const originalColumnsTo = reference.foreignColumns.map((it) => it.name);
@@ -22534,12 +22551,12 @@ ${withStyle.errorWarning(
           const columns2 = value.config.columns;
           let indexColumnNames = [];
           columns2.forEach((it) => {
-            if ((0, import_drizzle_orm.is)(it, import_drizzle_orm.SQL)) {
+            if (is(it, SQL)) {
               if (typeof value.config.name === "undefined") {
                 console.log(
                   `
 ${withStyle.errorWarning(
-                    `Please specify an index name in ${(0, import_drizzle_orm.getTableName)(value.config.table)} table that has "${dialect6.sqlToQuery(it).sql}" expression. We can generate index names for indexes on columns only; for expressions in indexes, you need to specify the name yourself.`
+                    `Please specify an index name in ${getTableName(value.config.table)} table that has "${dialect6.sqlToQuery(it).sql}" expression. We can generate index names for indexes on columns only; for expressions in indexes, you need to specify the name yourself.`
                   )}`
                 );
                 process.exit(1);
@@ -22547,7 +22564,7 @@ ${withStyle.errorWarning(
             }
             it = it;
             const name2 = getColumnCasing(it, casing2);
-            if (!(0, import_drizzle_orm.is)(it, import_drizzle_orm.SQL) && it.type === "PgVector" && typeof it.indexConfig.opClass === "undefined") {
+            if (!is(it, SQL) && it.type === "PgVector" && typeof it.indexConfig.opClass === "undefined") {
               console.log(
                 `
 ${withStyle.errorWarning(
@@ -22574,7 +22591,7 @@ You can check the "pg_vector" docs for more info: https://github.com/pgvector/pg
           const name = value.config.name ? value.config.name : indexName(tableName, indexColumnNames);
           let indexColumns = columns2.map(
             (it) => {
-              if ((0, import_drizzle_orm.is)(it, import_drizzle_orm.SQL)) {
+              if (is(it, SQL)) {
                 return {
                   expression: dialect6.sqlToQuery(it, "indexes").sql,
                   asc: true,
@@ -22626,13 +22643,13 @@ ${withStyle.errorWarning(
           } else {
             if (policy5.to && typeof policy5.to === "string") {
               mappedTo.push(policy5.to);
-            } else if (policy5.to && (0, import_drizzle_orm.is)(policy5.to, import_pg_core.PgRole)) {
+            } else if (policy5.to && is(policy5.to, PgRole)) {
               mappedTo.push(policy5.to.name);
             } else if (policy5.to && Array.isArray(policy5.to)) {
               policy5.to.forEach((it) => {
                 if (typeof it === "string") {
                   mappedTo.push(it);
-                } else if ((0, import_drizzle_orm.is)(it, import_pg_core.PgRole)) {
+                } else if (is(it, PgRole)) {
                   mappedTo.push(it.name);
                 }
               });
@@ -22654,8 +22671,8 @@ ${withStyle.errorWarning(
             as: policy5.as?.toUpperCase() ?? "PERMISSIVE",
             for: policy5.for?.toUpperCase() ?? "ALL",
             to: mappedTo.sort(),
-            using: (0, import_drizzle_orm.is)(policy5.using, import_drizzle_orm.SQL) ? dialect6.sqlToQuery(policy5.using).sql : void 0,
-            withCheck: (0, import_drizzle_orm.is)(policy5.withCheck, import_drizzle_orm.SQL) ? dialect6.sqlToQuery(policy5.withCheck).sql : void 0
+            using: is(policy5.using, SQL) ? dialect6.sqlToQuery(policy5.using).sql : void 0,
+            withCheck: is(policy5.withCheck, SQL) ? dialect6.sqlToQuery(policy5.withCheck).sql : void 0
           };
         });
         checks.forEach((check) => {
@@ -22709,7 +22726,7 @@ ${withStyle.errorWarning(
           );
           continue;
         }
-        const tableConfig = (0, import_pg_core.getTableConfig)(policy5._linkedTable);
+        const tableConfig = getTableConfig(policy5._linkedTable);
         const tableKey2 = `${tableConfig.schema ?? "public"}.${tableConfig.name}`;
         const mappedTo = [];
         if (!policy5.to) {
@@ -22717,13 +22734,13 @@ ${withStyle.errorWarning(
         } else {
           if (policy5.to && typeof policy5.to === "string") {
             mappedTo.push(policy5.to);
-          } else if (policy5.to && (0, import_drizzle_orm.is)(policy5.to, import_pg_core.PgRole)) {
+          } else if (policy5.to && is(policy5.to, PgRole)) {
             mappedTo.push(policy5.to.name);
           } else if (policy5.to && Array.isArray(policy5.to)) {
             policy5.to.forEach((it) => {
               if (typeof it === "string") {
                 mappedTo.push(it);
-              } else if ((0, import_drizzle_orm.is)(it, import_pg_core.PgRole)) {
+              } else if (is(it, PgRole)) {
                 mappedTo.push(it.name);
               }
             });
@@ -22745,8 +22762,8 @@ ${withStyle.errorWarning(
           as: policy5.as?.toUpperCase() ?? "PERMISSIVE",
           for: policy5.for?.toUpperCase() ?? "ALL",
           to: mappedTo.sort(),
-          using: (0, import_drizzle_orm.is)(policy5.using, import_drizzle_orm.SQL) ? dialect6.sqlToQuery(policy5.using).sql : void 0,
-          withCheck: (0, import_drizzle_orm.is)(policy5.withCheck, import_drizzle_orm.SQL) ? dialect6.sqlToQuery(policy5.withCheck).sql : void 0
+          using: is(policy5.using, SQL) ? dialect6.sqlToQuery(policy5.using).sql : void 0,
+          withCheck: is(policy5.withCheck, SQL) ? dialect6.sqlToQuery(policy5.withCheck).sql : void 0
         };
         if (result[tableKey2]) {
           result[tableKey2].policies[policy5.name] = mappedPolicy;
@@ -22801,10 +22818,10 @@ ${withStyle.errorWarning(
         let using;
         let withNoData;
         let materialized = false;
-        if ((0, import_drizzle_orm.is)(view5, import_pg_core.PgView)) {
-          ({ name: viewName, schema: schema6, query, selectedFields, isExisting, with: withOption } = (0, import_pg_core.getViewConfig)(view5));
+        if (is(view5, PgView2)) {
+          ({ name: viewName, schema: schema6, query, selectedFields, isExisting, with: withOption } = getViewConfig(view5));
         } else {
-          ({ name: viewName, schema: schema6, query, selectedFields, isExisting, with: withOption, tablespace, using, withNoData } = (0, import_pg_core.getMaterializedViewConfig)(view5));
+          ({ name: viewName, schema: schema6, query, selectedFields, isExisting, with: withOption, tablespace, using, withNoData } = getMaterializedViewConfig(view5));
           materialized = true;
         }
         const viewSchema = schema6 ?? "public";
@@ -22822,12 +22839,12 @@ ${withStyle.errorWarning(
           process.exit(1);
         }
         for (const key in selectedFields) {
-          if ((0, import_drizzle_orm.is)(selectedFields[key], import_pg_core.PgColumn)) {
+          if (is(selectedFields[key], PgColumn)) {
             const column6 = selectedFields[key];
             const notNull = column6.notNull;
             const primaryKey = column6.primary;
             const sqlTypeLowered = column6.getSQLType().toLowerCase();
-            const typeSchema = (0, import_drizzle_orm.is)(column6, import_pg_core.PgEnumColumn) ? column6.enum.schema || "public" : void 0;
+            const typeSchema = is(column6, PgEnumColumn) ? column6.enum.schema || "public" : void 0;
             const generated = column6.generated;
             const identity = column6.generatedIdentity;
             const increment = stringFromIdentityProperty(identity?.sequenceOptions?.increment) ?? "1";
@@ -22842,7 +22859,7 @@ ${withStyle.errorWarning(
               primaryKey,
               notNull,
               generated: generated ? {
-                as: (0, import_drizzle_orm.is)(generated.as, import_drizzle_orm.SQL) ? dialect6.sqlToQuery(generated.as).sql : typeof generated.as === "function" ? dialect6.sqlToQuery(generated.as()).sql : generated.as,
+                as: is(generated.as, SQL) ? dialect6.sqlToQuery(generated.as).sql : typeof generated.as === "function" ? dialect6.sqlToQuery(generated.as()).sql : generated.as,
                 type: "stored"
               } : void 0,
               identity: identity ? {
@@ -22879,7 +22896,7 @@ ${withStyle.errorWarning(
               };
             }
             if (column6.default !== void 0) {
-              if ((0, import_drizzle_orm.is)(column6.default, import_drizzle_orm.SQL)) {
+              if (is(column6.default, SQL)) {
                 columnToSet.default = sqlToStr(column6.default, casing2);
               } else {
                 if (typeof column6.default === "string") {
@@ -23888,6 +23905,15 @@ var init_selector_ui = __esm({
 });
 
 // src/serializer/sqliteSerializer.ts
+import { getTableName as getTableName2, is as is2, SQL as SQL2 } from "drizzle-orm";
+import {
+  getTableConfig as getTableConfig2,
+  getViewConfig as getViewConfig2,
+  SQLiteBaseInteger,
+  SQLiteColumn,
+  SQLiteSyncDialect,
+  uniqueKeyName as uniqueKeyName2
+} from "drizzle-orm/sqlite-core";
 function mapSqlToSqliteType(sqlType) {
   const lowered = sqlType.toLowerCase();
   if ([
@@ -23956,18 +23982,16 @@ function filterIgnoredTablesByField(fieldName) {
 			AND ${fieldName} NOT LIKE 'libsql\\_%' ESCAPE '\\'
 			AND ${fieldName} NOT LIKE 'sqlite\\_%' ESCAPE '\\'`;
 }
-var import_drizzle_orm2, import_sqlite_core, generateSqliteSnapshot, fromDatabase2;
+var generateSqliteSnapshot, fromDatabase2;
 var init_sqliteSerializer = __esm({
   "src/serializer/sqliteSerializer.ts"() {
     "use strict";
     init_source();
-    import_drizzle_orm2 = require("drizzle-orm");
-    import_sqlite_core = require("drizzle-orm/sqlite-core");
     init_outputs();
     init_utils();
     init_utils2();
     generateSqliteSnapshot = (tables, views, casing2) => {
-      const dialect6 = new import_sqlite_core.SQLiteSyncDialect({ casing: casing2 });
+      const dialect6 = new SQLiteSyncDialect({ casing: casing2 });
       const result = {};
       const resultViews = {};
       const internal = { indexes: {} };
@@ -23987,7 +24011,7 @@ var init_sqliteSerializer = __esm({
           foreignKeys: tableForeignKeys,
           primaryKeys,
           uniqueConstraints
-        } = (0, import_sqlite_core.getTableConfig)(table6);
+        } = getTableConfig2(table6);
         columns.forEach((column6) => {
           const name = getColumnCasing(column6, casing2);
           const notNull = column6.notNull;
@@ -23998,14 +24022,14 @@ var init_sqliteSerializer = __esm({
             type: column6.getSQLType(),
             primaryKey,
             notNull,
-            autoincrement: (0, import_drizzle_orm2.is)(column6, import_sqlite_core.SQLiteBaseInteger) ? column6.autoIncrement : false,
+            autoincrement: is2(column6, SQLiteBaseInteger) ? column6.autoIncrement : false,
             generated: generated ? {
-              as: (0, import_drizzle_orm2.is)(generated.as, import_drizzle_orm2.SQL) ? `(${dialect6.sqlToQuery(generated.as, "indexes").sql})` : typeof generated.as === "function" ? `(${dialect6.sqlToQuery(generated.as(), "indexes").sql})` : `(${generated.as})`,
+              as: is2(generated.as, SQL2) ? `(${dialect6.sqlToQuery(generated.as, "indexes").sql})` : typeof generated.as === "function" ? `(${dialect6.sqlToQuery(generated.as(), "indexes").sql})` : `(${generated.as})`,
               type: generated.mode ?? "virtual"
             } : void 0
           };
           if (column6.default !== void 0) {
-            if ((0, import_drizzle_orm2.is)(column6.default, import_drizzle_orm2.SQL)) {
+            if (is2(column6.default, SQL2)) {
               columnToSet.default = sqlToStr(column6.default, casing2);
             } else {
               columnToSet.default = typeof column6.default === "string" ? `'${escapeSingleQuotes(column6.default)}'` : typeof column6.default === "object" || Array.isArray(column6.default) ? `'${JSON.stringify(column6.default)}'` : column6.default;
@@ -24044,7 +24068,7 @@ ${withStyle.errorWarning(`We've found duplicated unique constraint names in ${so
           const onUpdate = fk5.onUpdate ?? "no action";
           const reference = fk5.reference();
           const referenceFT = reference.foreignTable;
-          const tableTo = (0, import_drizzle_orm2.getTableName)(referenceFT);
+          const tableTo = getTableName2(referenceFT);
           const originalColumnsFrom = reference.columns.map((it) => it.name);
           const columnsFrom = reference.columns.map((it) => getColumnCasing(it, casing2));
           const originalColumnsTo = reference.foreignColumns.map((it) => it.name);
@@ -24075,7 +24099,7 @@ ${withStyle.errorWarning(`We've found duplicated unique constraint names in ${so
           const columns2 = value.config.columns;
           const name = value.config.name;
           let indexColumns = columns2.map((it) => {
-            if ((0, import_drizzle_orm2.is)(it, import_drizzle_orm2.SQL)) {
+            if (is2(it, SQL2)) {
               const sql = dialect6.sqlToQuery(it, "indexes").sql;
               if (typeof internal.indexes[name] === "undefined") {
                 internal.indexes[name] = {
@@ -24101,7 +24125,7 @@ ${withStyle.errorWarning(`We've found duplicated unique constraint names in ${so
           });
           let where = void 0;
           if (value.config.where !== void 0) {
-            if ((0, import_drizzle_orm2.is)(value.config.where, import_drizzle_orm2.SQL)) {
+            if (is2(value.config.where, SQL2)) {
               where = dialect6.sqlToQuery(value.config.where).sql;
             }
           }
@@ -24114,7 +24138,7 @@ ${withStyle.errorWarning(`We've found duplicated unique constraint names in ${so
         });
         uniqueConstraints?.map((unq) => {
           const columnNames = unq.columns.map((c5) => getColumnCasing(c5, casing2));
-          const name = unq.name ?? (0, import_sqlite_core.uniqueKeyName)(table6, columnNames);
+          const name = unq.name ?? uniqueKeyName2(table6, columnNames);
           const existingUnique = indexesObject[name];
           if (typeof existingUnique !== "undefined") {
             console.log(
@@ -24195,7 +24219,7 @@ ${withStyle.errorWarning(
         };
       }
       for (const view5 of views) {
-        const { name, isExisting, selectedFields, query, schema: schema6 } = (0, import_sqlite_core.getViewConfig)(view5);
+        const { name, isExisting, selectedFields, query, schema: schema6 } = getViewConfig2(view5);
         const columnsObject = {};
         const existingView = resultViews[name];
         if (typeof existingView !== "undefined") {
@@ -24210,7 +24234,7 @@ ${withStyle.errorWarning(
           process.exit(1);
         }
         for (const key in selectedFields) {
-          if ((0, import_drizzle_orm2.is)(selectedFields[key], import_sqlite_core.SQLiteColumn)) {
+          if (is2(selectedFields[key], SQLiteColumn)) {
             const column6 = selectedFields[key];
             const notNull = column6.notNull;
             const primaryKey = column6.primary;
@@ -24220,14 +24244,14 @@ ${withStyle.errorWarning(
               type: column6.getSQLType(),
               primaryKey,
               notNull,
-              autoincrement: (0, import_drizzle_orm2.is)(column6, import_sqlite_core.SQLiteBaseInteger) ? column6.autoIncrement : false,
+              autoincrement: is2(column6, SQLiteBaseInteger) ? column6.autoIncrement : false,
               generated: generated ? {
-                as: (0, import_drizzle_orm2.is)(generated.as, import_drizzle_orm2.SQL) ? `(${dialect6.sqlToQuery(generated.as, "indexes").sql})` : typeof generated.as === "function" ? `(${dialect6.sqlToQuery(generated.as(), "indexes").sql})` : `(${generated.as})`,
+                as: is2(generated.as, SQL2) ? `(${dialect6.sqlToQuery(generated.as, "indexes").sql})` : typeof generated.as === "function" ? `(${dialect6.sqlToQuery(generated.as(), "indexes").sql})` : `(${generated.as})`,
                 type: generated.mode ?? "virtual"
               } : void 0
             };
             if (column6.default !== void 0) {
-              if ((0, import_drizzle_orm2.is)(column6.default, import_drizzle_orm2.SQL)) {
+              if (is2(column6.default, SQL2)) {
                 columnToSet.default = sqlToStr(column6.default, casing2);
               } else {
                 columnToSet.default = typeof column6.default === "string" ? `'${column6.default}'` : typeof column6.default === "object" || Array.isArray(column6.default) ? `'${JSON.stringify(column6.default)}'` : column6.default;
@@ -24586,6 +24610,14 @@ var init_getTablesFilterByExtensions = __esm({
 });
 
 // src/serializer/mysqlSerializer.ts
+import { getTableName as getTableName3, is as is3, SQL as SQL3 } from "drizzle-orm";
+import {
+  getTableConfig as getTableConfig3,
+  getViewConfig as getViewConfig3,
+  MySqlColumn,
+  MySqlDialect,
+  uniqueKeyName as uniqueKeyName3
+} from "drizzle-orm/mysql-core";
 function clearDefaults(defaultValue, collate) {
   if (typeof collate === "undefined" || collate === null) {
     collate = `utf8mb4`;
@@ -24603,13 +24635,11 @@ function clearDefaults(defaultValue, collate) {
     return `(${resultDefault})`;
   }
 }
-var import_drizzle_orm3, import_mysql_core, handleEnumType, generateMySqlSnapshot, fromDatabase3;
+var handleEnumType, generateMySqlSnapshot, fromDatabase3;
 var init_mysqlSerializer = __esm({
   "src/serializer/mysqlSerializer.ts"() {
     "use strict";
     init_source();
-    import_drizzle_orm3 = require("drizzle-orm");
-    import_mysql_core = require("drizzle-orm/mysql-core");
     init_outputs();
     init_utils();
     init_utils2();
@@ -24620,7 +24650,7 @@ var init_mysqlSerializer = __esm({
       return `enum(${values.join(",")})`;
     };
     generateMySqlSnapshot = (tables, views, casing2) => {
-      const dialect6 = new import_mysql_core.MySqlDialect({ casing: casing2 });
+      const dialect6 = new MySqlDialect({ casing: casing2 });
       const result = {};
       const resultViews = {};
       const internal = { tables: {}, indexes: {} };
@@ -24634,7 +24664,7 @@ var init_mysqlSerializer = __esm({
           checks,
           primaryKeys,
           uniqueConstraints
-        } = (0, import_mysql_core.getTableConfig)(table6);
+        } = getTableConfig3(table6);
         const columnsObject = {};
         const indexesObject = {};
         const foreignKeysObject = {};
@@ -24659,7 +24689,7 @@ var init_mysqlSerializer = __esm({
             autoincrement: autoIncrement,
             onUpdate: column6.hasOnUpdateNow,
             generated: generated ? {
-              as: (0, import_drizzle_orm3.is)(generated.as, import_drizzle_orm3.SQL) ? dialect6.sqlToQuery(generated.as).sql : typeof generated.as === "function" ? dialect6.sqlToQuery(generated.as()).sql : generated.as,
+              as: is3(generated.as, SQL3) ? dialect6.sqlToQuery(generated.as).sql : typeof generated.as === "function" ? dialect6.sqlToQuery(generated.as()).sql : generated.as,
               type: generated.mode ?? "stored"
             } : void 0
           };
@@ -24694,7 +24724,7 @@ ${withStyle.errorWarning(`We've found duplicated unique constraint names in ${so
             };
           }
           if (column6.default !== void 0) {
-            if ((0, import_drizzle_orm3.is)(column6.default, import_drizzle_orm3.SQL)) {
+            if (is3(column6.default, SQL3)) {
               columnToSet.default = sqlToStr(column6.default, casing2);
             } else {
               if (typeof column6.default === "string") {
@@ -24738,7 +24768,7 @@ ${withStyle.errorWarning(`We've found duplicated unique constraint names in ${so
         });
         uniqueConstraints?.map((unq) => {
           const columnNames = unq.columns.map((c5) => getColumnCasing(c5, casing2));
-          const name = unq.name ?? (0, import_mysql_core.uniqueKeyName)(table6, columnNames);
+          const name = unq.name ?? uniqueKeyName3(table6, columnNames);
           const existingUnique = uniqueConstraintObject[name];
           if (typeof existingUnique !== "undefined") {
             console.log(
@@ -24770,7 +24800,7 @@ The unique constraint ${source_default.underline.blue(
           const onUpdate = fk5.onUpdate ?? "no action";
           const reference = fk5.reference();
           const referenceFT = reference.foreignTable;
-          const tableTo = (0, import_drizzle_orm3.getTableName)(referenceFT);
+          const tableTo = getTableName3(referenceFT);
           const originalColumnsFrom = reference.columns.map((it) => it.name);
           const columnsFrom = reference.columns.map((it) => getColumnCasing(it, casing2));
           const originalColumnsTo = reference.foreignColumns.map((it) => it.name);
@@ -24801,7 +24831,7 @@ The unique constraint ${source_default.underline.blue(
           const columns2 = value.config.columns;
           const name = value.config.name;
           let indexColumns = columns2.map((it) => {
-            if ((0, import_drizzle_orm3.is)(it, import_drizzle_orm3.SQL)) {
+            if (is3(it, SQL3)) {
               const sql = dialect6.sqlToQuery(it, "indexes").sql;
               if (typeof internal.indexes[name] === "undefined") {
                 internal.indexes[name] = {
@@ -24921,7 +24951,7 @@ ${withStyle.errorWarning(
           algorithm,
           sqlSecurity,
           withCheckOption
-        } = (0, import_mysql_core.getViewConfig)(view5);
+        } = getViewConfig3(view5);
         const columnsObject = {};
         const existingView = resultViews[name];
         if (typeof existingView !== "undefined") {
@@ -24936,7 +24966,7 @@ ${withStyle.errorWarning(
           process.exit(1);
         }
         for (const key in selectedFields) {
-          if ((0, import_drizzle_orm3.is)(selectedFields[key], import_mysql_core.MySqlColumn)) {
+          if (is3(selectedFields[key], MySqlColumn)) {
             const column6 = selectedFields[key];
             const notNull = column6.notNull;
             const sqlTypeLowered = column6.getSQLType().toLowerCase();
@@ -24952,12 +24982,12 @@ ${withStyle.errorWarning(
               autoincrement: autoIncrement,
               onUpdate: column6.hasOnUpdateNow,
               generated: generated ? {
-                as: (0, import_drizzle_orm3.is)(generated.as, import_drizzle_orm3.SQL) ? dialect6.sqlToQuery(generated.as).sql : typeof generated.as === "function" ? dialect6.sqlToQuery(generated.as()).sql : generated.as,
+                as: is3(generated.as, SQL3) ? dialect6.sqlToQuery(generated.as).sql : typeof generated.as === "function" ? dialect6.sqlToQuery(generated.as()).sql : generated.as,
                 type: generated.mode ?? "stored"
               } : void 0
             };
             if (column6.default !== void 0) {
-              if ((0, import_drizzle_orm3.is)(column6.default, import_drizzle_orm3.SQL)) {
+              if (is3(column6.default, SQL3)) {
                 columnToSet.default = sqlToStr(column6.default, casing2);
               } else {
                 if (typeof column6.default === "string") {
@@ -25712,7 +25742,7 @@ var init_utils3 = __esm({
       }
     };
     safeRegister = async () => {
-      const { register } = require("esbuild-register/dist/node");
+      const { register } = await import("esbuild-register/dist/node");
       let res;
       try {
         res = register({
@@ -25737,15 +25767,24 @@ var init_utils3 = __esm({
 });
 
 // src/serializer/pgImports.ts
-var import_drizzle_orm4, import_pg_core2, import_relations, prepareFromExports;
+import { is as is4 } from "drizzle-orm";
+import {
+  isPgEnum,
+  isPgMaterializedView,
+  isPgSequence,
+  isPgView,
+  PgPolicy as PgPolicy2,
+  PgRole as PgRole2,
+  PgSchema as PgSchema7,
+  PgTable
+} from "drizzle-orm/pg-core";
+import { Relations } from "drizzle-orm/relations";
+var prepareFromExports;
 var init_pgImports = __esm({
   "src/serializer/pgImports.ts"() {
     "use strict";
-    import_drizzle_orm4 = require("drizzle-orm");
-    import_pg_core2 = require("drizzle-orm/pg-core");
-    import_relations = require("drizzle-orm/relations");
     init_utils3();
-    prepareFromExports = (exports2) => {
+    prepareFromExports = (exports) => {
       const tables = [];
       const enums = [];
       const schemas = [];
@@ -25755,34 +25794,34 @@ var init_pgImports = __esm({
       const views = [];
       const matViews = [];
       const relations = [];
-      const i0values = Object.values(exports2);
+      const i0values = Object.values(exports);
       i0values.forEach((t6) => {
-        if ((0, import_pg_core2.isPgEnum)(t6)) {
+        if (isPgEnum(t6)) {
           enums.push(t6);
           return;
         }
-        if ((0, import_drizzle_orm4.is)(t6, import_pg_core2.PgTable)) {
+        if (is4(t6, PgTable)) {
           tables.push(t6);
         }
-        if ((0, import_drizzle_orm4.is)(t6, import_pg_core2.PgSchema)) {
+        if (is4(t6, PgSchema7)) {
           schemas.push(t6);
         }
-        if ((0, import_pg_core2.isPgView)(t6)) {
+        if (isPgView(t6)) {
           views.push(t6);
         }
-        if ((0, import_pg_core2.isPgMaterializedView)(t6)) {
+        if (isPgMaterializedView(t6)) {
           matViews.push(t6);
         }
-        if ((0, import_pg_core2.isPgSequence)(t6)) {
+        if (isPgSequence(t6)) {
           sequences.push(t6);
         }
-        if ((0, import_drizzle_orm4.is)(t6, import_pg_core2.PgRole)) {
+        if (is4(t6, PgRole2)) {
           roles.push(t6);
         }
-        if ((0, import_drizzle_orm4.is)(t6, import_pg_core2.PgPolicy)) {
+        if (is4(t6, PgPolicy2)) {
           policies.push(t6);
         }
-        if ((0, import_drizzle_orm4.is)(t6, import_relations.Relations)) {
+        if (is4(t6, Relations)) {
           relations.push(t6);
         }
       });
@@ -25792,6 +25831,12 @@ var init_pgImports = __esm({
 });
 
 // src/serializer/singlestoreSerializer.ts
+import { is as is5, SQL as SQL4 } from "drizzle-orm";
+import {
+  getTableConfig as getTableConfig4,
+  SingleStoreDialect,
+  uniqueKeyName as uniqueKeyName4
+} from "drizzle-orm/singlestore-core";
 function clearDefaults2(defaultValue, collate) {
   if (typeof collate === "undefined" || collate === null) {
     collate = `utf8mb4`;
@@ -25809,18 +25854,16 @@ function clearDefaults2(defaultValue, collate) {
     return `(${resultDefault})`;
   }
 }
-var import_drizzle_orm5, import_singlestore_core, dialect5, generateSingleStoreSnapshot, fromDatabase4;
+var dialect5, generateSingleStoreSnapshot, fromDatabase4;
 var init_singlestoreSerializer = __esm({
   "src/serializer/singlestoreSerializer.ts"() {
     "use strict";
     init_source();
-    import_drizzle_orm5 = require("drizzle-orm");
-    import_singlestore_core = require("drizzle-orm/singlestore-core");
     init_outputs();
     init_utils2();
-    dialect5 = new import_singlestore_core.SingleStoreDialect();
+    dialect5 = new SingleStoreDialect();
     generateSingleStoreSnapshot = (tables, casing2) => {
-      const dialect6 = new import_singlestore_core.SingleStoreDialect({ casing: casing2 });
+      const dialect6 = new SingleStoreDialect({ casing: casing2 });
       const result = {};
       const internal = { tables: {}, indexes: {} };
       for (const table6 of tables) {
@@ -25831,7 +25874,7 @@ var init_singlestoreSerializer = __esm({
           schema: schema6,
           primaryKeys,
           uniqueConstraints
-        } = (0, import_singlestore_core.getTableConfig)(table6);
+        } = getTableConfig4(table6);
         const columnsObject = {};
         const indexesObject = {};
         const primaryKeysObject = {};
@@ -25851,7 +25894,7 @@ var init_singlestoreSerializer = __esm({
             autoincrement: autoIncrement,
             onUpdate: column6.hasOnUpdateNow,
             generated: generated ? {
-              as: (0, import_drizzle_orm5.is)(generated.as, import_drizzle_orm5.SQL) ? dialect6.sqlToQuery(generated.as).sql : typeof generated.as === "function" ? dialect6.sqlToQuery(generated.as()).sql : generated.as,
+              as: is5(generated.as, SQL4) ? dialect6.sqlToQuery(generated.as).sql : typeof generated.as === "function" ? dialect6.sqlToQuery(generated.as()).sql : generated.as,
               type: generated.mode ?? "stored"
             } : void 0
           };
@@ -25886,7 +25929,7 @@ ${withStyle.errorWarning(`We've found duplicated unique constraint names in ${so
             };
           }
           if (column6.default !== void 0) {
-            if ((0, import_drizzle_orm5.is)(column6.default, import_drizzle_orm5.SQL)) {
+            if (is5(column6.default, SQL4)) {
               columnToSet.default = sqlToStr(column6.default, casing2);
             } else {
               if (typeof column6.default === "string") {
@@ -25920,7 +25963,7 @@ ${withStyle.errorWarning(`We've found duplicated unique constraint names in ${so
         });
         uniqueConstraints?.map((unq) => {
           const columnNames = unq.columns.map((c5) => c5.name);
-          const name = unq.name ?? (0, import_singlestore_core.uniqueKeyName)(table6, columnNames);
+          const name = unq.name ?? uniqueKeyName4(table6, columnNames);
           const existingUnique = uniqueConstraintObject[name];
           if (typeof existingUnique !== "undefined") {
             console.log(
@@ -25950,7 +25993,7 @@ The unique constraint ${source_default.underline.blue(
           const columns2 = value.config.columns;
           const name = value.config.name;
           let indexColumns = columns2.map((it) => {
-            if ((0, import_drizzle_orm5.is)(it, import_drizzle_orm5.SQL)) {
+            if (is5(it, SQL4)) {
               const sql = dialect6.sqlToQuery(it, "indexes").sql;
               if (typeof internal.indexes[name] === "undefined") {
                 internal.indexes[name] = {
@@ -26224,6 +26267,10 @@ The unique index ${source_default.underline.blue(
 });
 
 // ../node_modules/.pnpm/@hono+node-server@1.14.3_hono@4.7.10/node_modules/@hono/node-server/dist/index.mjs
+import { createServer as createServerHTTP } from "http";
+import { Http2ServerRequest } from "http2";
+import { Readable } from "stream";
+import crypto2 from "crypto";
 function writeFromReadableStream(stream, writable) {
   if (stream.locked) {
     throw new TypeError("ReadableStream is locked.");
@@ -26263,14 +26310,10 @@ function writeFromReadableStream(stream, writable) {
     }
   }
 }
-var import_http, import_http2, import_stream, import_crypto, RequestError, toRequestError, GlobalRequest, Request2, newRequestFromIncoming, getRequestCache, requestCache, incomingKey, urlKey, abortControllerKey, getAbortController, requestPrototype, newRequest, responseCache, getResponseCache, cacheKey, GlobalResponse, _body, _init, _a, Response2, buildOutgoingHttpHeaders, X_ALREADY_SENT, webFetch, regBuffer, regContentType, handleRequestError, handleFetchError, handleResponseError, responseViaCache, responseViaResponseObject, getRequestListener, createAdaptorServer, serve;
+var RequestError, toRequestError, GlobalRequest, Request2, newRequestFromIncoming, getRequestCache, requestCache, incomingKey, urlKey, abortControllerKey, getAbortController, requestPrototype, newRequest, responseCache, getResponseCache, cacheKey, GlobalResponse, _body, _init, _a, Response2, buildOutgoingHttpHeaders, X_ALREADY_SENT, webFetch, regBuffer, regContentType, handleRequestError, handleFetchError, handleResponseError, responseViaCache, responseViaResponseObject, getRequestListener, createAdaptorServer, serve;
 var init_dist = __esm({
   "../node_modules/.pnpm/@hono+node-server@1.14.3_hono@4.7.10/node_modules/@hono/node-server/dist/index.mjs"() {
     "use strict";
-    import_http = require("http");
-    import_http2 = require("http2");
-    import_stream = require("stream");
-    import_crypto = __toESM(require("crypto"), 1);
     RequestError = class extends Error {
       constructor(message, options) {
         super(message, options);
@@ -26330,7 +26373,7 @@ var init_dist = __esm({
             }
           });
         } else {
-          init2.body = import_stream.Readable.toWeb(incoming);
+          init2.body = Readable.toWeb(incoming);
         }
       }
       return new Request2(url, init2);
@@ -26397,7 +26440,7 @@ var init_dist = __esm({
       const incomingUrl = incoming.url || "";
       if (incomingUrl[0] !== "/" && // short-circuit for performance. most requests are relative URL.
       (incomingUrl.startsWith("http://") || incomingUrl.startsWith("https://"))) {
-        if (incoming instanceof import_http2.Http2ServerRequest) {
+        if (incoming instanceof Http2ServerRequest) {
           throw new RequestError("Absolute URL for :path is not allowed in HTTP/2");
         }
         try {
@@ -26408,12 +26451,12 @@ var init_dist = __esm({
         }
         return req;
       }
-      const host = (incoming instanceof import_http2.Http2ServerRequest ? incoming.authority : incoming.headers.host) || defaultHostname;
+      const host = (incoming instanceof Http2ServerRequest ? incoming.authority : incoming.headers.host) || defaultHostname;
       if (!host) {
         throw new RequestError("Missing host header");
       }
       let scheme;
-      if (incoming instanceof import_http2.Http2ServerRequest) {
+      if (incoming instanceof Http2ServerRequest) {
         scheme = incoming.scheme;
         if (!(scheme === "http" || scheme === "https")) {
           throw new RequestError("Unsupported scheme");
@@ -26516,7 +26559,7 @@ var init_dist = __esm({
     X_ALREADY_SENT = "x-hono-already-sent";
     webFetch = global.fetch;
     if (typeof global.crypto === "undefined") {
-      global.crypto = import_crypto.default;
+      global.crypto = crypto2;
     }
     global.fetch = (info2, init2) => {
       init2 = {
@@ -26672,7 +26715,7 @@ var init_dist = __esm({
         hostname: options.hostname,
         overrideGlobalObjects: options.overrideGlobalObjects
       });
-      const createServer2 = options.createServer || import_http.createServer;
+      const createServer2 = options.createServer || createServerHTTP;
       const server = createServer2(options.serverOptions || {}, requestListener);
       return server;
     };
@@ -28810,11 +28853,11 @@ var init_dist3 = __esm({
 
 // ../node_modules/.pnpm/web-streams-polyfill@3.3.3/node_modules/web-streams-polyfill/dist/ponyfill.es2018.js
 var require_ponyfill_es2018 = __commonJS({
-  "../node_modules/.pnpm/web-streams-polyfill@3.3.3/node_modules/web-streams-polyfill/dist/ponyfill.es2018.js"(exports2, module2) {
+  "../node_modules/.pnpm/web-streams-polyfill@3.3.3/node_modules/web-streams-polyfill/dist/ponyfill.es2018.js"(exports, module) {
     "use strict";
     (function(global2, factory) {
-      typeof exports2 === "object" && typeof module2 !== "undefined" ? factory(exports2) : typeof define === "function" && define.amd ? define(["exports"], factory) : (global2 = typeof globalThis !== "undefined" ? globalThis : global2 || self, factory(global2.WebStreamsPolyfill = {}));
-    })(exports2, function(exports3) {
+      typeof exports === "object" && typeof module !== "undefined" ? factory(exports) : typeof define === "function" && define.amd ? define(["exports"], factory) : (global2 = typeof globalThis !== "undefined" ? globalThis : global2 || self, factory(global2.WebStreamsPolyfill = {}));
+    })(exports, function(exports2) {
       "use strict";
       function noop2() {
         return void 0;
@@ -33067,19 +33110,19 @@ var require_ponyfill_es2018 = __commonJS({
       function streamBrandCheckException(name) {
         return new TypeError(`TransformStream.prototype.${name} can only be used on a TransformStream`);
       }
-      exports3.ByteLengthQueuingStrategy = ByteLengthQueuingStrategy;
-      exports3.CountQueuingStrategy = CountQueuingStrategy;
-      exports3.ReadableByteStreamController = ReadableByteStreamController;
-      exports3.ReadableStream = ReadableStream2;
-      exports3.ReadableStreamBYOBReader = ReadableStreamBYOBReader;
-      exports3.ReadableStreamBYOBRequest = ReadableStreamBYOBRequest;
-      exports3.ReadableStreamDefaultController = ReadableStreamDefaultController;
-      exports3.ReadableStreamDefaultReader = ReadableStreamDefaultReader;
-      exports3.TransformStream = TransformStream2;
-      exports3.TransformStreamDefaultController = TransformStreamDefaultController;
-      exports3.WritableStream = WritableStream;
-      exports3.WritableStreamDefaultController = WritableStreamDefaultController;
-      exports3.WritableStreamDefaultWriter = WritableStreamDefaultWriter;
+      exports2.ByteLengthQueuingStrategy = ByteLengthQueuingStrategy;
+      exports2.CountQueuingStrategy = CountQueuingStrategy;
+      exports2.ReadableByteStreamController = ReadableByteStreamController;
+      exports2.ReadableStream = ReadableStream2;
+      exports2.ReadableStreamBYOBReader = ReadableStreamBYOBReader;
+      exports2.ReadableStreamBYOBRequest = ReadableStreamBYOBRequest;
+      exports2.ReadableStreamDefaultController = ReadableStreamDefaultController;
+      exports2.ReadableStreamDefaultReader = ReadableStreamDefaultReader;
+      exports2.TransformStream = TransformStream2;
+      exports2.TransformStreamDefaultController = TransformStreamDefaultController;
+      exports2.WritableStream = WritableStream;
+      exports2.WritableStreamDefaultController = WritableStreamDefaultController;
+      exports2.WritableStreamDefaultWriter = WritableStreamDefaultWriter;
     });
   }
 });
@@ -33091,12 +33134,12 @@ var require_streams = __commonJS({
     var POOL_SIZE2 = 65536;
     if (!globalThis.ReadableStream) {
       try {
-        const process4 = require("process");
+        const process4 = __require("process");
         const { emitWarning } = process4;
         try {
           process4.emitWarning = () => {
           };
-          Object.assign(globalThis, require("stream/web"));
+          Object.assign(globalThis, __require("stream/web"));
           process4.emitWarning = emitWarning;
         } catch (error2) {
           process4.emitWarning = emitWarning;
@@ -33107,7 +33150,7 @@ var require_streams = __commonJS({
       }
     }
     try {
-      const { Blob: Blob3 } = require("buffer");
+      const { Blob: Blob3 } = __require("buffer");
       if (Blob3 && !Blob3.prototype.stream) {
         Blob3.prototype.stream = function name(params) {
           let position = 0;
@@ -33553,31 +33596,31 @@ var init_is = __esm({
 
 // ../node_modules/.pnpm/node-domexception@1.0.0/node_modules/node-domexception/index.js
 var require_node_domexception = __commonJS({
-  "../node_modules/.pnpm/node-domexception@1.0.0/node_modules/node-domexception/index.js"(exports2, module2) {
+  "../node_modules/.pnpm/node-domexception@1.0.0/node_modules/node-domexception/index.js"(exports, module) {
     "use strict";
     if (!globalThis.DOMException) {
       try {
-        const { MessageChannel } = require("worker_threads"), port = new MessageChannel().port1, ab = new ArrayBuffer();
+        const { MessageChannel } = __require("worker_threads"), port = new MessageChannel().port1, ab = new ArrayBuffer();
         port.postMessage(ab, [ab, ab]);
       } catch (err2) {
         err2.constructor.name === "DOMException" && (globalThis.DOMException = err2.constructor);
       }
     }
-    module2.exports = globalThis.DOMException;
+    module.exports = globalThis.DOMException;
   }
 });
 
 // ../node_modules/.pnpm/fetch-blob@3.2.0/node_modules/fetch-blob/from.js
-var import_node_fs, import_node_path2, import_node_domexception, stat;
+import { statSync, createReadStream, promises as fs2 } from "fs";
+import { basename } from "path";
+var import_node_domexception, stat;
 var init_from = __esm({
   "../node_modules/.pnpm/fetch-blob@3.2.0/node_modules/fetch-blob/from.js"() {
     "use strict";
-    import_node_fs = require("fs");
-    import_node_path2 = require("path");
     import_node_domexception = __toESM(require_node_domexception(), 1);
     init_file();
     init_fetch_blob();
-    ({ stat } = import_node_fs.promises);
+    ({ stat } = fs2);
   }
 });
 
@@ -33945,6 +33988,9 @@ var init_multipart_parser = __esm({
 });
 
 // ../node_modules/.pnpm/node-fetch@3.3.2/node_modules/node-fetch/src/body.js
+import Stream, { PassThrough } from "stream";
+import { types, deprecate, promisify } from "util";
+import { Buffer as Buffer2 } from "buffer";
 async function consumeBody(data) {
   if (data[INTERNALS].disturbed) {
     throw new TypeError(`body used already for: ${data.url}`);
@@ -33955,10 +34001,10 @@ async function consumeBody(data) {
   }
   const { body } = data;
   if (body === null) {
-    return import_node_buffer.Buffer.alloc(0);
+    return Buffer2.alloc(0);
   }
-  if (!(body instanceof import_node_stream.default)) {
-    return import_node_buffer.Buffer.alloc(0);
+  if (!(body instanceof Stream)) {
+    return Buffer2.alloc(0);
   }
   const accum = [];
   let accumBytes = 0;
@@ -33979,9 +34025,9 @@ async function consumeBody(data) {
   if (body.readableEnded === true || body._readableState.ended === true) {
     try {
       if (accum.every((c5) => typeof c5 === "string")) {
-        return import_node_buffer.Buffer.from(accum.join(""));
+        return Buffer2.from(accum.join(""));
       }
-      return import_node_buffer.Buffer.concat(accum, accumBytes);
+      return Buffer2.concat(accum, accumBytes);
     } catch (error2) {
       throw new FetchError(`Could not create Buffer from response body for ${data.url}: ${error2.message}`, "system", error2);
     }
@@ -33989,19 +34035,16 @@ async function consumeBody(data) {
     throw new FetchError(`Premature close of server response while trying to fetch ${data.url}`);
   }
 }
-var import_node_stream, import_node_util, import_node_buffer, pipeline, INTERNALS, Body, clone, getNonSpecFormDataBoundary, extractContentType, getTotalBytes, writeToStream;
+var pipeline, INTERNALS, Body, clone, getNonSpecFormDataBoundary, extractContentType, getTotalBytes, writeToStream;
 var init_body2 = __esm({
   "../node_modules/.pnpm/node-fetch@3.3.2/node_modules/node-fetch/src/body.js"() {
     "use strict";
-    import_node_stream = __toESM(require("stream"), 1);
-    import_node_util = require("util");
-    import_node_buffer = require("buffer");
     init_fetch_blob();
     init_esm_min();
     init_fetch_error();
     init_base();
     init_is();
-    pipeline = (0, import_node_util.promisify)(import_node_stream.default.pipeline);
+    pipeline = promisify(Stream.pipeline);
     INTERNALS = Symbol("Body internals");
     Body = class {
       constructor(body, {
@@ -34011,25 +34054,25 @@ var init_body2 = __esm({
         if (body === null) {
           body = null;
         } else if (isURLSearchParameters(body)) {
-          body = import_node_buffer.Buffer.from(body.toString());
+          body = Buffer2.from(body.toString());
         } else if (isBlob(body)) {
-        } else if (import_node_buffer.Buffer.isBuffer(body)) {
-        } else if (import_node_util.types.isAnyArrayBuffer(body)) {
-          body = import_node_buffer.Buffer.from(body);
+        } else if (Buffer2.isBuffer(body)) {
+        } else if (types.isAnyArrayBuffer(body)) {
+          body = Buffer2.from(body);
         } else if (ArrayBuffer.isView(body)) {
-          body = import_node_buffer.Buffer.from(body.buffer, body.byteOffset, body.byteLength);
-        } else if (body instanceof import_node_stream.default) {
+          body = Buffer2.from(body.buffer, body.byteOffset, body.byteLength);
+        } else if (body instanceof Stream) {
         } else if (body instanceof FormData) {
           body = formDataToBlob(body);
           boundary = body.type.split("=")[1];
         } else {
-          body = import_node_buffer.Buffer.from(String(body));
+          body = Buffer2.from(String(body));
         }
         let stream = body;
-        if (import_node_buffer.Buffer.isBuffer(body)) {
-          stream = import_node_stream.default.Readable.from(body);
+        if (Buffer2.isBuffer(body)) {
+          stream = Stream.Readable.from(body);
         } else if (isBlob(body)) {
-          stream = import_node_stream.default.Readable.from(body.stream());
+          stream = Stream.Readable.from(body.stream());
         }
         this[INTERNALS] = {
           body,
@@ -34039,7 +34082,7 @@ var init_body2 = __esm({
           error: null
         };
         this.size = size;
-        if (body instanceof import_node_stream.default) {
+        if (body instanceof Stream) {
           body.on("error", (error_) => {
             const error2 = error_ instanceof FetchBaseError ? error_ : new FetchError(`Invalid response body while trying to fetch ${this.url}: ${error_.message}`, "system", error_);
             this[INTERNALS].error = error2;
@@ -34113,7 +34156,7 @@ var init_body2 = __esm({
         return consumeBody(this);
       }
     };
-    Body.prototype.buffer = (0, import_node_util.deprecate)(Body.prototype.buffer, "Please use 'response.arrayBuffer()' instead of 'response.buffer()'", "node-fetch#buffer");
+    Body.prototype.buffer = deprecate(Body.prototype.buffer, "Please use 'response.arrayBuffer()' instead of 'response.buffer()'", "node-fetch#buffer");
     Object.defineProperties(Body.prototype, {
       body: { enumerable: true },
       bodyUsed: { enumerable: true },
@@ -34121,7 +34164,7 @@ var init_body2 = __esm({
       blob: { enumerable: true },
       json: { enumerable: true },
       text: { enumerable: true },
-      data: { get: (0, import_node_util.deprecate)(
+      data: { get: deprecate(
         () => {
         },
         "data doesn't exist, use json(), text(), arrayBuffer(), or body instead",
@@ -34135,9 +34178,9 @@ var init_body2 = __esm({
       if (instance.bodyUsed) {
         throw new Error("cannot clone body after it is used");
       }
-      if (body instanceof import_node_stream.default && typeof body.getBoundary !== "function") {
-        p1 = new import_node_stream.PassThrough({ highWaterMark });
-        p22 = new import_node_stream.PassThrough({ highWaterMark });
+      if (body instanceof Stream && typeof body.getBoundary !== "function") {
+        p1 = new PassThrough({ highWaterMark });
+        p22 = new PassThrough({ highWaterMark });
         body.pipe(p1);
         body.pipe(p22);
         instance[INTERNALS].stream = p1;
@@ -34145,7 +34188,7 @@ var init_body2 = __esm({
       }
       return body;
     };
-    getNonSpecFormDataBoundary = (0, import_node_util.deprecate)(
+    getNonSpecFormDataBoundary = deprecate(
       (body) => body.getBoundary(),
       "form-data doesn't follow the spec and requires special treatment. Use alternative package",
       "https://github.com/node-fetch/node-fetch/issues/1167"
@@ -34163,7 +34206,7 @@ var init_body2 = __esm({
       if (isBlob(body)) {
         return body.type || null;
       }
-      if (import_node_buffer.Buffer.isBuffer(body) || import_node_util.types.isAnyArrayBuffer(body) || ArrayBuffer.isView(body)) {
+      if (Buffer2.isBuffer(body) || types.isAnyArrayBuffer(body) || ArrayBuffer.isView(body)) {
         return null;
       }
       if (body instanceof FormData) {
@@ -34172,7 +34215,7 @@ var init_body2 = __esm({
       if (body && typeof body.getBoundary === "function") {
         return `multipart/form-data;boundary=${getNonSpecFormDataBoundary(body)}`;
       }
-      if (body instanceof import_node_stream.default) {
+      if (body instanceof Stream) {
         return null;
       }
       return "text/plain;charset=UTF-8";
@@ -34185,7 +34228,7 @@ var init_body2 = __esm({
       if (isBlob(body)) {
         return body.size;
       }
-      if (import_node_buffer.Buffer.isBuffer(body)) {
+      if (Buffer2.isBuffer(body)) {
         return body.length;
       }
       if (body && typeof body.getLengthSync === "function") {
@@ -34204,6 +34247,8 @@ var init_body2 = __esm({
 });
 
 // ../node_modules/.pnpm/node-fetch@3.3.2/node_modules/node-fetch/src/headers.js
+import { types as types2 } from "util";
+import http from "http";
 function fromRawHeaders(headers = []) {
   return new Headers2(
     headers.reduce((result, value, index6, array2) => {
@@ -34222,20 +34267,18 @@ function fromRawHeaders(headers = []) {
     })
   );
 }
-var import_node_util2, import_node_http, validateHeaderName, validateHeaderValue, Headers2;
+var validateHeaderName, validateHeaderValue, Headers2;
 var init_headers = __esm({
   "../node_modules/.pnpm/node-fetch@3.3.2/node_modules/node-fetch/src/headers.js"() {
     "use strict";
-    import_node_util2 = require("util");
-    import_node_http = __toESM(require("http"), 1);
-    validateHeaderName = typeof import_node_http.default.validateHeaderName === "function" ? import_node_http.default.validateHeaderName : (name) => {
+    validateHeaderName = typeof http.validateHeaderName === "function" ? http.validateHeaderName : (name) => {
       if (!/^[\^`\-\w!#$%&'*+.|~]+$/.test(name)) {
         const error2 = new TypeError(`Header name must be a valid HTTP token [${name}]`);
         Object.defineProperty(error2, "code", { value: "ERR_INVALID_HTTP_TOKEN" });
         throw error2;
       }
     };
-    validateHeaderValue = typeof import_node_http.default.validateHeaderValue === "function" ? import_node_http.default.validateHeaderValue : (name, value) => {
+    validateHeaderValue = typeof http.validateHeaderValue === "function" ? http.validateHeaderValue : (name, value) => {
       if (/[^\t\u0020-\u007E\u0080-\u00FF]/.test(value)) {
         const error2 = new TypeError(`Invalid character in header content ["${name}"]`);
         Object.defineProperty(error2, "code", { value: "ERR_INVALID_CHAR" });
@@ -34257,7 +34300,7 @@ var init_headers = __esm({
             result.push(...values.map((value) => [name, value]));
           }
         } else if (init2 == null) {
-        } else if (typeof init2 === "object" && !import_node_util2.types.isBoxedPrimitive(init2)) {
+        } else if (typeof init2 === "object" && !types2.isBoxedPrimitive(init2)) {
           const method = init2[Symbol.iterator];
           if (method == null) {
             result.push(...Object.entries(init2));
@@ -34266,7 +34309,7 @@ var init_headers = __esm({
               throw new TypeError("Header pairs must be iterable");
             }
             result = [...init2].map((pair) => {
-              if (typeof pair !== "object" || import_node_util2.types.isBoxedPrimitive(pair)) {
+              if (typeof pair !== "object" || types2.isBoxedPrimitive(pair)) {
                 throw new TypeError("Each header pair must be an iterable object");
               }
               return [...pair];
@@ -34551,6 +34594,7 @@ var init_get_search = __esm({
 });
 
 // ../node_modules/.pnpm/node-fetch@3.3.2/node_modules/node-fetch/src/utils/referrer.js
+import { isIP } from "net";
 function stripURLForUseAsAReferrer(url, originOnly = false) {
   if (url == null) {
     return "no-referrer";
@@ -34579,7 +34623,7 @@ function isOriginPotentiallyTrustworthy(url) {
     return true;
   }
   const hostIp = url.host.replace(/(^\[)|(]$)/g, "");
-  const hostIPVersion = (0, import_node_net.isIP)(hostIp);
+  const hostIPVersion = isIP(hostIp);
   if (hostIPVersion === 4 && /^127\./.test(hostIp)) {
     return true;
   }
@@ -34676,11 +34720,10 @@ function parseReferrerPolicyFromHeader(headers) {
   }
   return policy5;
 }
-var import_node_net, ReferrerPolicy, DEFAULT_REFERRER_POLICY;
+var ReferrerPolicy, DEFAULT_REFERRER_POLICY;
 var init_referrer = __esm({
   "../node_modules/.pnpm/node-fetch@3.3.2/node_modules/node-fetch/src/utils/referrer.js"() {
     "use strict";
-    import_node_net = require("net");
     ReferrerPolicy = /* @__PURE__ */ new Set([
       "",
       "no-referrer",
@@ -34697,12 +34740,12 @@ var init_referrer = __esm({
 });
 
 // ../node_modules/.pnpm/node-fetch@3.3.2/node_modules/node-fetch/src/request.js
-var import_node_url, import_node_util3, INTERNALS3, isRequest, doBadDataWarn, Request3, getNodeRequestOptions;
+import { format as formatUrl } from "url";
+import { deprecate as deprecate2 } from "util";
+var INTERNALS3, isRequest, doBadDataWarn, Request3, getNodeRequestOptions;
 var init_request2 = __esm({
   "../node_modules/.pnpm/node-fetch@3.3.2/node_modules/node-fetch/src/request.js"() {
     "use strict";
-    import_node_url = require("url");
-    import_node_util3 = require("util");
     init_headers();
     init_body2();
     init_is();
@@ -34712,7 +34755,7 @@ var init_request2 = __esm({
     isRequest = (object) => {
       return typeof object === "object" && typeof object[INTERNALS3] === "object";
     };
-    doBadDataWarn = (0, import_node_util3.deprecate)(
+    doBadDataWarn = deprecate2(
       () => {
       },
       ".data is not a valid RequestInit property, use .body instead",
@@ -34789,7 +34832,7 @@ var init_request2 = __esm({
       }
       /** @returns {string} */
       get url() {
-        return (0, import_node_url.format)(this[INTERNALS3].parsedURL);
+        return formatUrl(this[INTERNALS3].parsedURL);
       }
       /** @returns {Headers} */
       get headers() {
@@ -34917,6 +34960,11 @@ var init_abort_error = __esm({
 });
 
 // ../node_modules/.pnpm/node-fetch@3.3.2/node_modules/node-fetch/src/index.js
+import http2 from "http";
+import https from "https";
+import zlib from "zlib";
+import Stream2, { PassThrough as PassThrough2, pipeline as pump } from "stream";
+import { Buffer as Buffer3 } from "buffer";
 async function fetch2(url, options_) {
   return new Promise((resolve, reject) => {
     const request2 = new Request3(url, options_);
@@ -34930,13 +34978,13 @@ async function fetch2(url, options_) {
       resolve(response2);
       return;
     }
-    const send = (parsedURL.protocol === "https:" ? import_node_https.default : import_node_http2.default).request;
+    const send = (parsedURL.protocol === "https:" ? https : http2).request;
     const { signal } = request2;
     let response = null;
     const abort = () => {
       const error2 = new AbortError("The operation was aborted.");
       reject(error2);
-      if (request2.body && request2.body instanceof import_node_stream2.default.Readable) {
+      if (request2.body && request2.body instanceof Stream2.Readable) {
         request2.body.destroy(error2);
       }
       if (!response || !response.body) {
@@ -35035,7 +35083,7 @@ async function fetch2(url, options_) {
                 requestOptions.headers.delete(name);
               }
             }
-            if (response_.statusCode !== 303 && request2.body && options_.body instanceof import_node_stream2.default.Readable) {
+            if (response_.statusCode !== 303 && request2.body && options_.body instanceof Stream2.Readable) {
               reject(new FetchError("Cannot follow redirect with body being a readable stream", "unsupported-redirect"));
               finalize();
               return;
@@ -35062,7 +35110,7 @@ async function fetch2(url, options_) {
           signal.removeEventListener("abort", abortAndFinalize);
         });
       }
-      let body = (0, import_node_stream2.pipeline)(response_, new import_node_stream2.PassThrough(), (error2) => {
+      let body = pump(response_, new PassThrough2(), (error2) => {
         if (error2) {
           reject(error2);
         }
@@ -35086,11 +35134,11 @@ async function fetch2(url, options_) {
         return;
       }
       const zlibOptions = {
-        flush: import_node_zlib.default.Z_SYNC_FLUSH,
-        finishFlush: import_node_zlib.default.Z_SYNC_FLUSH
+        flush: zlib.Z_SYNC_FLUSH,
+        finishFlush: zlib.Z_SYNC_FLUSH
       };
       if (codings === "gzip" || codings === "x-gzip") {
-        body = (0, import_node_stream2.pipeline)(body, import_node_zlib.default.createGunzip(zlibOptions), (error2) => {
+        body = pump(body, zlib.createGunzip(zlibOptions), (error2) => {
           if (error2) {
             reject(error2);
           }
@@ -35100,20 +35148,20 @@ async function fetch2(url, options_) {
         return;
       }
       if (codings === "deflate" || codings === "x-deflate") {
-        const raw2 = (0, import_node_stream2.pipeline)(response_, new import_node_stream2.PassThrough(), (error2) => {
+        const raw2 = pump(response_, new PassThrough2(), (error2) => {
           if (error2) {
             reject(error2);
           }
         });
         raw2.once("data", (chunk) => {
           if ((chunk[0] & 15) === 8) {
-            body = (0, import_node_stream2.pipeline)(body, import_node_zlib.default.createInflate(), (error2) => {
+            body = pump(body, zlib.createInflate(), (error2) => {
               if (error2) {
                 reject(error2);
               }
             });
           } else {
-            body = (0, import_node_stream2.pipeline)(body, import_node_zlib.default.createInflateRaw(), (error2) => {
+            body = pump(body, zlib.createInflateRaw(), (error2) => {
               if (error2) {
                 reject(error2);
               }
@@ -35131,7 +35179,7 @@ async function fetch2(url, options_) {
         return;
       }
       if (codings === "br") {
-        body = (0, import_node_stream2.pipeline)(body, import_node_zlib.default.createBrotliDecompress(), (error2) => {
+        body = pump(body, zlib.createBrotliDecompress(), (error2) => {
           if (error2) {
             reject(error2);
           }
@@ -35147,7 +35195,7 @@ async function fetch2(url, options_) {
   });
 }
 function fixResponseChunkedTransferBadEnding(request2, errorCallback) {
-  const LAST_CHUNK = import_node_buffer2.Buffer.from("0\r\n\r\n");
+  const LAST_CHUNK = Buffer3.from("0\r\n\r\n");
   let isChunkedTransfer = false;
   let properLastChunkReceived = false;
   let previousChunk;
@@ -35164,9 +35212,9 @@ function fixResponseChunkedTransferBadEnding(request2, errorCallback) {
       }
     };
     const onData = (buf) => {
-      properLastChunkReceived = import_node_buffer2.Buffer.compare(buf.slice(-5), LAST_CHUNK) === 0;
+      properLastChunkReceived = Buffer3.compare(buf.slice(-5), LAST_CHUNK) === 0;
       if (!properLastChunkReceived && previousChunk) {
-        properLastChunkReceived = import_node_buffer2.Buffer.compare(previousChunk.slice(-3), LAST_CHUNK.slice(0, 3)) === 0 && import_node_buffer2.Buffer.compare(buf.slice(-2), LAST_CHUNK.slice(3)) === 0;
+        properLastChunkReceived = Buffer3.compare(previousChunk.slice(-3), LAST_CHUNK.slice(0, 3)) === 0 && Buffer3.compare(buf.slice(-2), LAST_CHUNK.slice(3)) === 0;
       }
       previousChunk = buf;
     };
@@ -35178,15 +35226,10 @@ function fixResponseChunkedTransferBadEnding(request2, errorCallback) {
     });
   });
 }
-var import_node_http2, import_node_https, import_node_zlib, import_node_stream2, import_node_buffer2, supportedSchemas;
+var supportedSchemas;
 var init_src = __esm({
   "../node_modules/.pnpm/node-fetch@3.3.2/node_modules/node-fetch/src/index.js"() {
     "use strict";
-    import_node_http2 = __toESM(require("http"), 1);
-    import_node_https = __toESM(require("https"), 1);
-    import_node_zlib = __toESM(require("zlib"), 1);
-    import_node_stream2 = __toESM(require("stream"), 1);
-    import_node_buffer2 = require("buffer");
     init_dist3();
     init_body2();
     init_response();
@@ -35205,12 +35248,12 @@ var init_src = __esm({
 
 // ../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/constants.js
 var require_constants = __commonJS({
-  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/constants.js"(exports2, module2) {
+  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/constants.js"(exports, module) {
     "use strict";
     var BINARY_TYPES = ["nodebuffer", "arraybuffer", "fragments"];
     var hasBlob = typeof Blob !== "undefined";
     if (hasBlob) BINARY_TYPES.push("blob");
-    module2.exports = {
+    module.exports = {
       BINARY_TYPES,
       EMPTY_BUFFER: Buffer.alloc(0),
       GUID: "258EAFA5-E914-47DA-95CA-C5AB0DC85B11",
@@ -35227,12 +35270,12 @@ var require_constants = __commonJS({
 
 // ../node_modules/.pnpm/node-gyp-build@4.8.4/node_modules/node-gyp-build/node-gyp-build.js
 var require_node_gyp_build = __commonJS({
-  "../node_modules/.pnpm/node-gyp-build@4.8.4/node_modules/node-gyp-build/node-gyp-build.js"(exports2, module2) {
+  "../node_modules/.pnpm/node-gyp-build@4.8.4/node_modules/node-gyp-build/node-gyp-build.js"(exports, module) {
     "use strict";
-    var fs5 = require("fs");
-    var path3 = require("path");
-    var os3 = require("os");
-    var runtimeRequire = typeof __webpack_require__ === "function" ? __non_webpack_require__ : require;
+    var fs5 = __require("fs");
+    var path3 = __require("path");
+    var os3 = __require("os");
+    var runtimeRequire = typeof __webpack_require__ === "function" ? __non_webpack_require__ : __require;
     var vars = process.config && process.config.variables || {};
     var prebuildsOnly = !!process.env.PREBUILDS_ONLY;
     var abi = process.versions.modules;
@@ -35242,7 +35285,7 @@ var require_node_gyp_build = __commonJS({
     var libc = process.env.LIBC || (isAlpine(platform2) ? "musl" : "glibc");
     var armv = process.env.ARM_VERSION || (arch === "arm64" ? "8" : vars.arm_version) || "";
     var uv = (process.versions.uv || "").split(".")[0];
-    module2.exports = load;
+    module.exports = load;
     function load(dir) {
       return runtimeRequire(load.resolve(dir));
     }
@@ -35397,20 +35440,20 @@ var require_node_gyp_build = __commonJS({
 
 // ../node_modules/.pnpm/node-gyp-build@4.8.4/node_modules/node-gyp-build/index.js
 var require_node_gyp_build2 = __commonJS({
-  "../node_modules/.pnpm/node-gyp-build@4.8.4/node_modules/node-gyp-build/index.js"(exports2, module2) {
+  "../node_modules/.pnpm/node-gyp-build@4.8.4/node_modules/node-gyp-build/index.js"(exports, module) {
     "use strict";
-    var runtimeRequire = typeof __webpack_require__ === "function" ? __non_webpack_require__ : require;
+    var runtimeRequire = typeof __webpack_require__ === "function" ? __non_webpack_require__ : __require;
     if (typeof runtimeRequire.addon === "function") {
-      module2.exports = runtimeRequire.addon.bind(runtimeRequire);
+      module.exports = runtimeRequire.addon.bind(runtimeRequire);
     } else {
-      module2.exports = require_node_gyp_build();
+      module.exports = require_node_gyp_build();
     }
   }
 });
 
 // ../node_modules/.pnpm/bufferutil@4.0.8/node_modules/bufferutil/fallback.js
 var require_fallback = __commonJS({
-  "../node_modules/.pnpm/bufferutil@4.0.8/node_modules/bufferutil/fallback.js"(exports2, module2) {
+  "../node_modules/.pnpm/bufferutil@4.0.8/node_modules/bufferutil/fallback.js"(exports, module) {
     "use strict";
     var mask = (source, mask2, output, offset, length) => {
       for (var i6 = 0; i6 < length; i6++) {
@@ -35423,25 +35466,25 @@ var require_fallback = __commonJS({
         buffer[i6] ^= mask2[i6 & 3];
       }
     };
-    module2.exports = { mask, unmask };
+    module.exports = { mask, unmask };
   }
 });
 
 // ../node_modules/.pnpm/bufferutil@4.0.8/node_modules/bufferutil/index.js
 var require_bufferutil = __commonJS({
-  "../node_modules/.pnpm/bufferutil@4.0.8/node_modules/bufferutil/index.js"(exports2, module2) {
+  "../node_modules/.pnpm/bufferutil@4.0.8/node_modules/bufferutil/index.js"(exports, module) {
     "use strict";
     try {
-      module2.exports = require_node_gyp_build2()(__dirname);
+      module.exports = require_node_gyp_build2()(__dirname);
     } catch (e6) {
-      module2.exports = require_fallback();
+      module.exports = require_fallback();
     }
   }
 });
 
 // ../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/buffer-util.js
 var require_buffer_util = __commonJS({
-  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/buffer-util.js"(exports2, module2) {
+  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/buffer-util.js"(exports, module) {
     "use strict";
     var { EMPTY_BUFFER } = require_constants();
     var FastBuffer = Buffer[Symbol.species];
@@ -35490,7 +35533,7 @@ var require_buffer_util = __commonJS({
       }
       return buf;
     }
-    module2.exports = {
+    module.exports = {
       concat,
       mask: _mask,
       toArrayBuffer,
@@ -35500,11 +35543,11 @@ var require_buffer_util = __commonJS({
     if (!process.env.WS_NO_BUFFER_UTIL) {
       try {
         const bufferUtil = require_bufferutil();
-        module2.exports.mask = function(source, mask, output, offset, length) {
+        module.exports.mask = function(source, mask, output, offset, length) {
           if (length < 48) _mask(source, mask, output, offset, length);
           else bufferUtil.mask(source, mask, output, offset, length);
         };
-        module2.exports.unmask = function(buffer, mask) {
+        module.exports.unmask = function(buffer, mask) {
           if (buffer.length < 32) _unmask(buffer, mask);
           else bufferUtil.unmask(buffer, mask);
         };
@@ -35516,7 +35559,7 @@ var require_buffer_util = __commonJS({
 
 // ../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/limiter.js
 var require_limiter = __commonJS({
-  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/limiter.js"(exports2, module2) {
+  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/limiter.js"(exports, module) {
     "use strict";
     var kDone = Symbol("kDone");
     var kRun = Symbol("kRun");
@@ -35560,15 +35603,15 @@ var require_limiter = __commonJS({
         }
       }
     };
-    module2.exports = Limiter;
+    module.exports = Limiter;
   }
 });
 
 // ../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/permessage-deflate.js
 var require_permessage_deflate = __commonJS({
-  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/permessage-deflate.js"(exports2, module2) {
+  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/permessage-deflate.js"(exports, module) {
     "use strict";
-    var zlib2 = require("zlib");
+    var zlib2 = __require("zlib");
     var bufferUtil = require_buffer_util();
     var Limiter = require_limiter();
     var { kStatusCode } = require_constants();
@@ -35918,7 +35961,7 @@ var require_permessage_deflate = __commonJS({
         });
       }
     };
-    module2.exports = PerMessageDeflate;
+    module.exports = PerMessageDeflate;
     function deflateOnData(chunk) {
       this[kBuffers].push(chunk);
       this[kTotalLength] += chunk.length;
@@ -35949,7 +35992,7 @@ var require_permessage_deflate = __commonJS({
 
 // ../node_modules/.pnpm/utf-8-validate@6.0.3/node_modules/utf-8-validate/fallback.js
 var require_fallback2 = __commonJS({
-  "../node_modules/.pnpm/utf-8-validate@6.0.3/node_modules/utf-8-validate/fallback.js"(exports2, module2) {
+  "../node_modules/.pnpm/utf-8-validate@6.0.3/node_modules/utf-8-validate/fallback.js"(exports, module) {
     "use strict";
     function isValidUTF8(buf) {
       const len = buf.length;
@@ -35980,27 +36023,27 @@ var require_fallback2 = __commonJS({
       }
       return true;
     }
-    module2.exports = isValidUTF8;
+    module.exports = isValidUTF8;
   }
 });
 
 // ../node_modules/.pnpm/utf-8-validate@6.0.3/node_modules/utf-8-validate/index.js
 var require_utf_8_validate = __commonJS({
-  "../node_modules/.pnpm/utf-8-validate@6.0.3/node_modules/utf-8-validate/index.js"(exports2, module2) {
+  "../node_modules/.pnpm/utf-8-validate@6.0.3/node_modules/utf-8-validate/index.js"(exports, module) {
     "use strict";
     try {
-      module2.exports = require_node_gyp_build2()(__dirname);
+      module.exports = require_node_gyp_build2()(__dirname);
     } catch (e6) {
-      module2.exports = require_fallback2();
+      module.exports = require_fallback2();
     }
   }
 });
 
 // ../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/validation.js
 var require_validation = __commonJS({
-  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/validation.js"(exports2, module2) {
+  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/validation.js"(exports, module) {
     "use strict";
-    var { isUtf8 } = require("buffer");
+    var { isUtf8 } = __require("buffer");
     var { hasBlob } = require_constants();
     var tokenChars = [
       0,
@@ -36175,20 +36218,20 @@ var require_validation = __commonJS({
     function isBlob3(value) {
       return hasBlob && typeof value === "object" && typeof value.arrayBuffer === "function" && typeof value.type === "string" && typeof value.stream === "function" && (value[Symbol.toStringTag] === "Blob" || value[Symbol.toStringTag] === "File");
     }
-    module2.exports = {
+    module.exports = {
       isBlob: isBlob3,
       isValidStatusCode,
       isValidUTF8: _isValidUTF8,
       tokenChars
     };
     if (isUtf8) {
-      module2.exports.isValidUTF8 = function(buf) {
+      module.exports.isValidUTF8 = function(buf) {
         return buf.length < 24 ? _isValidUTF8(buf) : isUtf8(buf);
       };
     } else if (!process.env.WS_NO_UTF_8_VALIDATE) {
       try {
         const isValidUTF8 = require_utf_8_validate();
-        module2.exports.isValidUTF8 = function(buf) {
+        module.exports.isValidUTF8 = function(buf) {
           return buf.length < 32 ? _isValidUTF8(buf) : isValidUTF8(buf);
         };
       } catch (e6) {
@@ -36199,9 +36242,9 @@ var require_validation = __commonJS({
 
 // ../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/receiver.js
 var require_receiver = __commonJS({
-  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/receiver.js"(exports2, module2) {
+  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/receiver.js"(exports, module) {
     "use strict";
-    var { Writable: Writable2 } = require("stream");
+    var { Writable: Writable2 } = __require("stream");
     var PerMessageDeflate = require_permessage_deflate();
     var {
       BINARY_TYPES,
@@ -36785,16 +36828,16 @@ var require_receiver = __commonJS({
         return err2;
       }
     };
-    module2.exports = Receiver2;
+    module.exports = Receiver2;
   }
 });
 
 // ../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/sender.js
 var require_sender = __commonJS({
-  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/sender.js"(exports2, module2) {
+  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/sender.js"(exports, module) {
     "use strict";
-    var { Duplex } = require("stream");
-    var { randomFillSync } = require("crypto");
+    var { Duplex } = __require("stream");
+    var { randomFillSync } = __require("crypto");
     var PerMessageDeflate = require_permessage_deflate();
     var { EMPTY_BUFFER, kWebSocket, NOOP } = require_constants();
     var { isBlob: isBlob3, isValidStatusCode } = require_validation();
@@ -37261,7 +37304,7 @@ var require_sender = __commonJS({
         }
       }
     };
-    module2.exports = Sender2;
+    module.exports = Sender2;
     function callCallbacks(sender, err2, cb) {
       if (typeof cb === "function") cb(err2);
       for (let i6 = 0; i6 < sender._queue.length; i6++) {
@@ -37279,7 +37322,7 @@ var require_sender = __commonJS({
 
 // ../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/event-target.js
 var require_event_target = __commonJS({
-  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/event-target.js"(exports2, module2) {
+  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/event-target.js"(exports, module) {
     "use strict";
     var { kForOnEventAttribute, kListener } = require_constants();
     var kCode = Symbol("kCode");
@@ -37489,7 +37532,7 @@ var require_event_target = __commonJS({
         }
       }
     };
-    module2.exports = {
+    module.exports = {
       CloseEvent,
       ErrorEvent,
       Event,
@@ -37508,7 +37551,7 @@ var require_event_target = __commonJS({
 
 // ../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/extension.js
 var require_extension = __commonJS({
-  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/extension.js"(exports2, module2) {
+  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/extension.js"(exports, module) {
     "use strict";
     var { tokenChars } = require_validation();
     function push(dest, name, elem) {
@@ -37655,22 +37698,22 @@ var require_extension = __commonJS({
         }).join(", ");
       }).join(", ");
     }
-    module2.exports = { format, parse: parse4 };
+    module.exports = { format, parse: parse4 };
   }
 });
 
 // ../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/websocket.js
 var require_websocket = __commonJS({
-  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/websocket.js"(exports2, module2) {
+  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/websocket.js"(exports, module) {
     "use strict";
-    var EventEmitter = require("events");
-    var https2 = require("https");
-    var http3 = require("http");
-    var net = require("net");
-    var tls = require("tls");
-    var { randomBytes, createHash: createHash4 } = require("crypto");
-    var { Duplex, Readable: Readable6 } = require("stream");
-    var { URL: URL2 } = require("url");
+    var EventEmitter = __require("events");
+    var https2 = __require("https");
+    var http3 = __require("http");
+    var net = __require("net");
+    var tls = __require("tls");
+    var { randomBytes, createHash: createHash4 } = __require("crypto");
+    var { Duplex, Readable: Readable6 } = __require("stream");
+    var { URL: URL2 } = __require("url");
     var PerMessageDeflate = require_permessage_deflate();
     var Receiver2 = require_receiver();
     var Sender2 = require_sender();
@@ -38132,7 +38175,7 @@ var require_websocket = __commonJS({
     });
     WebSocket2.prototype.addEventListener = addEventListener2;
     WebSocket2.prototype.removeEventListener = removeEventListener;
-    module2.exports = WebSocket2;
+    module.exports = WebSocket2;
     function initAsClient(websocket, address, protocols, options) {
       const opts = {
         allowSynchronousEvents: true,
@@ -38544,10 +38587,10 @@ var require_websocket = __commonJS({
 
 // ../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/stream.js
 var require_stream = __commonJS({
-  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/stream.js"(exports2, module2) {
+  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/stream.js"(exports, module) {
     "use strict";
     var WebSocket2 = require_websocket();
-    var { Duplex } = require("stream");
+    var { Duplex } = __require("stream");
     function emitClose(stream) {
       stream.emit("close");
     }
@@ -38636,13 +38679,13 @@ var require_stream = __commonJS({
       duplex.on("error", duplexOnError);
       return duplex;
     }
-    module2.exports = createWebSocketStream2;
+    module.exports = createWebSocketStream2;
   }
 });
 
 // ../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/subprotocol.js
 var require_subprotocol = __commonJS({
-  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/subprotocol.js"(exports2, module2) {
+  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/subprotocol.js"(exports, module) {
     "use strict";
     var { tokenChars } = require_validation();
     function parse4(header) {
@@ -38681,18 +38724,18 @@ var require_subprotocol = __commonJS({
       protocols.add(protocol);
       return protocols;
     }
-    module2.exports = { parse: parse4 };
+    module.exports = { parse: parse4 };
   }
 });
 
 // ../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/websocket-server.js
 var require_websocket_server = __commonJS({
-  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/websocket-server.js"(exports2, module2) {
+  "../node_modules/.pnpm/ws@8.18.2/node_modules/ws/lib/websocket-server.js"(exports, module) {
     "use strict";
-    var EventEmitter = require("events");
-    var http3 = require("http");
-    var { Duplex } = require("stream");
-    var { createHash: createHash4 } = require("crypto");
+    var EventEmitter = __require("events");
+    var http3 = __require("http");
+    var { Duplex } = __require("stream");
+    var { createHash: createHash4 } = __require("crypto");
     var extension = require_extension();
     var PerMessageDeflate = require_permessage_deflate();
     var subprotocol = require_subprotocol();
@@ -39030,7 +39073,7 @@ var require_websocket_server = __commonJS({
         cb(ws, req);
       }
     };
-    module2.exports = WebSocketServer2;
+    module.exports = WebSocketServer2;
     function addListeners(server, map2) {
       for (const event of Object.keys(map2)) server.on(event, map2[event]);
       return function removeListeners() {
@@ -39088,7 +39131,7 @@ var init_wrapper = __esm({
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/constants.js
 var require_constants2 = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/constants.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/constants.js"(exports, module) {
     "use strict";
     var SEMVER_SPEC_VERSION = "2.0.0";
     var MAX_LENGTH = 256;
@@ -39105,7 +39148,7 @@ var require_constants2 = __commonJS({
       "prepatch",
       "prerelease"
     ];
-    module2.exports = {
+    module.exports = {
       MAX_LENGTH,
       MAX_SAFE_COMPONENT_LENGTH,
       MAX_SAFE_BUILD_LENGTH,
@@ -39120,17 +39163,17 @@ var require_constants2 = __commonJS({
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/debug.js
 var require_debug = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/debug.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/debug.js"(exports, module) {
     "use strict";
     var debug = typeof process === "object" && process.env && process.env.NODE_DEBUG && /\bsemver\b/i.test(process.env.NODE_DEBUG) ? (...args) => console.error("SEMVER", ...args) : () => {
     };
-    module2.exports = debug;
+    module.exports = debug;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/re.js
 var require_re = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/re.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/re.js"(exports, module) {
     "use strict";
     var {
       MAX_SAFE_COMPONENT_LENGTH,
@@ -39138,12 +39181,12 @@ var require_re = __commonJS({
       MAX_LENGTH
     } = require_constants2();
     var debug = require_debug();
-    exports2 = module2.exports = {};
-    var re = exports2.re = [];
-    var safeRe = exports2.safeRe = [];
-    var src = exports2.src = [];
-    var safeSrc = exports2.safeSrc = [];
-    var t6 = exports2.t = {};
+    exports = module.exports = {};
+    var re = exports.re = [];
+    var safeRe = exports.safeRe = [];
+    var src = exports.src = [];
+    var safeSrc = exports.safeSrc = [];
+    var t6 = exports.t = {};
     var R = 0;
     var LETTERDASHNUMBER = "[a-zA-Z0-9-]";
     var safeRegexReplacements = [
@@ -39196,18 +39239,18 @@ var require_re = __commonJS({
     createToken("COERCERTLFULL", src[t6.COERCEFULL], true);
     createToken("LONETILDE", "(?:~>?)");
     createToken("TILDETRIM", `(\\s*)${src[t6.LONETILDE]}\\s+`, true);
-    exports2.tildeTrimReplace = "$1~";
+    exports.tildeTrimReplace = "$1~";
     createToken("TILDE", `^${src[t6.LONETILDE]}${src[t6.XRANGEPLAIN]}$`);
     createToken("TILDELOOSE", `^${src[t6.LONETILDE]}${src[t6.XRANGEPLAINLOOSE]}$`);
     createToken("LONECARET", "(?:\\^)");
     createToken("CARETTRIM", `(\\s*)${src[t6.LONECARET]}\\s+`, true);
-    exports2.caretTrimReplace = "$1^";
+    exports.caretTrimReplace = "$1^";
     createToken("CARET", `^${src[t6.LONECARET]}${src[t6.XRANGEPLAIN]}$`);
     createToken("CARETLOOSE", `^${src[t6.LONECARET]}${src[t6.XRANGEPLAINLOOSE]}$`);
     createToken("COMPARATORLOOSE", `^${src[t6.GTLT]}\\s*(${src[t6.LOOSEPLAIN]})$|^$`);
     createToken("COMPARATOR", `^${src[t6.GTLT]}\\s*(${src[t6.FULLPLAIN]})$|^$`);
     createToken("COMPARATORTRIM", `(\\s*)${src[t6.GTLT]}\\s*(${src[t6.LOOSEPLAIN]}|${src[t6.XRANGEPLAIN]})`, true);
-    exports2.comparatorTrimReplace = "$1$2$3";
+    exports.comparatorTrimReplace = "$1$2$3";
     createToken("HYPHENRANGE", `^\\s*(${src[t6.XRANGEPLAIN]})\\s+-\\s+(${src[t6.XRANGEPLAIN]})\\s*$`);
     createToken("HYPHENRANGELOOSE", `^\\s*(${src[t6.XRANGEPLAINLOOSE]})\\s+-\\s+(${src[t6.XRANGEPLAINLOOSE]})\\s*$`);
     createToken("STAR", "(<|>)?=?\\s*\\*");
@@ -39218,7 +39261,7 @@ var require_re = __commonJS({
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/parse-options.js
 var require_parse_options = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/parse-options.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/parse-options.js"(exports, module) {
     "use strict";
     var looseOption = Object.freeze({ loose: true });
     var emptyOpts = Object.freeze({});
@@ -39231,13 +39274,13 @@ var require_parse_options = __commonJS({
       }
       return options;
     };
-    module2.exports = parseOptions;
+    module.exports = parseOptions;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/identifiers.js
 var require_identifiers = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/identifiers.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/identifiers.js"(exports, module) {
     "use strict";
     var numeric = /^[0-9]+$/;
     var compareIdentifiers = (a5, b5) => {
@@ -39250,7 +39293,7 @@ var require_identifiers = __commonJS({
       return a5 === b5 ? 0 : anum && !bnum ? -1 : bnum && !anum ? 1 : a5 < b5 ? -1 : 1;
     };
     var rcompareIdentifiers = (a5, b5) => compareIdentifiers(b5, a5);
-    module2.exports = {
+    module.exports = {
       compareIdentifiers,
       rcompareIdentifiers
     };
@@ -39259,7 +39302,7 @@ var require_identifiers = __commonJS({
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/classes/semver.js
 var require_semver = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/classes/semver.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/classes/semver.js"(exports, module) {
     "use strict";
     var debug = require_debug();
     var { MAX_LENGTH, MAX_SAFE_INTEGER } = require_constants2();
@@ -39514,13 +39557,13 @@ var require_semver = __commonJS({
         return this;
       }
     };
-    module2.exports = SemVer;
+    module.exports = SemVer;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/parse.js
 var require_parse = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/parse.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/parse.js"(exports, module) {
     "use strict";
     var SemVer = require_semver();
     var parse4 = (version, options, throwErrors = false) => {
@@ -39536,39 +39579,39 @@ var require_parse = __commonJS({
         throw er;
       }
     };
-    module2.exports = parse4;
+    module.exports = parse4;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/valid.js
 var require_valid = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/valid.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/valid.js"(exports, module) {
     "use strict";
     var parse4 = require_parse();
     var valid = (version, options) => {
       const v6 = parse4(version, options);
       return v6 ? v6.version : null;
     };
-    module2.exports = valid;
+    module.exports = valid;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/clean.js
 var require_clean = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/clean.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/clean.js"(exports, module) {
     "use strict";
     var parse4 = require_parse();
     var clean = (version, options) => {
       const s6 = parse4(version.trim().replace(/^[=v]+/, ""), options);
       return s6 ? s6.version : null;
     };
-    module2.exports = clean;
+    module.exports = clean;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/inc.js
 var require_inc = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/inc.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/inc.js"(exports, module) {
     "use strict";
     var SemVer = require_semver();
     var inc = (version, release2, options, identifier, identifierBase) => {
@@ -39586,13 +39629,13 @@ var require_inc = __commonJS({
         return null;
       }
     };
-    module2.exports = inc;
+    module.exports = inc;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/diff.js
 var require_diff = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/diff.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/diff.js"(exports, module) {
     "use strict";
     var parse4 = require_parse();
     var diff2 = (version1, version2) => {
@@ -39630,86 +39673,86 @@ var require_diff = __commonJS({
       }
       return "prerelease";
     };
-    module2.exports = diff2;
+    module.exports = diff2;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/major.js
 var require_major = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/major.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/major.js"(exports, module) {
     "use strict";
     var SemVer = require_semver();
     var major = (a5, loose) => new SemVer(a5, loose).major;
-    module2.exports = major;
+    module.exports = major;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/minor.js
 var require_minor = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/minor.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/minor.js"(exports, module) {
     "use strict";
     var SemVer = require_semver();
     var minor = (a5, loose) => new SemVer(a5, loose).minor;
-    module2.exports = minor;
+    module.exports = minor;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/patch.js
 var require_patch = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/patch.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/patch.js"(exports, module) {
     "use strict";
     var SemVer = require_semver();
     var patch = (a5, loose) => new SemVer(a5, loose).patch;
-    module2.exports = patch;
+    module.exports = patch;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/prerelease.js
 var require_prerelease = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/prerelease.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/prerelease.js"(exports, module) {
     "use strict";
     var parse4 = require_parse();
     var prerelease = (version, options) => {
       const parsed = parse4(version, options);
       return parsed && parsed.prerelease.length ? parsed.prerelease : null;
     };
-    module2.exports = prerelease;
+    module.exports = prerelease;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/compare.js
 var require_compare = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/compare.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/compare.js"(exports, module) {
     "use strict";
     var SemVer = require_semver();
     var compare = (a5, b5, loose) => new SemVer(a5, loose).compare(new SemVer(b5, loose));
-    module2.exports = compare;
+    module.exports = compare;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/rcompare.js
 var require_rcompare = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/rcompare.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/rcompare.js"(exports, module) {
     "use strict";
     var compare = require_compare();
     var rcompare = (a5, b5, loose) => compare(b5, a5, loose);
-    module2.exports = rcompare;
+    module.exports = rcompare;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/compare-loose.js
 var require_compare_loose = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/compare-loose.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/compare-loose.js"(exports, module) {
     "use strict";
     var compare = require_compare();
     var compareLoose = (a5, b5) => compare(a5, b5, true);
-    module2.exports = compareLoose;
+    module.exports = compareLoose;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/compare-build.js
 var require_compare_build = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/compare-build.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/compare-build.js"(exports, module) {
     "use strict";
     var SemVer = require_semver();
     var compareBuild = (a5, b5, loose) => {
@@ -39717,93 +39760,93 @@ var require_compare_build = __commonJS({
       const versionB = new SemVer(b5, loose);
       return versionA.compare(versionB) || versionA.compareBuild(versionB);
     };
-    module2.exports = compareBuild;
+    module.exports = compareBuild;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/sort.js
 var require_sort = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/sort.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/sort.js"(exports, module) {
     "use strict";
     var compareBuild = require_compare_build();
     var sort = (list, loose) => list.sort((a5, b5) => compareBuild(a5, b5, loose));
-    module2.exports = sort;
+    module.exports = sort;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/rsort.js
 var require_rsort = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/rsort.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/rsort.js"(exports, module) {
     "use strict";
     var compareBuild = require_compare_build();
     var rsort = (list, loose) => list.sort((a5, b5) => compareBuild(b5, a5, loose));
-    module2.exports = rsort;
+    module.exports = rsort;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/gt.js
 var require_gt = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/gt.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/gt.js"(exports, module) {
     "use strict";
     var compare = require_compare();
     var gt = (a5, b5, loose) => compare(a5, b5, loose) > 0;
-    module2.exports = gt;
+    module.exports = gt;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/lt.js
 var require_lt = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/lt.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/lt.js"(exports, module) {
     "use strict";
     var compare = require_compare();
     var lt = (a5, b5, loose) => compare(a5, b5, loose) < 0;
-    module2.exports = lt;
+    module.exports = lt;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/eq.js
 var require_eq = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/eq.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/eq.js"(exports, module) {
     "use strict";
     var compare = require_compare();
     var eq = (a5, b5, loose) => compare(a5, b5, loose) === 0;
-    module2.exports = eq;
+    module.exports = eq;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/neq.js
 var require_neq = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/neq.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/neq.js"(exports, module) {
     "use strict";
     var compare = require_compare();
     var neq = (a5, b5, loose) => compare(a5, b5, loose) !== 0;
-    module2.exports = neq;
+    module.exports = neq;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/gte.js
 var require_gte = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/gte.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/gte.js"(exports, module) {
     "use strict";
     var compare = require_compare();
     var gte = (a5, b5, loose) => compare(a5, b5, loose) >= 0;
-    module2.exports = gte;
+    module.exports = gte;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/lte.js
 var require_lte = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/lte.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/lte.js"(exports, module) {
     "use strict";
     var compare = require_compare();
     var lte = (a5, b5, loose) => compare(a5, b5, loose) <= 0;
-    module2.exports = lte;
+    module.exports = lte;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/cmp.js
 var require_cmp = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/cmp.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/cmp.js"(exports, module) {
     "use strict";
     var eq = require_eq();
     var neq = require_neq();
@@ -39847,13 +39890,13 @@ var require_cmp = __commonJS({
           throw new TypeError(`Invalid operator: ${op}`);
       }
     };
-    module2.exports = cmp;
+    module.exports = cmp;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/coerce.js
 var require_coerce = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/coerce.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/coerce.js"(exports, module) {
     "use strict";
     var SemVer = require_semver();
     var parse4 = require_parse();
@@ -39893,13 +39936,13 @@ var require_coerce = __commonJS({
       const build = options.includePrerelease && match2[6] ? `+${match2[6]}` : "";
       return parse4(`${major}.${minor}.${patch}${prerelease}${build}`, options);
     };
-    module2.exports = coerce2;
+    module.exports = coerce2;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/lrucache.js
 var require_lrucache = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/lrucache.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/lrucache.js"(exports, module) {
     "use strict";
     var LRUCache = class {
       constructor() {
@@ -39931,13 +39974,13 @@ var require_lrucache = __commonJS({
         return this;
       }
     };
-    module2.exports = LRUCache;
+    module.exports = LRUCache;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/classes/range.js
 var require_range = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/classes/range.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/classes/range.js"(exports, module) {
     "use strict";
     var SPACE_CHARACTERS = /\s+/g;
     var Range = class _Range {
@@ -40078,7 +40121,7 @@ var require_range = __commonJS({
         return false;
       }
     };
-    module2.exports = Range;
+    module.exports = Range;
     var LRU = require_lrucache();
     var cache5 = new LRU();
     var parseOptions = require_parse_options();
@@ -40313,7 +40356,7 @@ var require_range = __commonJS({
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/classes/comparator.js
 var require_comparator = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/classes/comparator.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/classes/comparator.js"(exports, module) {
     "use strict";
     var ANY = Symbol("SemVer ANY");
     var Comparator = class _Comparator {
@@ -40414,7 +40457,7 @@ var require_comparator = __commonJS({
         return false;
       }
     };
-    module2.exports = Comparator;
+    module.exports = Comparator;
     var parseOptions = require_parse_options();
     var { safeRe: re, t: t6 } = require_re();
     var cmp = require_cmp();
@@ -40426,7 +40469,7 @@ var require_comparator = __commonJS({
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/satisfies.js
 var require_satisfies = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/satisfies.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/functions/satisfies.js"(exports, module) {
     "use strict";
     var Range = require_range();
     var satisfies = (version, range, options) => {
@@ -40437,23 +40480,23 @@ var require_satisfies = __commonJS({
       }
       return range.test(version);
     };
-    module2.exports = satisfies;
+    module.exports = satisfies;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/to-comparators.js
 var require_to_comparators = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/to-comparators.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/to-comparators.js"(exports, module) {
     "use strict";
     var Range = require_range();
     var toComparators = (range, options) => new Range(range, options).set.map((comp) => comp.map((c5) => c5.value).join(" ").trim().split(" "));
-    module2.exports = toComparators;
+    module.exports = toComparators;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/max-satisfying.js
 var require_max_satisfying = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/max-satisfying.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/max-satisfying.js"(exports, module) {
     "use strict";
     var SemVer = require_semver();
     var Range = require_range();
@@ -40476,13 +40519,13 @@ var require_max_satisfying = __commonJS({
       });
       return max;
     };
-    module2.exports = maxSatisfying;
+    module.exports = maxSatisfying;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/min-satisfying.js
 var require_min_satisfying = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/min-satisfying.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/min-satisfying.js"(exports, module) {
     "use strict";
     var SemVer = require_semver();
     var Range = require_range();
@@ -40505,13 +40548,13 @@ var require_min_satisfying = __commonJS({
       });
       return min;
     };
-    module2.exports = minSatisfying;
+    module.exports = minSatisfying;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/min-version.js
 var require_min_version = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/min-version.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/min-version.js"(exports, module) {
     "use strict";
     var SemVer = require_semver();
     var Range = require_range();
@@ -40564,13 +40607,13 @@ var require_min_version = __commonJS({
       }
       return null;
     };
-    module2.exports = minVersion;
+    module.exports = minVersion;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/valid.js
 var require_valid2 = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/valid.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/valid.js"(exports, module) {
     "use strict";
     var Range = require_range();
     var validRange = (range, options) => {
@@ -40580,13 +40623,13 @@ var require_valid2 = __commonJS({
         return null;
       }
     };
-    module2.exports = validRange;
+    module.exports = validRange;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/outside.js
 var require_outside = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/outside.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/outside.js"(exports, module) {
     "use strict";
     var SemVer = require_semver();
     var Comparator = require_comparator();
@@ -40649,33 +40692,33 @@ var require_outside = __commonJS({
       }
       return true;
     };
-    module2.exports = outside;
+    module.exports = outside;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/gtr.js
 var require_gtr = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/gtr.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/gtr.js"(exports, module) {
     "use strict";
     var outside = require_outside();
     var gtr = (version, range, options) => outside(version, range, ">", options);
-    module2.exports = gtr;
+    module.exports = gtr;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/ltr.js
 var require_ltr = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/ltr.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/ltr.js"(exports, module) {
     "use strict";
     var outside = require_outside();
     var ltr = (version, range, options) => outside(version, range, "<", options);
-    module2.exports = ltr;
+    module.exports = ltr;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/intersects.js
 var require_intersects = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/intersects.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/intersects.js"(exports, module) {
     "use strict";
     var Range = require_range();
     var intersects = (r1, r22, options) => {
@@ -40683,17 +40726,17 @@ var require_intersects = __commonJS({
       r22 = new Range(r22, options);
       return r1.intersects(r22, options);
     };
-    module2.exports = intersects;
+    module.exports = intersects;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/simplify.js
 var require_simplify = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/simplify.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/simplify.js"(exports, module) {
     "use strict";
     var satisfies = require_satisfies();
     var compare = require_compare();
-    module2.exports = (versions2, range, options) => {
+    module.exports = (versions2, range, options) => {
       const set = [];
       let first = null;
       let prev = null;
@@ -40739,7 +40782,7 @@ var require_simplify = __commonJS({
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/subset.js
 var require_subset = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/subset.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/ranges/subset.js"(exports, module) {
     "use strict";
     var Range = require_range();
     var Comparator = require_comparator();
@@ -40895,13 +40938,13 @@ var require_subset = __commonJS({
       const comp = compare(a5.semver, b5.semver, options);
       return comp < 0 ? a5 : comp > 0 ? b5 : b5.operator === "<" && a5.operator === "<=" ? b5 : a5;
     };
-    module2.exports = subset;
+    module.exports = subset;
   }
 });
 
 // ../node_modules/.pnpm/semver@7.7.2/node_modules/semver/index.js
 var require_semver2 = __commonJS({
-  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/index.js"(exports2, module2) {
+  "../node_modules/.pnpm/semver@7.7.2/node_modules/semver/index.js"(exports, module) {
     "use strict";
     var internalRe = require_re();
     var constants = require_constants2();
@@ -40944,7 +40987,7 @@ var require_semver2 = __commonJS({
     var intersects = require_intersects();
     var simplifyRange = require_simplify();
     var subset = require_subset();
-    module2.exports = {
+    module.exports = {
       parse: parse4,
       valid,
       clean,
@@ -41003,7 +41046,7 @@ var init_utils4 = __esm({
     init_views();
     checkPackage = async (it) => {
       try {
-        require(it);
+        await import(it);
         return true;
       } catch (e6) {
         return false;
@@ -41013,7 +41056,7 @@ var init_utils4 = __esm({
       try {
         for (let i6 = 0; i6 < pkgs.length; i6++) {
           const it = pkgs[i6];
-          require(it);
+          await import(it);
         }
       } catch (e6) {
         err(
@@ -42295,23 +42338,23 @@ var init_dist_es8 = __esm({
 });
 
 // ../node_modules/.pnpm/@smithy+util-buffer-from@4.0.0/node_modules/@smithy/util-buffer-from/dist-es/index.js
-var import_buffer2, fromArrayBuffer, fromString;
+import { Buffer as Buffer4 } from "buffer";
+var fromArrayBuffer, fromString;
 var init_dist_es9 = __esm({
   "../node_modules/.pnpm/@smithy+util-buffer-from@4.0.0/node_modules/@smithy/util-buffer-from/dist-es/index.js"() {
     "use strict";
     init_dist_es8();
-    import_buffer2 = require("buffer");
     fromArrayBuffer = (input, offset = 0, length = input.byteLength - offset) => {
       if (!isArrayBuffer(input)) {
         throw new TypeError(`The "input" argument must be ArrayBuffer. Received type ${typeof input} (${input})`);
       }
-      return import_buffer2.Buffer.from(input, offset, length);
+      return Buffer4.from(input, offset, length);
     };
     fromString = (input, encoding) => {
       if (typeof input !== "string") {
         throw new TypeError(`The "input" argument must be of type string. Received type ${typeof input} (${input})`);
       }
-      return encoding ? import_buffer2.Buffer.from(input, encoding) : import_buffer2.Buffer.from(input);
+      return encoding ? Buffer4.from(input, encoding) : Buffer4.from(input);
     };
   }
 });
@@ -42534,11 +42577,10 @@ var init_createBufferedReadableStream = __esm({
 });
 
 // ../node_modules/.pnpm/@smithy+util-stream@4.2.2/node_modules/@smithy/util-stream/dist-es/createBufferedReadable.js
-var import_node_stream3;
+import { Readable as Readable2 } from "stream";
 var init_createBufferedReadable = __esm({
   "../node_modules/.pnpm/@smithy+util-stream@4.2.2/node_modules/@smithy/util-stream/dist-es/createBufferedReadable.js"() {
     "use strict";
-    import_node_stream3 = require("stream");
     init_ByteArrayCollector();
     init_createBufferedReadableStream();
     init_stream_type_check();
@@ -42762,6 +42804,7 @@ var init_set_socket_timeout = __esm({
 });
 
 // ../node_modules/.pnpm/@smithy+node-http-handler@4.0.6/node_modules/@smithy/node-http-handler/dist-es/write-request-body.js
+import { Readable as Readable3 } from "stream";
 async function writeRequestBody(httpRequest2, request2, maxContinueTimeoutMs = MIN_WAIT_TIME) {
   const headers = request2.headers ?? {};
   const expect = headers["Expect"] || headers["expect"];
@@ -42793,7 +42836,7 @@ async function writeRequestBody(httpRequest2, request2, maxContinueTimeoutMs = M
   }
 }
 function writeBody(httpRequest2, body) {
-  if (body instanceof import_stream3.Readable) {
+  if (body instanceof Readable3) {
     body.pipe(httpRequest2);
     return;
   }
@@ -42812,25 +42855,24 @@ function writeBody(httpRequest2, body) {
   }
   httpRequest2.end();
 }
-var import_stream3, MIN_WAIT_TIME;
+var MIN_WAIT_TIME;
 var init_write_request_body = __esm({
   "../node_modules/.pnpm/@smithy+node-http-handler@4.0.6/node_modules/@smithy/node-http-handler/dist-es/write-request-body.js"() {
     "use strict";
-    import_stream3 = require("stream");
     init_timing();
     MIN_WAIT_TIME = 6e3;
   }
 });
 
 // ../node_modules/.pnpm/@smithy+node-http-handler@4.0.6/node_modules/@smithy/node-http-handler/dist-es/node-http-handler.js
-var import_http3, import_https, DEFAULT_REQUEST_TIMEOUT, NodeHttpHandler;
+import { Agent as hAgent, request as hRequest } from "http";
+import { Agent as hsAgent, request as hsRequest } from "https";
+var DEFAULT_REQUEST_TIMEOUT, NodeHttpHandler;
 var init_node_http_handler = __esm({
   "../node_modules/.pnpm/@smithy+node-http-handler@4.0.6/node_modules/@smithy/node-http-handler/dist-es/node-http-handler.js"() {
     "use strict";
     init_dist_es2();
     init_dist_es13();
-    import_http3 = require("http");
-    import_https = require("https");
     init_constants2();
     init_get_transformed_headers();
     init_set_connection_timeout();
@@ -42891,16 +42933,16 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
           requestTimeout: requestTimeout2 ?? socketTimeout,
           socketAcquisitionWarningTimeout,
           httpAgent: (() => {
-            if (httpAgent instanceof import_http3.Agent || typeof httpAgent?.destroy === "function") {
+            if (httpAgent instanceof hAgent || typeof httpAgent?.destroy === "function") {
               return httpAgent;
             }
-            return new import_http3.Agent({ keepAlive, maxSockets, ...httpAgent });
+            return new hAgent({ keepAlive, maxSockets, ...httpAgent });
           })(),
           httpsAgent: (() => {
-            if (httpsAgent instanceof import_https.Agent || typeof httpsAgent?.destroy === "function") {
+            if (httpsAgent instanceof hsAgent || typeof httpsAgent?.destroy === "function") {
               return httpsAgent;
             }
-            return new import_https.Agent({ keepAlive, maxSockets, ...httpsAgent });
+            return new hsAgent({ keepAlive, maxSockets, ...httpsAgent });
           })(),
           logger: console
         };
@@ -42969,7 +43011,7 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
             agent,
             auth
           };
-          const requestFunc = isSSL ? import_https.request : import_http3.request;
+          const requestFunc = isSSL ? hsRequest : hRequest;
           const req = requestFunc(nodeHttpsOptions, (res) => {
             const httpResponse = new HttpResponse({
               statusCode: res.statusCode || -1,
@@ -43060,12 +43102,12 @@ var init_node_http2_handler = __esm({
 });
 
 // ../node_modules/.pnpm/@smithy+node-http-handler@4.0.6/node_modules/@smithy/node-http-handler/dist-es/stream-collector/collector.js
-var import_stream4, Collector;
+import { Writable } from "stream";
+var Collector;
 var init_collector = __esm({
   "../node_modules/.pnpm/@smithy+node-http-handler@4.0.6/node_modules/@smithy/node-http-handler/dist-es/stream-collector/collector.js"() {
     "use strict";
-    import_stream4 = require("stream");
-    Collector = class extends import_stream4.Writable {
+    Collector = class extends Writable {
       constructor() {
         super(...arguments);
         this.bufferedBytes = [];
@@ -43338,17 +43380,17 @@ var init_sdk_stream_mixin_browser = __esm({
 });
 
 // ../node_modules/.pnpm/@smithy+util-stream@4.2.2/node_modules/@smithy/util-stream/dist-es/sdk-stream-mixin.js
-var import_stream5, ERR_MSG_STREAM_HAS_BEEN_TRANSFORMED2, sdkStreamMixin2;
+import { Readable as Readable4 } from "stream";
+var ERR_MSG_STREAM_HAS_BEEN_TRANSFORMED2, sdkStreamMixin2;
 var init_sdk_stream_mixin = __esm({
   "../node_modules/.pnpm/@smithy+util-stream@4.2.2/node_modules/@smithy/util-stream/dist-es/sdk-stream-mixin.js"() {
     "use strict";
     init_dist_es14();
     init_dist_es9();
-    import_stream5 = require("stream");
     init_sdk_stream_mixin_browser();
     ERR_MSG_STREAM_HAS_BEEN_TRANSFORMED2 = "The stream has already been transformed.";
     sdkStreamMixin2 = (stream) => {
-      if (!(stream instanceof import_stream5.Readable)) {
+      if (!(stream instanceof Readable4)) {
         try {
           return sdkStreamMixin(stream);
         } catch (e6) {
@@ -43382,11 +43424,11 @@ var init_sdk_stream_mixin = __esm({
           if (stream.readableFlowing !== null) {
             throw new Error("The stream has been consumed by other callbacks.");
           }
-          if (typeof import_stream5.Readable.toWeb !== "function") {
+          if (typeof Readable4.toWeb !== "function") {
             throw new Error("Readable.toWeb() is not supported. Please ensure a polyfill is available.");
           }
           transformed = true;
-          return import_stream5.Readable.toWeb(stream);
+          return Readable4.toWeb(stream);
         }
       });
     };
@@ -47944,7 +47986,7 @@ var init_parseJsonBody = __esm({
 
 // ../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/util.js
 var require_util2 = __commonJS({
-  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/util.js"(exports2) {
+  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/util.js"(exports) {
     "use strict";
     var nameStartChar = ":A-Za-z_\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD";
     var nameChar = nameStartChar + "\\-.\\d\\u00B7\\u0300-\\u036F\\u203F-\\u2040";
@@ -47969,13 +48011,13 @@ var require_util2 = __commonJS({
       const match2 = regexName.exec(string);
       return !(match2 === null || typeof match2 === "undefined");
     };
-    exports2.isExist = function(v6) {
+    exports.isExist = function(v6) {
       return typeof v6 !== "undefined";
     };
-    exports2.isEmptyObject = function(obj) {
+    exports.isEmptyObject = function(obj) {
       return Object.keys(obj).length === 0;
     };
-    exports2.merge = function(target, a5, arrayMode) {
+    exports.merge = function(target, a5, arrayMode) {
       if (a5) {
         const keys = Object.keys(a5);
         const len = keys.length;
@@ -47988,22 +48030,22 @@ var require_util2 = __commonJS({
         }
       }
     };
-    exports2.getValue = function(v6) {
-      if (exports2.isExist(v6)) {
+    exports.getValue = function(v6) {
+      if (exports.isExist(v6)) {
         return v6;
       } else {
         return "";
       }
     };
-    exports2.isName = isName;
-    exports2.getAllMatches = getAllMatches;
-    exports2.nameRegexp = nameRegexp;
+    exports.isName = isName;
+    exports.getAllMatches = getAllMatches;
+    exports.nameRegexp = nameRegexp;
   }
 });
 
 // ../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/validator.js
 var require_validator = __commonJS({
-  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/validator.js"(exports2) {
+  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/validator.js"(exports) {
     "use strict";
     var util2 = require_util2();
     var defaultOptions = {
@@ -48011,7 +48053,7 @@ var require_validator = __commonJS({
       //A tag can have attributes without any value
       unpairedTags: []
     };
-    exports2.validate = function(xmlData, options) {
+    exports.validate = function(xmlData, options) {
       options = Object.assign({}, defaultOptions, options);
       const tags = [];
       let tagFound = false;
@@ -48315,7 +48357,7 @@ var require_validator = __commonJS({
 
 // ../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlparser/OptionsBuilder.js
 var require_OptionsBuilder = __commonJS({
-  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlparser/OptionsBuilder.js"(exports2) {
+  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlparser/OptionsBuilder.js"(exports) {
     "use strict";
     var defaultOptions = {
       preserveOrder: false,
@@ -48364,14 +48406,14 @@ var require_OptionsBuilder = __commonJS({
     var buildOptions = function(options) {
       return Object.assign({}, defaultOptions, options);
     };
-    exports2.buildOptions = buildOptions;
-    exports2.defaultOptions = defaultOptions;
+    exports.buildOptions = buildOptions;
+    exports.defaultOptions = defaultOptions;
   }
 });
 
 // ../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlparser/xmlNode.js
 var require_xmlNode = __commonJS({
-  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlparser/xmlNode.js"(exports2, module2) {
+  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlparser/xmlNode.js"(exports, module) {
     "use strict";
     var XmlNode = class {
       constructor(tagname) {
@@ -48392,13 +48434,13 @@ var require_xmlNode = __commonJS({
         }
       }
     };
-    module2.exports = XmlNode;
+    module.exports = XmlNode;
   }
 });
 
 // ../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlparser/DocTypeReader.js
 var require_DocTypeReader = __commonJS({
-  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlparser/DocTypeReader.js"(exports2, module2) {
+  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlparser/DocTypeReader.js"(exports, module) {
     "use strict";
     var util2 = require_util2();
     function readDocType(xmlData, i6) {
@@ -48491,13 +48533,13 @@ var require_DocTypeReader = __commonJS({
       else
         throw new Error(`Invalid entity name ${name}`);
     }
-    module2.exports = readDocType;
+    module.exports = readDocType;
   }
 });
 
 // ../node_modules/.pnpm/strnum@1.1.2/node_modules/strnum/strnum.js
 var require_strnum = __commonJS({
-  "../node_modules/.pnpm/strnum@1.1.2/node_modules/strnum/strnum.js"(exports2, module2) {
+  "../node_modules/.pnpm/strnum@1.1.2/node_modules/strnum/strnum.js"(exports, module) {
     "use strict";
     var hexRegex = /^[-+]?0x[a-fA-F0-9]+$/;
     var numRegex = /^([\-\+])?(0*)([0-9]*(\.[0-9]*)?)$/;
@@ -48580,13 +48622,13 @@ var require_strnum = __commonJS({
       else if (window && window.parseInt) return window.parseInt(numStr, base);
       else throw new Error("parseInt, Number.parseInt, window.parseInt are not supported");
     }
-    module2.exports = toNumber;
+    module.exports = toNumber;
   }
 });
 
 // ../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlparser/OrderedObjParser.js
 var require_OrderedObjParser = __commonJS({
-  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlparser/OrderedObjParser.js"(exports2, module2) {
+  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlparser/OrderedObjParser.js"(exports, module) {
     "use strict";
     var util2 = require_util2();
     var xmlNode = require_xmlNode();
@@ -49070,13 +49112,13 @@ var require_OrderedObjParser = __commonJS({
         }
       }
     }
-    module2.exports = OrderedObjParser;
+    module.exports = OrderedObjParser;
   }
 });
 
 // ../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlparser/node2json.js
 var require_node2json = __commonJS({
-  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlparser/node2json.js"(exports2) {
+  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlparser/node2json.js"(exports) {
     "use strict";
     function prettify(node, options) {
       return compress2(node, options);
@@ -49157,13 +49199,13 @@ var require_node2json = __commonJS({
       }
       return false;
     }
-    exports2.prettify = prettify;
+    exports.prettify = prettify;
   }
 });
 
 // ../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlparser/XMLParser.js
 var require_XMLParser = __commonJS({
-  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlparser/XMLParser.js"(exports2, module2) {
+  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlparser/XMLParser.js"(exports, module) {
     "use strict";
     var { buildOptions } = require_OptionsBuilder();
     var OrderedObjParser = require_OrderedObjParser();
@@ -49216,13 +49258,13 @@ var require_XMLParser = __commonJS({
         }
       }
     };
-    module2.exports = XMLParser2;
+    module.exports = XMLParser2;
   }
 });
 
 // ../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlbuilder/orderedJs2Xml.js
 var require_orderedJs2Xml = __commonJS({
-  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlbuilder/orderedJs2Xml.js"(exports2, module2) {
+  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlbuilder/orderedJs2Xml.js"(exports, module) {
     "use strict";
     var EOL = "\n";
     function toXml(jArray, options) {
@@ -49342,13 +49384,13 @@ var require_orderedJs2Xml = __commonJS({
       }
       return textValue;
     }
-    module2.exports = toXml;
+    module.exports = toXml;
   }
 });
 
 // ../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlbuilder/json2xml.js
 var require_json2xml = __commonJS({
-  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlbuilder/json2xml.js"(exports2, module2) {
+  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/xmlbuilder/json2xml.js"(exports, module) {
     "use strict";
     var buildFromOrderedJs = require_orderedJs2Xml();
     var defaultOptions = {
@@ -49583,18 +49625,18 @@ var require_json2xml = __commonJS({
         return false;
       }
     }
-    module2.exports = Builder;
+    module.exports = Builder;
   }
 });
 
 // ../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/fxp.js
 var require_fxp = __commonJS({
-  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/fxp.js"(exports2, module2) {
+  "../node_modules/.pnpm/fast-xml-parser@4.4.1/node_modules/fast-xml-parser/src/fxp.js"(exports, module) {
     "use strict";
     var validator2 = require_validator();
     var XMLParser2 = require_XMLParser();
     var XMLBuilder = require_json2xml();
-    module2.exports = {
+    module.exports = {
       XMLParser: XMLParser2,
       XMLValidator: validator2,
       XMLBuilder
@@ -50303,12 +50345,12 @@ var init_fromEnv = __esm({
 });
 
 // ../node_modules/.pnpm/@smithy+shared-ini-file-loader@4.0.4/node_modules/@smithy/shared-ini-file-loader/dist-es/getHomeDir.js
-var import_os, import_path3, homeDirCache, getHomeDirCacheKey, getHomeDir;
+import { homedir as homedir2 } from "os";
+import { sep as sep2 } from "path";
+var homeDirCache, getHomeDirCacheKey, getHomeDir;
 var init_getHomeDir = __esm({
   "../node_modules/.pnpm/@smithy+shared-ini-file-loader@4.0.4/node_modules/@smithy/shared-ini-file-loader/dist-es/getHomeDir.js"() {
     "use strict";
-    import_os = require("os");
-    import_path3 = require("path");
     homeDirCache = {};
     getHomeDirCacheKey = () => {
       if (process && process.geteuid) {
@@ -50317,7 +50359,7 @@ var init_getHomeDir = __esm({
       return "DEFAULT";
     };
     getHomeDir = () => {
-      const { HOME, USERPROFILE, HOMEPATH, HOMEDRIVE = `C:${import_path3.sep}` } = process.env;
+      const { HOME, USERPROFILE, HOMEPATH, HOMEDRIVE = `C:${sep2}` } = process.env;
       if (HOME)
         return HOME;
       if (USERPROFILE)
@@ -50326,7 +50368,7 @@ var init_getHomeDir = __esm({
         return `${HOMEDRIVE}${HOMEPATH}`;
       const homeDirCacheKey = getHomeDirCacheKey();
       if (!homeDirCache[homeDirCacheKey])
-        homeDirCache[homeDirCacheKey] = (0, import_os.homedir)();
+        homeDirCache[homeDirCacheKey] = homedir2();
       return homeDirCache[homeDirCacheKey];
     };
   }
@@ -50344,29 +50386,29 @@ var init_getProfileName = __esm({
 });
 
 // ../node_modules/.pnpm/@smithy+shared-ini-file-loader@4.0.4/node_modules/@smithy/shared-ini-file-loader/dist-es/getSSOTokenFilepath.js
-var import_crypto3, import_path4, getSSOTokenFilepath;
+import { createHash } from "crypto";
+import { join as join2 } from "path";
+var getSSOTokenFilepath;
 var init_getSSOTokenFilepath = __esm({
   "../node_modules/.pnpm/@smithy+shared-ini-file-loader@4.0.4/node_modules/@smithy/shared-ini-file-loader/dist-es/getSSOTokenFilepath.js"() {
     "use strict";
-    import_crypto3 = require("crypto");
-    import_path4 = require("path");
     init_getHomeDir();
     getSSOTokenFilepath = (id) => {
-      const hasher = (0, import_crypto3.createHash)("sha1");
+      const hasher = createHash("sha1");
       const cacheName = hasher.update(id).digest("hex");
-      return (0, import_path4.join)(getHomeDir(), ".aws", "sso", "cache", `${cacheName}.json`);
+      return join2(getHomeDir(), ".aws", "sso", "cache", `${cacheName}.json`);
     };
   }
 });
 
 // ../node_modules/.pnpm/@smithy+shared-ini-file-loader@4.0.4/node_modules/@smithy/shared-ini-file-loader/dist-es/getSSOTokenFromFile.js
-var import_fs3, readFile2, getSSOTokenFromFile;
+import { promises as fsPromises } from "fs";
+var readFile2, getSSOTokenFromFile;
 var init_getSSOTokenFromFile = __esm({
   "../node_modules/.pnpm/@smithy+shared-ini-file-loader@4.0.4/node_modules/@smithy/shared-ini-file-loader/dist-es/getSSOTokenFromFile.js"() {
     "use strict";
-    import_fs3 = require("fs");
     init_getSSOTokenFilepath();
-    ({ readFile: readFile2 } = import_fs3.promises);
+    ({ readFile: readFile2 } = fsPromises);
     getSSOTokenFromFile = async (id) => {
       const ssoTokenFilepath = getSSOTokenFilepath(id);
       const ssoTokenText = await readFile2(ssoTokenFilepath, "utf8");
@@ -50400,26 +50442,26 @@ var init_getConfigData = __esm({
 });
 
 // ../node_modules/.pnpm/@smithy+shared-ini-file-loader@4.0.4/node_modules/@smithy/shared-ini-file-loader/dist-es/getConfigFilepath.js
-var import_path5, ENV_CONFIG_PATH, getConfigFilepath;
+import { join as join3 } from "path";
+var ENV_CONFIG_PATH, getConfigFilepath;
 var init_getConfigFilepath = __esm({
   "../node_modules/.pnpm/@smithy+shared-ini-file-loader@4.0.4/node_modules/@smithy/shared-ini-file-loader/dist-es/getConfigFilepath.js"() {
     "use strict";
-    import_path5 = require("path");
     init_getHomeDir();
     ENV_CONFIG_PATH = "AWS_CONFIG_FILE";
-    getConfigFilepath = () => process.env[ENV_CONFIG_PATH] || (0, import_path5.join)(getHomeDir(), ".aws", "config");
+    getConfigFilepath = () => process.env[ENV_CONFIG_PATH] || join3(getHomeDir(), ".aws", "config");
   }
 });
 
 // ../node_modules/.pnpm/@smithy+shared-ini-file-loader@4.0.4/node_modules/@smithy/shared-ini-file-loader/dist-es/getCredentialsFilepath.js
-var import_path6, ENV_CREDENTIALS_PATH, getCredentialsFilepath;
+import { join as join4 } from "path";
+var ENV_CREDENTIALS_PATH, getCredentialsFilepath;
 var init_getCredentialsFilepath = __esm({
   "../node_modules/.pnpm/@smithy+shared-ini-file-loader@4.0.4/node_modules/@smithy/shared-ini-file-loader/dist-es/getCredentialsFilepath.js"() {
     "use strict";
-    import_path6 = require("path");
     init_getHomeDir();
     ENV_CREDENTIALS_PATH = "AWS_SHARED_CREDENTIALS_FILE";
-    getCredentialsFilepath = () => process.env[ENV_CREDENTIALS_PATH] || (0, import_path6.join)(getHomeDir(), ".aws", "credentials");
+    getCredentialsFilepath = () => process.env[ENV_CREDENTIALS_PATH] || join4(getHomeDir(), ".aws", "credentials");
   }
 });
 
@@ -50481,12 +50523,12 @@ var init_parseIni = __esm({
 });
 
 // ../node_modules/.pnpm/@smithy+shared-ini-file-loader@4.0.4/node_modules/@smithy/shared-ini-file-loader/dist-es/slurpFile.js
-var import_fs4, readFile3, filePromisesHash, slurpFile;
+import { promises as fsPromises2 } from "fs";
+var readFile3, filePromisesHash, slurpFile;
 var init_slurpFile = __esm({
   "../node_modules/.pnpm/@smithy+shared-ini-file-loader@4.0.4/node_modules/@smithy/shared-ini-file-loader/dist-es/slurpFile.js"() {
     "use strict";
-    import_fs4 = require("fs");
-    ({ readFile: readFile3 } = import_fs4.promises);
+    ({ readFile: readFile3 } = fsPromises2);
     filePromisesHash = {};
     slurpFile = (path3, options) => {
       if (!filePromisesHash[path3] || options?.ignoreCache) {
@@ -50498,11 +50540,11 @@ var init_slurpFile = __esm({
 });
 
 // ../node_modules/.pnpm/@smithy+shared-ini-file-loader@4.0.4/node_modules/@smithy/shared-ini-file-loader/dist-es/loadSharedConfigFiles.js
-var import_path7, swallowError, CONFIG_PREFIX_SEPARATOR, loadSharedConfigFiles;
+import { join as join5 } from "path";
+var swallowError, CONFIG_PREFIX_SEPARATOR, loadSharedConfigFiles;
 var init_loadSharedConfigFiles = __esm({
   "../node_modules/.pnpm/@smithy+shared-ini-file-loader@4.0.4/node_modules/@smithy/shared-ini-file-loader/dist-es/loadSharedConfigFiles.js"() {
     "use strict";
-    import_path7 = require("path");
     init_getConfigData();
     init_getConfigFilepath();
     init_getCredentialsFilepath();
@@ -50517,11 +50559,11 @@ var init_loadSharedConfigFiles = __esm({
       const relativeHomeDirPrefix = "~/";
       let resolvedFilepath = filepath;
       if (filepath.startsWith(relativeHomeDirPrefix)) {
-        resolvedFilepath = (0, import_path7.join)(homeDir, filepath.slice(2));
+        resolvedFilepath = join5(homeDir, filepath.slice(2));
       }
       let resolvedConfigFilepath = configFilepath;
       if (configFilepath.startsWith(relativeHomeDirPrefix)) {
-        resolvedConfigFilepath = (0, import_path7.join)(homeDir, configFilepath.slice(2));
+        resolvedConfigFilepath = join5(homeDir, configFilepath.slice(2));
       }
       const parsedFiles = await Promise.all([
         slurpFile(resolvedConfigFilepath, {
@@ -51371,18 +51413,18 @@ var init_dist_es36 = __esm({
 });
 
 // ../node_modules/.pnpm/uuid@9.0.1/node_modules/uuid/dist/esm-node/rng.js
+import crypto3 from "crypto";
 function rng() {
   if (poolPtr > rnds8Pool.length - 16) {
-    import_crypto4.default.randomFillSync(rnds8Pool);
+    crypto3.randomFillSync(rnds8Pool);
     poolPtr = 0;
   }
   return rnds8Pool.slice(poolPtr, poolPtr += 16);
 }
-var import_crypto4, rnds8Pool, poolPtr;
+var rnds8Pool, poolPtr;
 var init_rng = __esm({
   "../node_modules/.pnpm/uuid@9.0.1/node_modules/uuid/dist/esm-node/rng.js"() {
     "use strict";
-    import_crypto4 = __toESM(require("crypto"));
     rnds8Pool = new Uint8Array(256);
     poolPtr = rnds8Pool.length;
   }
@@ -51404,13 +51446,13 @@ var init_stringify = __esm({
 });
 
 // ../node_modules/.pnpm/uuid@9.0.1/node_modules/uuid/dist/esm-node/native.js
-var import_crypto5, native_default;
+import crypto4 from "crypto";
+var native_default;
 var init_native = __esm({
   "../node_modules/.pnpm/uuid@9.0.1/node_modules/uuid/dist/esm-node/native.js"() {
     "use strict";
-    import_crypto5 = __toESM(require("crypto"));
     native_default = {
-      randomUUID: import_crypto5.default.randomUUID
+      randomUUID: crypto4.randomUUID
     };
   }
 });
@@ -51585,12 +51627,12 @@ var init_omitRetryHeadersMiddleware = __esm({
 });
 
 // ../node_modules/.pnpm/@smithy+middleware-retry@4.1.10/node_modules/@smithy/middleware-retry/dist-es/isStreamingPayload/isStreamingPayload.js
-var import_stream6, isStreamingPayload;
+import { Readable as Readable5 } from "stream";
+var isStreamingPayload;
 var init_isStreamingPayload = __esm({
   "../node_modules/.pnpm/@smithy+middleware-retry@4.1.10/node_modules/@smithy/middleware-retry/dist-es/isStreamingPayload/isStreamingPayload.js"() {
     "use strict";
-    import_stream6 = require("stream");
-    isStreamingPayload = (request2) => request2?.body instanceof import_stream6.Readable || typeof ReadableStream !== "undefined" && request2?.body instanceof ReadableStream;
+    isStreamingPayload = (request2) => request2?.body instanceof Readable5 || typeof ReadableStream !== "undefined" && request2?.body instanceof ReadableStream;
   }
 });
 
@@ -51955,9 +51997,11 @@ var init_dist_es38 = __esm({
 });
 
 // ../node_modules/.pnpm/@smithy+credential-provider-imds@4.0.6/node_modules/@smithy/credential-provider-imds/dist-es/remoteProvider/httpRequest.js
+import { Buffer as Buffer5 } from "buffer";
+import { request } from "http";
 function httpRequest(options) {
   return new Promise((resolve, reject) => {
-    const req = (0, import_http4.request)({
+    const req = request({
       method: "GET",
       ...options,
       hostname: options.hostname?.replace(/^\[(.+)\]$/, "$1")
@@ -51981,20 +52025,17 @@ function httpRequest(options) {
         chunks.push(chunk);
       });
       res.on("end", () => {
-        resolve(import_buffer3.Buffer.concat(chunks));
+        resolve(Buffer5.concat(chunks));
         req.destroy();
       });
     });
     req.end();
   });
 }
-var import_buffer3, import_http4;
 var init_httpRequest2 = __esm({
   "../node_modules/.pnpm/@smithy+credential-provider-imds@4.0.6/node_modules/@smithy/credential-provider-imds/dist-es/remoteProvider/httpRequest.js"() {
     "use strict";
     init_dist_es21();
-    import_buffer3 = require("buffer");
-    import_http4 = require("http");
   }
 });
 
@@ -52041,12 +52082,12 @@ var init_retry3 = __esm({
 });
 
 // ../node_modules/.pnpm/@smithy+credential-provider-imds@4.0.6/node_modules/@smithy/credential-provider-imds/dist-es/fromContainerMetadata.js
-var import_url8, ENV_CMDS_FULL_URI, ENV_CMDS_RELATIVE_URI, ENV_CMDS_AUTH_TOKEN, fromContainerMetadata, requestFromEcsImds, CMDS_IP, GREENGRASS_HOSTS, GREENGRASS_PROTOCOLS, getCmdsUri;
+import { parse as parse3 } from "url";
+var ENV_CMDS_FULL_URI, ENV_CMDS_RELATIVE_URI, ENV_CMDS_AUTH_TOKEN, fromContainerMetadata, requestFromEcsImds, CMDS_IP, GREENGRASS_HOSTS, GREENGRASS_PROTOCOLS, getCmdsUri;
 var init_fromContainerMetadata = __esm({
   "../node_modules/.pnpm/@smithy+credential-provider-imds@4.0.6/node_modules/@smithy/credential-provider-imds/dist-es/fromContainerMetadata.js"() {
     "use strict";
     init_dist_es21();
-    import_url8 = require("url");
     init_httpRequest2();
     init_ImdsCredentials();
     init_RemoteProviderInit();
@@ -52097,7 +52138,7 @@ var init_fromContainerMetadata = __esm({
         };
       }
       if (process.env[ENV_CMDS_FULL_URI]) {
-        const parsed = (0, import_url8.parse)(process.env[ENV_CMDS_FULL_URI]);
+        const parsed = parse3(process.env[ENV_CMDS_FULL_URI]);
         if (!parsed.hostname || !(parsed.hostname in GREENGRASS_HOSTS)) {
           throw new CredentialsProviderError(`${parsed.hostname} is not a valid container metadata service hostname`, {
             tryNextLink: false,
@@ -52562,14 +52603,14 @@ var init_retry_wrapper = __esm({
 });
 
 // ../node_modules/.pnpm/@aws-sdk+credential-provider-http@3.816.0/node_modules/@aws-sdk/credential-provider-http/dist-es/fromHttp/fromHttp.js
-var import_promises2, AWS_CONTAINER_CREDENTIALS_RELATIVE_URI, DEFAULT_LINK_LOCAL_HOST, AWS_CONTAINER_CREDENTIALS_FULL_URI, AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE, AWS_CONTAINER_AUTHORIZATION_TOKEN, fromHttp;
+import fs3 from "fs/promises";
+var AWS_CONTAINER_CREDENTIALS_RELATIVE_URI, DEFAULT_LINK_LOCAL_HOST, AWS_CONTAINER_CREDENTIALS_FULL_URI, AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE, AWS_CONTAINER_AUTHORIZATION_TOKEN, fromHttp;
 var init_fromHttp = __esm({
   "../node_modules/.pnpm/@aws-sdk+credential-provider-http@3.816.0/node_modules/@aws-sdk/credential-provider-http/dist-es/fromHttp/fromHttp.js"() {
     "use strict";
     init_client2();
     init_dist_es14();
     init_dist_es21();
-    import_promises2 = __toESM(require("fs/promises"));
     init_checkUrl();
     init_requestHelpers();
     init_retry_wrapper();
@@ -52613,7 +52654,7 @@ Set AWS_CONTAINER_CREDENTIALS_FULL_URI or AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
         if (token) {
           request2.headers.Authorization = token;
         } else if (tokenFile) {
-          request2.headers.Authorization = (await import_promises2.default.readFile(tokenFile)).toString();
+          request2.headers.Authorization = (await fs3.readFile(tokenFile)).toString();
         }
         try {
           const result = await requestHandler.handle(request2);
@@ -52917,12 +52958,12 @@ var init_is_crt_available = __esm({
 });
 
 // ../node_modules/.pnpm/@aws-sdk+util-user-agent-node@3.816.0/node_modules/@aws-sdk/util-user-agent-node/dist-es/defaultUserAgent.js
-var import_os2, import_process, createDefaultUserAgentProvider;
+import { platform, release } from "os";
+import { env as env3, versions } from "process";
+var createDefaultUserAgentProvider;
 var init_defaultUserAgent = __esm({
   "../node_modules/.pnpm/@aws-sdk+util-user-agent-node@3.816.0/node_modules/@aws-sdk/util-user-agent-node/dist-es/defaultUserAgent.js"() {
     "use strict";
-    import_os2 = require("os");
-    import_process = require("process");
     init_is_crt_available();
     init_crt_availability();
     createDefaultUserAgentProvider = ({ serviceId, clientVersion }) => {
@@ -52930,9 +52971,9 @@ var init_defaultUserAgent = __esm({
         const sections = [
           ["aws-sdk-js", clientVersion],
           ["ua", "2.1"],
-          [`os/${(0, import_os2.platform)()}`, (0, import_os2.release)()],
+          [`os/${platform()}`, release()],
           ["lang/js"],
-          ["md/nodejs", `${import_process.versions.node}`]
+          ["md/nodejs", `${versions.node}`]
         ];
         const crtAvailable = isCrtAvailable();
         if (crtAvailable) {
@@ -52941,8 +52982,8 @@ var init_defaultUserAgent = __esm({
         if (serviceId) {
           sections.push([`api/${serviceId}`, clientVersion]);
         }
-        if (import_process.env.AWS_EXECUTION_ENV) {
-          sections.push([`exec-env/${import_process.env.AWS_EXECUTION_ENV}`]);
+        if (env3.AWS_EXECUTION_ENV) {
+          sections.push([`exec-env/${env3.AWS_EXECUTION_ENV}`]);
         }
         const appId = await config?.userAgentAppId?.();
         const resolvedUserAgent = appId ? [...sections, [`app/${appId}`]] : [...sections];
@@ -52979,8 +53020,10 @@ var init_dist_es41 = __esm({
 });
 
 // ../node_modules/.pnpm/@smithy+hash-node@4.0.4/node_modules/@smithy/hash-node/dist-es/index.js
+import { Buffer as Buffer6 } from "buffer";
+import { createHash as createHash2, createHmac } from "crypto";
 function castSourceData(toCast, encoding) {
-  if (import_buffer4.Buffer.isBuffer(toCast)) {
+  if (Buffer6.isBuffer(toCast)) {
     return toCast;
   }
   if (typeof toCast === "string") {
@@ -52991,14 +53034,12 @@ function castSourceData(toCast, encoding) {
   }
   return fromArrayBuffer(toCast);
 }
-var import_buffer4, import_crypto6, Hash;
+var Hash;
 var init_dist_es42 = __esm({
   "../node_modules/.pnpm/@smithy+hash-node@4.0.4/node_modules/@smithy/hash-node/dist-es/index.js"() {
     "use strict";
     init_dist_es9();
     init_dist_es10();
-    import_buffer4 = require("buffer");
-    import_crypto6 = require("crypto");
     Hash = class {
       constructor(algorithmIdentifier, secret) {
         this.algorithmIdentifier = algorithmIdentifier;
@@ -53012,18 +53053,18 @@ var init_dist_es42 = __esm({
         return Promise.resolve(this.hash.digest());
       }
       reset() {
-        this.hash = this.secret ? (0, import_crypto6.createHmac)(this.algorithmIdentifier, castSourceData(this.secret)) : (0, import_crypto6.createHash)(this.algorithmIdentifier);
+        this.hash = this.secret ? createHmac(this.algorithmIdentifier, castSourceData(this.secret)) : createHash2(this.algorithmIdentifier);
       }
     };
   }
 });
 
 // ../node_modules/.pnpm/@smithy+util-body-length-node@4.0.0/node_modules/@smithy/util-body-length-node/dist-es/calculateBodyLength.js
-var import_fs5, calculateBodyLength;
+import { fstatSync, lstatSync } from "fs";
+var calculateBodyLength;
 var init_calculateBodyLength = __esm({
   "../node_modules/.pnpm/@smithy+util-body-length-node@4.0.0/node_modules/@smithy/util-body-length-node/dist-es/calculateBodyLength.js"() {
     "use strict";
-    import_fs5 = require("fs");
     calculateBodyLength = (body) => {
       if (!body) {
         return 0;
@@ -53037,9 +53078,9 @@ var init_calculateBodyLength = __esm({
       } else if (typeof body.start === "number" && typeof body.end === "number") {
         return body.end + 1 - body.start;
       } else if (typeof body.path === "string" || Buffer.isBuffer(body.path)) {
-        return (0, import_fs5.lstatSync)(body.path).size;
+        return lstatSync(body.path).size;
       } else if (typeof body.fd === "number") {
-        return (0, import_fs5.fstatSync)(body.fd).size;
+        return fstatSync(body.fd).size;
       }
       throw new Error(`Body Length computation failed for ${body}`);
     };
@@ -54125,13 +54166,13 @@ var init_validateTokenKey = __esm({
 });
 
 // ../node_modules/.pnpm/@aws-sdk+token-providers@3.817.0/node_modules/@aws-sdk/token-providers/dist-es/writeSSOTokenToFile.js
-var import_fs6, writeFile, writeSSOTokenToFile;
+import { promises as fsPromises3 } from "fs";
+var writeFile, writeSSOTokenToFile;
 var init_writeSSOTokenToFile = __esm({
   "../node_modules/.pnpm/@aws-sdk+token-providers@3.817.0/node_modules/@aws-sdk/token-providers/dist-es/writeSSOTokenToFile.js"() {
     "use strict";
     init_dist_es30();
-    import_fs6 = require("fs");
-    ({ writeFile } = import_fs6.promises);
+    ({ writeFile } = fsPromises3);
     writeSSOTokenToFile = (id, ssoToken) => {
       const tokenFilepath = getSSOTokenFilepath(id);
       const tokenString = JSON.stringify(ssoToken, null, 2);
@@ -56871,20 +56912,20 @@ var init_getValidatedProcessCredentials = __esm({
 });
 
 // ../node_modules/.pnpm/@aws-sdk+credential-provider-process@3.816.0/node_modules/@aws-sdk/credential-provider-process/dist-es/resolveProcessCredentials.js
-var import_child_process, import_util6, resolveProcessCredentials;
+import { exec as exec2 } from "child_process";
+import { promisify as promisify2 } from "util";
+var resolveProcessCredentials;
 var init_resolveProcessCredentials = __esm({
   "../node_modules/.pnpm/@aws-sdk+credential-provider-process@3.816.0/node_modules/@aws-sdk/credential-provider-process/dist-es/resolveProcessCredentials.js"() {
     "use strict";
     init_dist_es21();
-    import_child_process = require("child_process");
-    import_util6 = require("util");
     init_getValidatedProcessCredentials();
     resolveProcessCredentials = async (profileName, profiles, logger2) => {
       const profile = profiles[profileName];
       if (profiles[profileName]) {
         const credentialProcess = profile["credential_process"];
         if (credentialProcess !== void 0) {
-          const execPromise = (0, import_util6.promisify)(import_child_process.exec);
+          const execPromise = promisify2(exec2);
           try {
             const { stdout } = await execPromise(credentialProcess);
             let data;
@@ -57032,13 +57073,13 @@ var init_fromWebToken = __esm({
 });
 
 // ../node_modules/.pnpm/@aws-sdk+credential-provider-web-identity@3.817.0/node_modules/@aws-sdk/credential-provider-web-identity/dist-es/fromTokenFile.js
-var import_fs7, ENV_TOKEN_FILE, ENV_ROLE_ARN, ENV_ROLE_SESSION_NAME, fromTokenFile;
+import { readFileSync } from "fs";
+var ENV_TOKEN_FILE, ENV_ROLE_ARN, ENV_ROLE_SESSION_NAME, fromTokenFile;
 var init_fromTokenFile = __esm({
   "../node_modules/.pnpm/@aws-sdk+credential-provider-web-identity@3.817.0/node_modules/@aws-sdk/credential-provider-web-identity/dist-es/fromTokenFile.js"() {
     "use strict";
     init_client2();
     init_dist_es21();
-    import_fs7 = require("fs");
     init_fromWebToken();
     ENV_TOKEN_FILE = "AWS_WEB_IDENTITY_TOKEN_FILE";
     ENV_ROLE_ARN = "AWS_ROLE_ARN";
@@ -57055,7 +57096,7 @@ var init_fromTokenFile = __esm({
       }
       const credentials2 = await fromWebToken({
         ...init2,
-        webIdentityToken: (0, import_fs7.readFileSync)(webIdentityTokenFile, { encoding: "ascii" }),
+        webIdentityToken: readFileSync(webIdentityTokenFile, { encoding: "ascii" }),
         roleArn,
         roleSessionName
       })();
@@ -58764,42 +58805,42 @@ var init_dist_es53 = __esm({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/primitives/chars.js
 var require_chars = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/primitives/chars.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/primitives/chars.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.$v = exports2.$s = exports2.$r = exports2.$p = exports2.$o = exports2.$n = exports2.$m = exports2.$j = exports2.$b = exports2.$Z = exports2.$Y = exports2.$X = exports2.$V = exports2.$T = exports2.$S = exports2.$R = exports2.$Q = exports2.$P = exports2.$O = exports2.$M = exports2.$L = exports2.$K = exports2.$I = exports2.$H = exports2.$E = exports2.$D = exports2.$C = exports2.$A = exports2.$1 = exports2.$0 = void 0;
-    exports2.ord = ord;
-    exports2.chr = chr;
-    exports2.$0 = ord("0");
-    exports2.$1 = ord("1");
-    exports2.$A = ord("A");
-    exports2.$C = ord("C");
-    exports2.$D = ord("D");
-    exports2.$E = ord("E");
-    exports2.$H = ord("H");
-    exports2.$I = ord("I");
-    exports2.$K = ord("K");
-    exports2.$L = ord("L");
-    exports2.$M = ord("M");
-    exports2.$O = ord("O");
-    exports2.$P = ord("P");
-    exports2.$Q = ord("Q");
-    exports2.$R = ord("R");
-    exports2.$S = ord("S");
-    exports2.$T = ord("T");
-    exports2.$V = ord("V");
-    exports2.$X = ord("X");
-    exports2.$Y = ord("Y");
-    exports2.$Z = ord("Z");
-    exports2.$b = ord("b");
-    exports2.$j = ord("j");
-    exports2.$m = ord("m");
-    exports2.$n = ord("n");
-    exports2.$o = ord("o");
-    exports2.$p = ord("p");
-    exports2.$r = ord("r");
-    exports2.$s = ord("s");
-    exports2.$v = ord("v");
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.$v = exports.$s = exports.$r = exports.$p = exports.$o = exports.$n = exports.$m = exports.$j = exports.$b = exports.$Z = exports.$Y = exports.$X = exports.$V = exports.$T = exports.$S = exports.$R = exports.$Q = exports.$P = exports.$O = exports.$M = exports.$L = exports.$K = exports.$I = exports.$H = exports.$E = exports.$D = exports.$C = exports.$A = exports.$1 = exports.$0 = void 0;
+    exports.ord = ord;
+    exports.chr = chr;
+    exports.$0 = ord("0");
+    exports.$1 = ord("1");
+    exports.$A = ord("A");
+    exports.$C = ord("C");
+    exports.$D = ord("D");
+    exports.$E = ord("E");
+    exports.$H = ord("H");
+    exports.$I = ord("I");
+    exports.$K = ord("K");
+    exports.$L = ord("L");
+    exports.$M = ord("M");
+    exports.$O = ord("O");
+    exports.$P = ord("P");
+    exports.$Q = ord("Q");
+    exports.$R = ord("R");
+    exports.$S = ord("S");
+    exports.$T = ord("T");
+    exports.$V = ord("V");
+    exports.$X = ord("X");
+    exports.$Y = ord("Y");
+    exports.$Z = ord("Z");
+    exports.$b = ord("b");
+    exports.$j = ord("j");
+    exports.$m = ord("m");
+    exports.$n = ord("n");
+    exports.$o = ord("o");
+    exports.$p = ord("p");
+    exports.$r = ord("r");
+    exports.$s = ord("s");
+    exports.$v = ord("v");
     function ord(str) {
       const ch = str.charCodeAt(0);
       if (ch <= 0 || ch >= 255) {
@@ -58818,9 +58859,9 @@ var require_chars = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/primitives/buffer.js
 var require_buffer = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/primitives/buffer.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/primitives/buffer.js"(exports) {
     "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
       if (k22 === void 0) k22 = k5;
       var desc = Object.getOwnPropertyDescriptor(m6, k5);
       if (!desc || ("get" in desc ? !m6.__esModule : desc.writable || desc.configurable)) {
@@ -58833,12 +58874,12 @@ var require_buffer = __commonJS({
       if (k22 === void 0) k22 = k5;
       o5[k22] = m6[k5];
     });
-    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o5, v6) {
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o5, v6) {
       Object.defineProperty(o5, "default", { enumerable: true, value: v6 });
     } : function(o5, v6) {
       o5["default"] = v6;
     });
-    var __importStar = exports2 && exports2.__importStar || function(mod) {
+    var __importStar = exports && exports.__importStar || function(mod) {
       if (mod && mod.__esModule) return mod;
       var result = {};
       if (mod != null) {
@@ -58847,24 +58888,24 @@ var require_buffer = __commonJS({
       __setModuleDefault(result, mod);
       return result;
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.ReadBuffer = exports2.ReadMessageBuffer = exports2.WriteMessageBuffer = exports2.WriteBuffer = exports2.BufferError = exports2.encodeB64 = exports2.decodeB64 = exports2.utf8Decoder = exports2.utf8Encoder = void 0;
-    exports2.uuidToBuffer = uuidToBuffer;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.ReadBuffer = exports.ReadMessageBuffer = exports.WriteMessageBuffer = exports.WriteBuffer = exports.BufferError = exports.encodeB64 = exports.decodeB64 = exports.utf8Decoder = exports.utf8Encoder = void 0;
+    exports.uuidToBuffer = uuidToBuffer;
     var chars = __importStar(require_chars());
-    exports2.utf8Encoder = new TextEncoder();
-    exports2.utf8Decoder = new TextDecoder("utf8");
+    exports.utf8Encoder = new TextEncoder();
+    exports.utf8Decoder = new TextDecoder("utf8");
     var decodeB64;
     var encodeB64;
     if (typeof Buffer === "function") {
-      exports2.decodeB64 = decodeB64 = (b64) => {
+      exports.decodeB64 = decodeB64 = (b64) => {
         return Buffer.from(b64, "base64");
       };
-      exports2.encodeB64 = encodeB64 = (data) => {
+      exports.encodeB64 = encodeB64 = (data) => {
         const buf = !Buffer.isBuffer(data) ? Buffer.from(data.buffer, data.byteOffset, data.byteLength) : data;
         return buf.toString("base64");
       };
     } else {
-      exports2.decodeB64 = decodeB64 = (b64) => {
+      exports.decodeB64 = decodeB64 = (b64) => {
         const binaryString = atob(b64);
         const size = binaryString.length;
         const bytes = new Uint8Array(size);
@@ -58873,7 +58914,7 @@ var require_buffer = __commonJS({
         }
         return bytes;
       };
-      exports2.encodeB64 = encodeB64 = (data) => {
+      exports.encodeB64 = encodeB64 = (data) => {
         const binaryString = String.fromCharCode(...data);
         return btoa(binaryString);
       };
@@ -58882,7 +58923,7 @@ var require_buffer = __commonJS({
     var EMPTY_BUFFER = new Uint8Array(0);
     var BufferError = class extends Error {
     };
-    exports2.BufferError = BufferError;
+    exports.BufferError = BufferError;
     var WriteBuffer = class {
       constructor() {
         __publicField(this, "_rawBuffer");
@@ -58921,7 +58962,7 @@ var require_buffer = __commonJS({
         return this;
       }
       writeString(s6) {
-        return this.writeBytes(exports2.utf8Encoder.encode(s6));
+        return this.writeBytes(exports.utf8Encoder.encode(s6));
       }
       writeBytes(buf) {
         this.ensureAlloced(buf.length + 4);
@@ -59011,7 +59052,7 @@ var require_buffer = __commonJS({
         return this._rawBuffer.subarray(0, this.pos);
       }
     };
-    exports2.WriteBuffer = WriteBuffer;
+    exports.WriteBuffer = WriteBuffer;
     var WriteMessageBuffer = class {
       constructor() {
         __publicField(this, "buffer");
@@ -59133,7 +59174,7 @@ var require_buffer = __commonJS({
         return this.buffer.unwrap();
       }
     };
-    exports2.WriteMessageBuffer = WriteMessageBuffer;
+    exports.WriteMessageBuffer = WriteMessageBuffer;
     var SYNC_MESSAGE = new WriteMessageBuffer().beginMessage(chars.$S).endMessage().unwrap();
     var FLUSH_MESSAGE = new WriteMessageBuffer().beginMessage(chars.$H).endMessage().unwrap();
     var byteToHex2 = [];
@@ -59357,7 +59398,7 @@ var require_buffer = __commonJS({
       readString() {
         const len = this.readInt32();
         const buf = this.readBuffer(len);
-        return exports2.utf8Decoder.decode(buf);
+        return exports.utf8Decoder.decode(buf);
       }
       readLenPrefixedBuffer() {
         const len = this.readInt32();
@@ -59472,7 +59513,7 @@ var require_buffer = __commonJS({
         this._finishMessage();
       }
     };
-    exports2.ReadMessageBuffer = ReadMessageBuffer;
+    exports.ReadMessageBuffer = ReadMessageBuffer;
     var ReadBuffer = class {
       constructor(buf) {
         __publicField(this, "_rawBuffer");
@@ -59620,13 +59661,13 @@ var require_buffer = __commonJS({
       readString() {
         const len = this.readUInt32();
         const buf = this.readBuffer(len);
-        return exports2.utf8Decoder.decode(buf);
+        return exports.utf8Decoder.decode(buf);
       }
       consumeAsString() {
         if (this.pos === this.len) {
           return "";
         }
-        const res = exports2.utf8Decoder.decode(this._rawBuffer.subarray(this.pos, this.len));
+        const res = exports.utf8Decoder.decode(this._rawBuffer.subarray(this.pos, this.len));
         this.pos = this.len;
         return res;
       }
@@ -59655,17 +59696,17 @@ var require_buffer = __commonJS({
         return new this(EMPTY_BUFFER);
       }
     };
-    exports2.ReadBuffer = ReadBuffer;
+    exports.ReadBuffer = ReadBuffer;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/errors/base.js
 var require_base = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/errors/base.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/errors/base.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.ErrorAttr = exports2.GelError = void 0;
-    exports2.prettyPrintError = prettyPrintError;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.ErrorAttr = exports.GelError = void 0;
+    exports.prettyPrintError = prettyPrintError;
     var buffer_1 = require_buffer();
     var GelError = class extends Error {
       constructor(message, options) {
@@ -59692,7 +59733,7 @@ var require_base = __commonJS({
       }
     };
     __publicField(GelError, "tags", {});
-    exports2.GelError = GelError;
+    exports.GelError = GelError;
     var ErrorAttr;
     (function(ErrorAttr2) {
       ErrorAttr2[ErrorAttr2["hint"] = 1] = "hint";
@@ -59708,7 +59749,7 @@ var require_base = __commonJS({
       ErrorAttr2[ErrorAttr2["utf16ColumnEnd"] = -8] = "utf16ColumnEnd";
       ErrorAttr2[ErrorAttr2["characterStart"] = -7] = "characterStart";
       ErrorAttr2[ErrorAttr2["characterEnd"] = -6] = "characterEnd";
-    })(ErrorAttr || (exports2.ErrorAttr = ErrorAttr = {}));
+    })(ErrorAttr || (exports.ErrorAttr = ErrorAttr = {}));
     function tryParseInt(val2) {
       if (val2 == null)
         return null;
@@ -59756,20 +59797,20 @@ var require_base = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/errors/tags.js
 var require_tags = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/errors/tags.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/errors/tags.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.SHOULD_RETRY = exports2.SHOULD_RECONNECT = void 0;
-    exports2.SHOULD_RECONNECT = Symbol("SHOULD_RECONNECT");
-    exports2.SHOULD_RETRY = Symbol("SHOULD_RETRY");
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.SHOULD_RETRY = exports.SHOULD_RECONNECT = void 0;
+    exports.SHOULD_RECONNECT = Symbol("SHOULD_RECONNECT");
+    exports.SHOULD_RETRY = Symbol("SHOULD_RETRY");
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/errors/index.js
 var require_errors = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/errors/index.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/errors/index.js"(exports) {
     "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
       if (k22 === void 0) k22 = k5;
       var desc = Object.getOwnPropertyDescriptor(m6, k5);
       if (!desc || ("get" in desc ? !m6.__esModule : desc.writable || desc.configurable)) {
@@ -59782,12 +59823,12 @@ var require_errors = __commonJS({
       if (k22 === void 0) k22 = k5;
       o5[k22] = m6[k5];
     });
-    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o5, v6) {
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o5, v6) {
       Object.defineProperty(o5, "default", { enumerable: true, value: v6 });
     } : function(o5, v6) {
       o5["default"] = v6;
     });
-    var __importStar = exports2 && exports2.__importStar || function(mod) {
+    var __importStar = exports && exports.__importStar || function(mod) {
       if (mod && mod.__esModule) return mod;
       var result = {};
       if (mod != null) {
@@ -59796,518 +59837,518 @@ var require_errors = __commonJS({
       __setModuleDefault(result, mod);
       return result;
     };
-    var __exportStar = exports2 && exports2.__exportStar || function(m6, exports3) {
-      for (var p5 in m6) if (p5 !== "default" && !Object.prototype.hasOwnProperty.call(exports3, p5)) __createBinding(exports3, m6, p5);
+    var __exportStar = exports && exports.__exportStar || function(m6, exports2) {
+      for (var p5 in m6) if (p5 !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p5)) __createBinding(exports2, m6, p5);
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.DuplicatePropertyDefinitionError = exports2.DuplicateLinkDefinitionError = exports2.DuplicateModuleDefinitionError = exports2.DuplicateDefinitionError = exports2.InvalidCastDefinitionError = exports2.InvalidConstraintDefinitionError = exports2.InvalidFunctionDefinitionError = exports2.InvalidAliasDefinitionError = exports2.InvalidOperatorDefinitionError = exports2.InvalidDatabaseDefinitionError = exports2.InvalidUserDefinitionError = exports2.InvalidPropertyDefinitionError = exports2.InvalidLinkDefinitionError = exports2.InvalidModuleDefinitionError = exports2.InvalidDefinitionError = exports2.SchemaDefinitionError = exports2.SchemaError = exports2.DeprecatedScopingError = exports2.UnknownParameterError = exports2.UnknownDatabaseError = exports2.UnknownUserError = exports2.UnknownPropertyError = exports2.UnknownLinkError = exports2.UnknownModuleError = exports2.InvalidReferenceError = exports2.InvalidPropertyTargetError = exports2.InvalidLinkTargetError = exports2.InvalidTargetError = exports2.InvalidTypeError = exports2.GraphQLSyntaxError = exports2.SchemaSyntaxError = exports2.EdgeQLSyntaxError = exports2.InvalidSyntaxError = exports2.QueryError = exports2.UnsafeIsolationLevelError = exports2.DisabledCapabilityError = exports2.UnsupportedCapabilityError = exports2.CapabilityError = exports2.ResultCardinalityMismatchError = exports2.StateMismatchError = exports2.ParameterTypeMismatchError = exports2.InputDataError = exports2.UnexpectedMessageError = exports2.TypeSpecNotFoundError = exports2.UnsupportedProtocolVersionError = exports2.BinaryProtocolError = exports2.ProtocolError = exports2.UnsupportedFeatureError = exports2.InternalServerError = exports2.GelError = void 0;
-    exports2.QueryArgumentError = exports2.InterfaceError = exports2.ClientConnectionClosedError = exports2.ClientConnectionTimeoutError = exports2.ClientConnectionFailedTemporarilyError = exports2.ClientConnectionFailedError = exports2.ClientConnectionError = exports2.ClientError = exports2.MigrationStatusMessage = exports2.StatusMessage = exports2.WarningMessage = exports2.LogMessage = exports2.UnsupportedBackendFeatureError = exports2.BackendError = exports2.ServerBlockedError = exports2.UnknownTenantError = exports2.ServerOfflineError = exports2.BackendUnavailableError = exports2.AvailabilityError = exports2.AuthenticationError = exports2.AccessError = exports2.ConfigurationError = exports2.WatchError = exports2.TransactionDeadlockError = exports2.TransactionSerializationError = exports2.TransactionConflictError = exports2.TransactionError = exports2.MissingRequiredError = exports2.CardinalityViolationError = exports2.ConstraintViolationError = exports2.IntegrityError = exports2.QueryAssertionError = exports2.AccessPolicyError = exports2.NumericOutOfRangeError = exports2.DivisionByZeroError = exports2.InvalidValueError = exports2.ExecutionError = exports2.IdleTransactionTimeoutError = exports2.TransactionTimeoutError = exports2.QueryTimeoutError = exports2.IdleSessionTimeoutError = exports2.SessionTimeoutError = exports2.DuplicateMigrationError = exports2.DuplicateCastDefinitionError = exports2.DuplicateConstraintDefinitionError = exports2.DuplicateFunctionDefinitionError = exports2.DuplicateViewDefinitionError = exports2.DuplicateOperatorDefinitionError = exports2.DuplicateDatabaseDefinitionError = exports2.DuplicateUserDefinitionError = void 0;
-    exports2.InternalClientError = exports2.NoDataError = exports2.InvalidArgumentError = exports2.UnknownArgumentError = exports2.MissingArgumentError = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.DuplicatePropertyDefinitionError = exports.DuplicateLinkDefinitionError = exports.DuplicateModuleDefinitionError = exports.DuplicateDefinitionError = exports.InvalidCastDefinitionError = exports.InvalidConstraintDefinitionError = exports.InvalidFunctionDefinitionError = exports.InvalidAliasDefinitionError = exports.InvalidOperatorDefinitionError = exports.InvalidDatabaseDefinitionError = exports.InvalidUserDefinitionError = exports.InvalidPropertyDefinitionError = exports.InvalidLinkDefinitionError = exports.InvalidModuleDefinitionError = exports.InvalidDefinitionError = exports.SchemaDefinitionError = exports.SchemaError = exports.DeprecatedScopingError = exports.UnknownParameterError = exports.UnknownDatabaseError = exports.UnknownUserError = exports.UnknownPropertyError = exports.UnknownLinkError = exports.UnknownModuleError = exports.InvalidReferenceError = exports.InvalidPropertyTargetError = exports.InvalidLinkTargetError = exports.InvalidTargetError = exports.InvalidTypeError = exports.GraphQLSyntaxError = exports.SchemaSyntaxError = exports.EdgeQLSyntaxError = exports.InvalidSyntaxError = exports.QueryError = exports.UnsafeIsolationLevelError = exports.DisabledCapabilityError = exports.UnsupportedCapabilityError = exports.CapabilityError = exports.ResultCardinalityMismatchError = exports.StateMismatchError = exports.ParameterTypeMismatchError = exports.InputDataError = exports.UnexpectedMessageError = exports.TypeSpecNotFoundError = exports.UnsupportedProtocolVersionError = exports.BinaryProtocolError = exports.ProtocolError = exports.UnsupportedFeatureError = exports.InternalServerError = exports.GelError = void 0;
+    exports.QueryArgumentError = exports.InterfaceError = exports.ClientConnectionClosedError = exports.ClientConnectionTimeoutError = exports.ClientConnectionFailedTemporarilyError = exports.ClientConnectionFailedError = exports.ClientConnectionError = exports.ClientError = exports.MigrationStatusMessage = exports.StatusMessage = exports.WarningMessage = exports.LogMessage = exports.UnsupportedBackendFeatureError = exports.BackendError = exports.ServerBlockedError = exports.UnknownTenantError = exports.ServerOfflineError = exports.BackendUnavailableError = exports.AvailabilityError = exports.AuthenticationError = exports.AccessError = exports.ConfigurationError = exports.WatchError = exports.TransactionDeadlockError = exports.TransactionSerializationError = exports.TransactionConflictError = exports.TransactionError = exports.MissingRequiredError = exports.CardinalityViolationError = exports.ConstraintViolationError = exports.IntegrityError = exports.QueryAssertionError = exports.AccessPolicyError = exports.NumericOutOfRangeError = exports.DivisionByZeroError = exports.InvalidValueError = exports.ExecutionError = exports.IdleTransactionTimeoutError = exports.TransactionTimeoutError = exports.QueryTimeoutError = exports.IdleSessionTimeoutError = exports.SessionTimeoutError = exports.DuplicateMigrationError = exports.DuplicateCastDefinitionError = exports.DuplicateConstraintDefinitionError = exports.DuplicateFunctionDefinitionError = exports.DuplicateViewDefinitionError = exports.DuplicateOperatorDefinitionError = exports.DuplicateDatabaseDefinitionError = exports.DuplicateUserDefinitionError = void 0;
+    exports.InternalClientError = exports.NoDataError = exports.InvalidArgumentError = exports.UnknownArgumentError = exports.MissingArgumentError = void 0;
     var base_1 = require_base();
     var tags = __importStar(require_tags());
     var base_2 = require_base();
-    Object.defineProperty(exports2, "GelError", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "GelError", { enumerable: true, get: function() {
       return base_2.GelError;
     } });
-    __exportStar(require_tags(), exports2);
+    __exportStar(require_tags(), exports);
     var InternalServerError = class extends base_1.GelError {
       get code() {
         return 16777216;
       }
     };
-    exports2.InternalServerError = InternalServerError;
+    exports.InternalServerError = InternalServerError;
     var UnsupportedFeatureError = class extends base_1.GelError {
       get code() {
         return 33554432;
       }
     };
-    exports2.UnsupportedFeatureError = UnsupportedFeatureError;
+    exports.UnsupportedFeatureError = UnsupportedFeatureError;
     var ProtocolError = class extends base_1.GelError {
       get code() {
         return 50331648;
       }
     };
-    exports2.ProtocolError = ProtocolError;
+    exports.ProtocolError = ProtocolError;
     var BinaryProtocolError = class extends ProtocolError {
       get code() {
         return 50397184;
       }
     };
-    exports2.BinaryProtocolError = BinaryProtocolError;
+    exports.BinaryProtocolError = BinaryProtocolError;
     var UnsupportedProtocolVersionError = class extends BinaryProtocolError {
       get code() {
         return 50397185;
       }
     };
-    exports2.UnsupportedProtocolVersionError = UnsupportedProtocolVersionError;
+    exports.UnsupportedProtocolVersionError = UnsupportedProtocolVersionError;
     var TypeSpecNotFoundError = class extends BinaryProtocolError {
       get code() {
         return 50397186;
       }
     };
-    exports2.TypeSpecNotFoundError = TypeSpecNotFoundError;
+    exports.TypeSpecNotFoundError = TypeSpecNotFoundError;
     var UnexpectedMessageError = class extends BinaryProtocolError {
       get code() {
         return 50397187;
       }
     };
-    exports2.UnexpectedMessageError = UnexpectedMessageError;
+    exports.UnexpectedMessageError = UnexpectedMessageError;
     var InputDataError = class extends ProtocolError {
       get code() {
         return 50462720;
       }
     };
-    exports2.InputDataError = InputDataError;
+    exports.InputDataError = InputDataError;
     var ParameterTypeMismatchError = class extends InputDataError {
       get code() {
         return 50462976;
       }
     };
-    exports2.ParameterTypeMismatchError = ParameterTypeMismatchError;
+    exports.ParameterTypeMismatchError = ParameterTypeMismatchError;
     var StateMismatchError = class extends InputDataError {
       get code() {
         return 50463232;
       }
     };
     __publicField(StateMismatchError, "tags", { [tags.SHOULD_RETRY]: true });
-    exports2.StateMismatchError = StateMismatchError;
+    exports.StateMismatchError = StateMismatchError;
     var ResultCardinalityMismatchError = class extends ProtocolError {
       get code() {
         return 50528256;
       }
     };
-    exports2.ResultCardinalityMismatchError = ResultCardinalityMismatchError;
+    exports.ResultCardinalityMismatchError = ResultCardinalityMismatchError;
     var CapabilityError = class extends ProtocolError {
       get code() {
         return 50593792;
       }
     };
-    exports2.CapabilityError = CapabilityError;
+    exports.CapabilityError = CapabilityError;
     var UnsupportedCapabilityError = class extends CapabilityError {
       get code() {
         return 50594048;
       }
     };
-    exports2.UnsupportedCapabilityError = UnsupportedCapabilityError;
+    exports.UnsupportedCapabilityError = UnsupportedCapabilityError;
     var DisabledCapabilityError = class extends CapabilityError {
       get code() {
         return 50594304;
       }
     };
-    exports2.DisabledCapabilityError = DisabledCapabilityError;
+    exports.DisabledCapabilityError = DisabledCapabilityError;
     var UnsafeIsolationLevelError = class extends CapabilityError {
       get code() {
         return 50594560;
       }
     };
-    exports2.UnsafeIsolationLevelError = UnsafeIsolationLevelError;
+    exports.UnsafeIsolationLevelError = UnsafeIsolationLevelError;
     var QueryError = class extends base_1.GelError {
       get code() {
         return 67108864;
       }
     };
-    exports2.QueryError = QueryError;
+    exports.QueryError = QueryError;
     var InvalidSyntaxError = class extends QueryError {
       get code() {
         return 67174400;
       }
     };
-    exports2.InvalidSyntaxError = InvalidSyntaxError;
+    exports.InvalidSyntaxError = InvalidSyntaxError;
     var EdgeQLSyntaxError = class extends InvalidSyntaxError {
       get code() {
         return 67174656;
       }
     };
-    exports2.EdgeQLSyntaxError = EdgeQLSyntaxError;
+    exports.EdgeQLSyntaxError = EdgeQLSyntaxError;
     var SchemaSyntaxError = class extends InvalidSyntaxError {
       get code() {
         return 67174912;
       }
     };
-    exports2.SchemaSyntaxError = SchemaSyntaxError;
+    exports.SchemaSyntaxError = SchemaSyntaxError;
     var GraphQLSyntaxError = class extends InvalidSyntaxError {
       get code() {
         return 67175168;
       }
     };
-    exports2.GraphQLSyntaxError = GraphQLSyntaxError;
+    exports.GraphQLSyntaxError = GraphQLSyntaxError;
     var InvalidTypeError = class extends QueryError {
       get code() {
         return 67239936;
       }
     };
-    exports2.InvalidTypeError = InvalidTypeError;
+    exports.InvalidTypeError = InvalidTypeError;
     var InvalidTargetError = class extends InvalidTypeError {
       get code() {
         return 67240192;
       }
     };
-    exports2.InvalidTargetError = InvalidTargetError;
+    exports.InvalidTargetError = InvalidTargetError;
     var InvalidLinkTargetError = class extends InvalidTargetError {
       get code() {
         return 67240193;
       }
     };
-    exports2.InvalidLinkTargetError = InvalidLinkTargetError;
+    exports.InvalidLinkTargetError = InvalidLinkTargetError;
     var InvalidPropertyTargetError = class extends InvalidTargetError {
       get code() {
         return 67240194;
       }
     };
-    exports2.InvalidPropertyTargetError = InvalidPropertyTargetError;
+    exports.InvalidPropertyTargetError = InvalidPropertyTargetError;
     var InvalidReferenceError = class extends QueryError {
       get code() {
         return 67305472;
       }
     };
-    exports2.InvalidReferenceError = InvalidReferenceError;
+    exports.InvalidReferenceError = InvalidReferenceError;
     var UnknownModuleError = class extends InvalidReferenceError {
       get code() {
         return 67305473;
       }
     };
-    exports2.UnknownModuleError = UnknownModuleError;
+    exports.UnknownModuleError = UnknownModuleError;
     var UnknownLinkError = class extends InvalidReferenceError {
       get code() {
         return 67305474;
       }
     };
-    exports2.UnknownLinkError = UnknownLinkError;
+    exports.UnknownLinkError = UnknownLinkError;
     var UnknownPropertyError = class extends InvalidReferenceError {
       get code() {
         return 67305475;
       }
     };
-    exports2.UnknownPropertyError = UnknownPropertyError;
+    exports.UnknownPropertyError = UnknownPropertyError;
     var UnknownUserError = class extends InvalidReferenceError {
       get code() {
         return 67305476;
       }
     };
-    exports2.UnknownUserError = UnknownUserError;
+    exports.UnknownUserError = UnknownUserError;
     var UnknownDatabaseError = class extends InvalidReferenceError {
       get code() {
         return 67305477;
       }
     };
-    exports2.UnknownDatabaseError = UnknownDatabaseError;
+    exports.UnknownDatabaseError = UnknownDatabaseError;
     var UnknownParameterError = class extends InvalidReferenceError {
       get code() {
         return 67305478;
       }
     };
-    exports2.UnknownParameterError = UnknownParameterError;
+    exports.UnknownParameterError = UnknownParameterError;
     var DeprecatedScopingError = class extends InvalidReferenceError {
       get code() {
         return 67305479;
       }
     };
-    exports2.DeprecatedScopingError = DeprecatedScopingError;
+    exports.DeprecatedScopingError = DeprecatedScopingError;
     var SchemaError = class extends QueryError {
       get code() {
         return 67371008;
       }
     };
-    exports2.SchemaError = SchemaError;
+    exports.SchemaError = SchemaError;
     var SchemaDefinitionError = class extends QueryError {
       get code() {
         return 67436544;
       }
     };
-    exports2.SchemaDefinitionError = SchemaDefinitionError;
+    exports.SchemaDefinitionError = SchemaDefinitionError;
     var InvalidDefinitionError = class extends SchemaDefinitionError {
       get code() {
         return 67436800;
       }
     };
-    exports2.InvalidDefinitionError = InvalidDefinitionError;
+    exports.InvalidDefinitionError = InvalidDefinitionError;
     var InvalidModuleDefinitionError = class extends InvalidDefinitionError {
       get code() {
         return 67436801;
       }
     };
-    exports2.InvalidModuleDefinitionError = InvalidModuleDefinitionError;
+    exports.InvalidModuleDefinitionError = InvalidModuleDefinitionError;
     var InvalidLinkDefinitionError = class extends InvalidDefinitionError {
       get code() {
         return 67436802;
       }
     };
-    exports2.InvalidLinkDefinitionError = InvalidLinkDefinitionError;
+    exports.InvalidLinkDefinitionError = InvalidLinkDefinitionError;
     var InvalidPropertyDefinitionError = class extends InvalidDefinitionError {
       get code() {
         return 67436803;
       }
     };
-    exports2.InvalidPropertyDefinitionError = InvalidPropertyDefinitionError;
+    exports.InvalidPropertyDefinitionError = InvalidPropertyDefinitionError;
     var InvalidUserDefinitionError = class extends InvalidDefinitionError {
       get code() {
         return 67436804;
       }
     };
-    exports2.InvalidUserDefinitionError = InvalidUserDefinitionError;
+    exports.InvalidUserDefinitionError = InvalidUserDefinitionError;
     var InvalidDatabaseDefinitionError = class extends InvalidDefinitionError {
       get code() {
         return 67436805;
       }
     };
-    exports2.InvalidDatabaseDefinitionError = InvalidDatabaseDefinitionError;
+    exports.InvalidDatabaseDefinitionError = InvalidDatabaseDefinitionError;
     var InvalidOperatorDefinitionError = class extends InvalidDefinitionError {
       get code() {
         return 67436806;
       }
     };
-    exports2.InvalidOperatorDefinitionError = InvalidOperatorDefinitionError;
+    exports.InvalidOperatorDefinitionError = InvalidOperatorDefinitionError;
     var InvalidAliasDefinitionError = class extends InvalidDefinitionError {
       get code() {
         return 67436807;
       }
     };
-    exports2.InvalidAliasDefinitionError = InvalidAliasDefinitionError;
+    exports.InvalidAliasDefinitionError = InvalidAliasDefinitionError;
     var InvalidFunctionDefinitionError = class extends InvalidDefinitionError {
       get code() {
         return 67436808;
       }
     };
-    exports2.InvalidFunctionDefinitionError = InvalidFunctionDefinitionError;
+    exports.InvalidFunctionDefinitionError = InvalidFunctionDefinitionError;
     var InvalidConstraintDefinitionError = class extends InvalidDefinitionError {
       get code() {
         return 67436809;
       }
     };
-    exports2.InvalidConstraintDefinitionError = InvalidConstraintDefinitionError;
+    exports.InvalidConstraintDefinitionError = InvalidConstraintDefinitionError;
     var InvalidCastDefinitionError = class extends InvalidDefinitionError {
       get code() {
         return 67436810;
       }
     };
-    exports2.InvalidCastDefinitionError = InvalidCastDefinitionError;
+    exports.InvalidCastDefinitionError = InvalidCastDefinitionError;
     var DuplicateDefinitionError = class extends SchemaDefinitionError {
       get code() {
         return 67437056;
       }
     };
-    exports2.DuplicateDefinitionError = DuplicateDefinitionError;
+    exports.DuplicateDefinitionError = DuplicateDefinitionError;
     var DuplicateModuleDefinitionError = class extends DuplicateDefinitionError {
       get code() {
         return 67437057;
       }
     };
-    exports2.DuplicateModuleDefinitionError = DuplicateModuleDefinitionError;
+    exports.DuplicateModuleDefinitionError = DuplicateModuleDefinitionError;
     var DuplicateLinkDefinitionError = class extends DuplicateDefinitionError {
       get code() {
         return 67437058;
       }
     };
-    exports2.DuplicateLinkDefinitionError = DuplicateLinkDefinitionError;
+    exports.DuplicateLinkDefinitionError = DuplicateLinkDefinitionError;
     var DuplicatePropertyDefinitionError = class extends DuplicateDefinitionError {
       get code() {
         return 67437059;
       }
     };
-    exports2.DuplicatePropertyDefinitionError = DuplicatePropertyDefinitionError;
+    exports.DuplicatePropertyDefinitionError = DuplicatePropertyDefinitionError;
     var DuplicateUserDefinitionError = class extends DuplicateDefinitionError {
       get code() {
         return 67437060;
       }
     };
-    exports2.DuplicateUserDefinitionError = DuplicateUserDefinitionError;
+    exports.DuplicateUserDefinitionError = DuplicateUserDefinitionError;
     var DuplicateDatabaseDefinitionError = class extends DuplicateDefinitionError {
       get code() {
         return 67437061;
       }
     };
-    exports2.DuplicateDatabaseDefinitionError = DuplicateDatabaseDefinitionError;
+    exports.DuplicateDatabaseDefinitionError = DuplicateDatabaseDefinitionError;
     var DuplicateOperatorDefinitionError = class extends DuplicateDefinitionError {
       get code() {
         return 67437062;
       }
     };
-    exports2.DuplicateOperatorDefinitionError = DuplicateOperatorDefinitionError;
+    exports.DuplicateOperatorDefinitionError = DuplicateOperatorDefinitionError;
     var DuplicateViewDefinitionError = class extends DuplicateDefinitionError {
       get code() {
         return 67437063;
       }
     };
-    exports2.DuplicateViewDefinitionError = DuplicateViewDefinitionError;
+    exports.DuplicateViewDefinitionError = DuplicateViewDefinitionError;
     var DuplicateFunctionDefinitionError = class extends DuplicateDefinitionError {
       get code() {
         return 67437064;
       }
     };
-    exports2.DuplicateFunctionDefinitionError = DuplicateFunctionDefinitionError;
+    exports.DuplicateFunctionDefinitionError = DuplicateFunctionDefinitionError;
     var DuplicateConstraintDefinitionError = class extends DuplicateDefinitionError {
       get code() {
         return 67437065;
       }
     };
-    exports2.DuplicateConstraintDefinitionError = DuplicateConstraintDefinitionError;
+    exports.DuplicateConstraintDefinitionError = DuplicateConstraintDefinitionError;
     var DuplicateCastDefinitionError = class extends DuplicateDefinitionError {
       get code() {
         return 67437066;
       }
     };
-    exports2.DuplicateCastDefinitionError = DuplicateCastDefinitionError;
+    exports.DuplicateCastDefinitionError = DuplicateCastDefinitionError;
     var DuplicateMigrationError = class extends DuplicateDefinitionError {
       get code() {
         return 67437067;
       }
     };
-    exports2.DuplicateMigrationError = DuplicateMigrationError;
+    exports.DuplicateMigrationError = DuplicateMigrationError;
     var SessionTimeoutError = class extends QueryError {
       get code() {
         return 67502080;
       }
     };
-    exports2.SessionTimeoutError = SessionTimeoutError;
+    exports.SessionTimeoutError = SessionTimeoutError;
     var IdleSessionTimeoutError = class extends SessionTimeoutError {
       get code() {
         return 67502336;
       }
     };
     __publicField(IdleSessionTimeoutError, "tags", { [tags.SHOULD_RETRY]: true });
-    exports2.IdleSessionTimeoutError = IdleSessionTimeoutError;
+    exports.IdleSessionTimeoutError = IdleSessionTimeoutError;
     var QueryTimeoutError = class extends SessionTimeoutError {
       get code() {
         return 67502592;
       }
     };
-    exports2.QueryTimeoutError = QueryTimeoutError;
+    exports.QueryTimeoutError = QueryTimeoutError;
     var TransactionTimeoutError = class extends SessionTimeoutError {
       get code() {
         return 67504640;
       }
     };
-    exports2.TransactionTimeoutError = TransactionTimeoutError;
+    exports.TransactionTimeoutError = TransactionTimeoutError;
     var IdleTransactionTimeoutError = class extends TransactionTimeoutError {
       get code() {
         return 67504641;
       }
     };
-    exports2.IdleTransactionTimeoutError = IdleTransactionTimeoutError;
+    exports.IdleTransactionTimeoutError = IdleTransactionTimeoutError;
     var ExecutionError = class extends base_1.GelError {
       get code() {
         return 83886080;
       }
     };
-    exports2.ExecutionError = ExecutionError;
+    exports.ExecutionError = ExecutionError;
     var InvalidValueError = class extends ExecutionError {
       get code() {
         return 83951616;
       }
     };
-    exports2.InvalidValueError = InvalidValueError;
+    exports.InvalidValueError = InvalidValueError;
     var DivisionByZeroError = class extends InvalidValueError {
       get code() {
         return 83951617;
       }
     };
-    exports2.DivisionByZeroError = DivisionByZeroError;
+    exports.DivisionByZeroError = DivisionByZeroError;
     var NumericOutOfRangeError = class extends InvalidValueError {
       get code() {
         return 83951618;
       }
     };
-    exports2.NumericOutOfRangeError = NumericOutOfRangeError;
+    exports.NumericOutOfRangeError = NumericOutOfRangeError;
     var AccessPolicyError = class extends InvalidValueError {
       get code() {
         return 83951619;
       }
     };
-    exports2.AccessPolicyError = AccessPolicyError;
+    exports.AccessPolicyError = AccessPolicyError;
     var QueryAssertionError = class extends InvalidValueError {
       get code() {
         return 83951620;
       }
     };
-    exports2.QueryAssertionError = QueryAssertionError;
+    exports.QueryAssertionError = QueryAssertionError;
     var IntegrityError = class extends ExecutionError {
       get code() {
         return 84017152;
       }
     };
-    exports2.IntegrityError = IntegrityError;
+    exports.IntegrityError = IntegrityError;
     var ConstraintViolationError = class extends IntegrityError {
       get code() {
         return 84017153;
       }
     };
-    exports2.ConstraintViolationError = ConstraintViolationError;
+    exports.ConstraintViolationError = ConstraintViolationError;
     var CardinalityViolationError = class extends IntegrityError {
       get code() {
         return 84017154;
       }
     };
-    exports2.CardinalityViolationError = CardinalityViolationError;
+    exports.CardinalityViolationError = CardinalityViolationError;
     var MissingRequiredError = class extends IntegrityError {
       get code() {
         return 84017155;
       }
     };
-    exports2.MissingRequiredError = MissingRequiredError;
+    exports.MissingRequiredError = MissingRequiredError;
     var TransactionError = class extends ExecutionError {
       get code() {
         return 84082688;
       }
     };
-    exports2.TransactionError = TransactionError;
+    exports.TransactionError = TransactionError;
     var TransactionConflictError = class extends TransactionError {
       get code() {
         return 84082944;
       }
     };
     __publicField(TransactionConflictError, "tags", { [tags.SHOULD_RETRY]: true });
-    exports2.TransactionConflictError = TransactionConflictError;
+    exports.TransactionConflictError = TransactionConflictError;
     var TransactionSerializationError = class extends TransactionConflictError {
       get code() {
         return 84082945;
       }
     };
     __publicField(TransactionSerializationError, "tags", { [tags.SHOULD_RETRY]: true });
-    exports2.TransactionSerializationError = TransactionSerializationError;
+    exports.TransactionSerializationError = TransactionSerializationError;
     var TransactionDeadlockError = class extends TransactionConflictError {
       get code() {
         return 84082946;
       }
     };
     __publicField(TransactionDeadlockError, "tags", { [tags.SHOULD_RETRY]: true });
-    exports2.TransactionDeadlockError = TransactionDeadlockError;
+    exports.TransactionDeadlockError = TransactionDeadlockError;
     var WatchError = class extends ExecutionError {
       get code() {
         return 84148224;
       }
     };
-    exports2.WatchError = WatchError;
+    exports.WatchError = WatchError;
     var ConfigurationError = class extends base_1.GelError {
       get code() {
         return 100663296;
       }
     };
-    exports2.ConfigurationError = ConfigurationError;
+    exports.ConfigurationError = ConfigurationError;
     var AccessError = class extends base_1.GelError {
       get code() {
         return 117440512;
       }
     };
-    exports2.AccessError = AccessError;
+    exports.AccessError = AccessError;
     var AuthenticationError = class extends AccessError {
       get code() {
         return 117506048;
       }
     };
-    exports2.AuthenticationError = AuthenticationError;
+    exports.AuthenticationError = AuthenticationError;
     var AvailabilityError = class extends base_1.GelError {
       get code() {
         return 134217728;
       }
     };
-    exports2.AvailabilityError = AvailabilityError;
+    exports.AvailabilityError = AvailabilityError;
     var BackendUnavailableError = class extends AvailabilityError {
       get code() {
         return 134217729;
       }
     };
     __publicField(BackendUnavailableError, "tags", { [tags.SHOULD_RETRY]: true });
-    exports2.BackendUnavailableError = BackendUnavailableError;
+    exports.BackendUnavailableError = BackendUnavailableError;
     var ServerOfflineError = class extends AvailabilityError {
       get code() {
         return 134217730;
@@ -60317,7 +60358,7 @@ var require_errors = __commonJS({
       [tags.SHOULD_RECONNECT]: true,
       [tags.SHOULD_RETRY]: true
     });
-    exports2.ServerOfflineError = ServerOfflineError;
+    exports.ServerOfflineError = ServerOfflineError;
     var UnknownTenantError = class extends AvailabilityError {
       get code() {
         return 134217731;
@@ -60327,67 +60368,67 @@ var require_errors = __commonJS({
       [tags.SHOULD_RECONNECT]: true,
       [tags.SHOULD_RETRY]: true
     });
-    exports2.UnknownTenantError = UnknownTenantError;
+    exports.UnknownTenantError = UnknownTenantError;
     var ServerBlockedError = class extends AvailabilityError {
       get code() {
         return 134217732;
       }
     };
-    exports2.ServerBlockedError = ServerBlockedError;
+    exports.ServerBlockedError = ServerBlockedError;
     var BackendError = class extends base_1.GelError {
       get code() {
         return 150994944;
       }
     };
-    exports2.BackendError = BackendError;
+    exports.BackendError = BackendError;
     var UnsupportedBackendFeatureError = class extends BackendError {
       get code() {
         return 150995200;
       }
     };
-    exports2.UnsupportedBackendFeatureError = UnsupportedBackendFeatureError;
+    exports.UnsupportedBackendFeatureError = UnsupportedBackendFeatureError;
     var LogMessage = class extends base_1.GelError {
       get code() {
         return 4026531840;
       }
     };
-    exports2.LogMessage = LogMessage;
+    exports.LogMessage = LogMessage;
     var WarningMessage = class extends LogMessage {
       get code() {
         return 4026597376;
       }
     };
-    exports2.WarningMessage = WarningMessage;
+    exports.WarningMessage = WarningMessage;
     var StatusMessage = class extends LogMessage {
       get code() {
         return 4026662912;
       }
     };
-    exports2.StatusMessage = StatusMessage;
+    exports.StatusMessage = StatusMessage;
     var MigrationStatusMessage = class extends StatusMessage {
       get code() {
         return 4026662913;
       }
     };
-    exports2.MigrationStatusMessage = MigrationStatusMessage;
+    exports.MigrationStatusMessage = MigrationStatusMessage;
     var ClientError = class extends base_1.GelError {
       get code() {
         return 4278190080;
       }
     };
-    exports2.ClientError = ClientError;
+    exports.ClientError = ClientError;
     var ClientConnectionError = class extends ClientError {
       get code() {
         return 4278255616;
       }
     };
-    exports2.ClientConnectionError = ClientConnectionError;
+    exports.ClientConnectionError = ClientConnectionError;
     var ClientConnectionFailedError = class extends ClientConnectionError {
       get code() {
         return 4278255872;
       }
     };
-    exports2.ClientConnectionFailedError = ClientConnectionFailedError;
+    exports.ClientConnectionFailedError = ClientConnectionFailedError;
     var ClientConnectionFailedTemporarilyError = class extends ClientConnectionFailedError {
       get code() {
         return 4278255873;
@@ -60397,7 +60438,7 @@ var require_errors = __commonJS({
       [tags.SHOULD_RECONNECT]: true,
       [tags.SHOULD_RETRY]: true
     });
-    exports2.ClientConnectionFailedTemporarilyError = ClientConnectionFailedTemporarilyError;
+    exports.ClientConnectionFailedTemporarilyError = ClientConnectionFailedTemporarilyError;
     var ClientConnectionTimeoutError = class extends ClientConnectionError {
       get code() {
         return 4278256128;
@@ -60407,7 +60448,7 @@ var require_errors = __commonJS({
       [tags.SHOULD_RECONNECT]: true,
       [tags.SHOULD_RETRY]: true
     });
-    exports2.ClientConnectionTimeoutError = ClientConnectionTimeoutError;
+    exports.ClientConnectionTimeoutError = ClientConnectionTimeoutError;
     var ClientConnectionClosedError = class extends ClientConnectionError {
       get code() {
         return 4278256384;
@@ -60417,57 +60458,57 @@ var require_errors = __commonJS({
       [tags.SHOULD_RECONNECT]: true,
       [tags.SHOULD_RETRY]: true
     });
-    exports2.ClientConnectionClosedError = ClientConnectionClosedError;
+    exports.ClientConnectionClosedError = ClientConnectionClosedError;
     var InterfaceError = class extends ClientError {
       get code() {
         return 4278321152;
       }
     };
-    exports2.InterfaceError = InterfaceError;
+    exports.InterfaceError = InterfaceError;
     var QueryArgumentError = class extends InterfaceError {
       get code() {
         return 4278321408;
       }
     };
-    exports2.QueryArgumentError = QueryArgumentError;
+    exports.QueryArgumentError = QueryArgumentError;
     var MissingArgumentError = class extends QueryArgumentError {
       get code() {
         return 4278321409;
       }
     };
-    exports2.MissingArgumentError = MissingArgumentError;
+    exports.MissingArgumentError = MissingArgumentError;
     var UnknownArgumentError = class extends QueryArgumentError {
       get code() {
         return 4278321410;
       }
     };
-    exports2.UnknownArgumentError = UnknownArgumentError;
+    exports.UnknownArgumentError = UnknownArgumentError;
     var InvalidArgumentError = class extends QueryArgumentError {
       get code() {
         return 4278321411;
       }
     };
-    exports2.InvalidArgumentError = InvalidArgumentError;
+    exports.InvalidArgumentError = InvalidArgumentError;
     var NoDataError = class extends ClientError {
       get code() {
         return 4278386688;
       }
     };
-    exports2.NoDataError = NoDataError;
+    exports.NoDataError = NoDataError;
     var InternalClientError = class extends ClientError {
       get code() {
         return 4278452224;
       }
     };
-    exports2.InternalClientError = InternalClientError;
+    exports.InternalClientError = InternalClientError;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/primitives/lru.js
 var require_lru = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/primitives/lru.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/primitives/lru.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
+    Object.defineProperty(exports, "__esModule", { value: true });
     var errors_1 = require_errors();
     var Node3 = class {
       constructor(key, value) {
@@ -60611,19 +60652,19 @@ var require_lru = __commonJS({
         }
       }
     };
-    exports2.default = LRU;
+    exports.default = LRU;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/consts.js
 var require_consts = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/consts.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/consts.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.KNOWN_TYPENAMES = exports2.KNOWN_TYPES = exports2.INVALID_CODEC_ID = exports2.NULL_CODEC_ID = void 0;
-    exports2.NULL_CODEC_ID = "00000000000000000000000000000000";
-    exports2.INVALID_CODEC_ID = "ffffffffffffffffffffffffffffffff";
-    exports2.KNOWN_TYPES = /* @__PURE__ */ new Map([
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.KNOWN_TYPENAMES = exports.KNOWN_TYPES = exports.INVALID_CODEC_ID = exports.NULL_CODEC_ID = void 0;
+    exports.NULL_CODEC_ID = "00000000000000000000000000000000";
+    exports.INVALID_CODEC_ID = "ffffffffffffffffffffffffffffffff";
+    exports.KNOWN_TYPES = /* @__PURE__ */ new Map([
       ["00000000000000000000000000000001", "anytype"],
       ["00000000000000000000000000000002", "anytuple"],
       ["00000000000000000000000000000003", "anyobject"],
@@ -60662,9 +60703,9 @@ var require_consts = __commonJS({
       ["7fae553663114f608eb9096a5d972f48", "ext::postgis::box2d"],
       ["c1a50ff8fded48b085c24905a8481433", "ext::postgis::box3d"]
     ]);
-    exports2.KNOWN_TYPENAMES = (() => {
+    exports.KNOWN_TYPENAMES = (() => {
       const res = /* @__PURE__ */ new Map();
-      for (const [id, name] of exports2.KNOWN_TYPES.entries()) {
+      for (const [id, name] of exports.KNOWN_TYPES.entries()) {
         res.set(name, id);
       }
       return res;
@@ -60674,10 +60715,10 @@ var require_consts = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/ifaces.js
 var require_ifaces = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/ifaces.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/ifaces.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.ScalarCodec = exports2.Codec = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.ScalarCodec = exports.Codec = void 0;
     var buffer_1 = require_buffer();
     var consts_1 = require_consts();
     var Codec = class {
@@ -60691,7 +60732,7 @@ var require_ifaces = __commonJS({
         return "anytype";
       }
     };
-    exports2.Codec = Codec;
+    exports.Codec = Codec;
     var ScalarCodec = class extends Codec {
       constructor(tid, typeName) {
         super(tid);
@@ -60720,16 +60761,16 @@ var require_ifaces = __commonJS({
         return consts_1.KNOWN_TYPES.get(this.tid) || "anytype";
       }
     };
-    exports2.ScalarCodec = ScalarCodec;
+    exports.ScalarCodec = ScalarCodec;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/boolean.js
 var require_boolean = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/boolean.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/boolean.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.BoolCodec = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.BoolCodec = void 0;
     var ifaces_1 = require_ifaces();
     var errors_1 = require_errors();
     var BoolCodec = class extends ifaces_1.ScalarCodec {
@@ -60750,16 +60791,16 @@ var require_boolean = __commonJS({
         return ctx.postDecode(this, buf.readUInt8() !== 0);
       }
     };
-    exports2.BoolCodec = BoolCodec;
+    exports.BoolCodec = BoolCodec;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/numbers.js
 var require_numbers = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/numbers.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/numbers.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.Float64Codec = exports2.Float32Codec = exports2.Int16Codec = exports2.Int32Codec = exports2.Int64Codec = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Float64Codec = exports.Float32Codec = exports.Int16Codec = exports.Int32Codec = exports.Int64Codec = void 0;
     var ifaces_1 = require_ifaces();
     var errors_1 = require_errors();
     var Int64Codec = class extends ifaces_1.ScalarCodec {
@@ -60787,7 +60828,7 @@ var require_numbers = __commonJS({
         return buf.readInt64();
       }
     };
-    exports2.Int64Codec = Int64Codec;
+    exports.Int64Codec = Int64Codec;
     var Int32Codec = class extends ifaces_1.ScalarCodec {
       constructor() {
         super(...arguments);
@@ -60805,7 +60846,7 @@ var require_numbers = __commonJS({
         return ctx.postDecode(this, buf.readInt32());
       }
     };
-    exports2.Int32Codec = Int32Codec;
+    exports.Int32Codec = Int32Codec;
     var Int16Codec = class extends ifaces_1.ScalarCodec {
       constructor() {
         super(...arguments);
@@ -60823,7 +60864,7 @@ var require_numbers = __commonJS({
         return ctx.postDecode(this, buf.readInt16());
       }
     };
-    exports2.Int16Codec = Int16Codec;
+    exports.Int16Codec = Int16Codec;
     var Float32Codec = class extends ifaces_1.ScalarCodec {
       constructor() {
         super(...arguments);
@@ -60841,7 +60882,7 @@ var require_numbers = __commonJS({
         return ctx.postDecode(this, buf.readFloat32());
       }
     };
-    exports2.Float32Codec = Float32Codec;
+    exports.Float32Codec = Float32Codec;
     var Float64Codec = class extends ifaces_1.ScalarCodec {
       constructor() {
         super(...arguments);
@@ -60859,16 +60900,16 @@ var require_numbers = __commonJS({
         return ctx.postDecode(this, buf.readFloat64());
       }
     };
-    exports2.Float64Codec = Float64Codec;
+    exports.Float64Codec = Float64Codec;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/numerics.js
 var require_numerics = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/numerics.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/numerics.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.DecimalStringCodec = exports2.BigIntCodec = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.DecimalStringCodec = exports.BigIntCodec = void 0;
     var ifaces_1 = require_ifaces();
     var errors_1 = require_errors();
     var NUMERIC_POS = 0;
@@ -60916,7 +60957,7 @@ var require_numerics = __commonJS({
         return ctx.postDecode(this, val2);
       }
     };
-    exports2.BigIntCodec = BigIntCodec;
+    exports.BigIntCodec = BigIntCodec;
     var DecimalStringCodec = class extends ifaces_1.ScalarCodec {
       constructor() {
         super(...arguments);
@@ -60955,7 +60996,7 @@ var require_numerics = __commonJS({
         return decodeDecimalToString(buf);
       }
     };
-    exports2.DecimalStringCodec = DecimalStringCodec;
+    exports.DecimalStringCodec = DecimalStringCodec;
     function decodeBigIntToString(buf) {
       const ndigits = buf.readUInt16();
       const weight = buf.readInt16();
@@ -61036,10 +61077,10 @@ var require_numerics = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/text.js
 var require_text = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/text.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/text.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.StrCodec = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.StrCodec = void 0;
     var buffer_1 = require_buffer();
     var ifaces_1 = require_ifaces();
     var errors_1 = require_errors();
@@ -61062,16 +61103,16 @@ var require_text = __commonJS({
         return ctx.postDecode(this, buf.consumeAsString());
       }
     };
-    exports2.StrCodec = StrCodec;
+    exports.StrCodec = StrCodec;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/uuid.js
 var require_uuid = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/uuid.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/uuid.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.UUIDCodec = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.UUIDCodec = void 0;
     var buffer_1 = require_buffer();
     var ifaces_1 = require_ifaces();
     var errors_1 = require_errors();
@@ -61122,16 +61163,16 @@ var require_uuid = __commonJS({
         return buf.readUUID("-");
       }
     };
-    exports2.UUIDCodec = UUIDCodec;
+    exports.UUIDCodec = UUIDCodec;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/bytes.js
 var require_bytes = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/bytes.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/bytes.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.BytesCodec = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.BytesCodec = void 0;
     var ifaces_1 = require_ifaces();
     var errors_1 = require_errors();
     var BytesCodec = class extends ifaces_1.ScalarCodec {
@@ -61151,16 +61192,16 @@ var require_bytes = __commonJS({
         return ctx.postDecode(this, buf.consumeAsBuffer());
       }
     };
-    exports2.BytesCodec = BytesCodec;
+    exports.BytesCodec = BytesCodec;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/json.js
 var require_json = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/json.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/json.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.PgTextJSONStringCodec = exports2.PgTextJSONCodec = exports2.JSONCodec = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.PgTextJSONStringCodec = exports.PgTextJSONCodec = exports.JSONCodec = void 0;
     var buffer_1 = require_buffer();
     var ifaces_1 = require_ifaces();
     var errors_1 = require_errors();
@@ -61207,14 +61248,14 @@ var require_json = __commonJS({
         }
       }
     };
-    exports2.JSONCodec = JSONCodec;
+    exports.JSONCodec = JSONCodec;
     var PgTextJSONCodec = class extends JSONCodec {
       constructor() {
         super(...arguments);
         __publicField(this, "jsonFormat", null);
       }
     };
-    exports2.PgTextJSONCodec = PgTextJSONCodec;
+    exports.PgTextJSONCodec = PgTextJSONCodec;
     var PgTextJSONStringCodec = class extends ifaces_1.ScalarCodec {
       encode(buf, object, ctx) {
         if (ctx.hasOverload(this)) {
@@ -61231,20 +61272,20 @@ var require_json = __commonJS({
         return ctx.postDecode(this, buf.consumeAsString());
       }
     };
-    exports2.PgTextJSONStringCodec = PgTextJSONStringCodec;
+    exports.PgTextJSONStringCodec = PgTextJSONStringCodec;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/datatypes/dateutil.js
 var require_dateutil = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/datatypes/dateutil.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/datatypes/dateutil.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.isLeapYear = isLeapYear2;
-    exports2.daysInMonth = daysInMonth;
-    exports2.daysBeforeMonth = daysBeforeMonth;
-    exports2.ymd2ord = ymd2ord;
-    exports2.ord2ymd = ord2ymd;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.isLeapYear = isLeapYear2;
+    exports.daysInMonth = daysInMonth;
+    exports.daysBeforeMonth = daysBeforeMonth;
+    exports.ymd2ord = ymd2ord;
+    exports.ord2ymd = ord2ymd;
     function isLeapYear2(year) {
       return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
     }
@@ -61312,15 +61353,15 @@ var require_dateutil = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/datatypes/datetime.js
 var require_datetime = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/datatypes/datetime.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/datatypes/datetime.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.DateDuration = exports2.RelativeDuration = exports2.Duration = exports2.LocalDateTime = exports2.LocalDate = exports2.localDateInstances = exports2.LocalTime = exports2.localTimeInstances = exports2.DATE_PRIVATE = void 0;
-    exports2.LocalDateToOrdinal = LocalDateToOrdinal;
-    exports2.LocalDateFromOrdinal = LocalDateFromOrdinal;
-    exports2.parseHumanDurationString = parseHumanDurationString;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.DateDuration = exports.RelativeDuration = exports.Duration = exports.LocalDateTime = exports.LocalDate = exports.localDateInstances = exports.LocalTime = exports.localTimeInstances = exports.DATE_PRIVATE = void 0;
+    exports.LocalDateToOrdinal = LocalDateToOrdinal;
+    exports.LocalDateFromOrdinal = LocalDateFromOrdinal;
+    exports.parseHumanDurationString = parseHumanDurationString;
     var dateutil_1 = require_dateutil();
-    exports2.DATE_PRIVATE = Symbol.for("gel.datetime");
+    exports.DATE_PRIVATE = Symbol.for("gel.datetime");
     function toNumber(val2) {
       const n5 = Number(val2);
       if (Number.isNaN(n5)) {
@@ -61334,7 +61375,7 @@ var require_datetime = __commonJS({
       }
       return val2;
     }
-    exports2.localTimeInstances = /* @__PURE__ */ new WeakMap();
+    exports.localTimeInstances = /* @__PURE__ */ new WeakMap();
     var LocalTime = class {
       constructor(isoHour = 0, isoMinute = 0, isoSecond = 0, isoMillisecond = 0, isoMicrosecond = 0, isoNanosecond = 0) {
         __publicField(this, "hour");
@@ -61387,8 +61428,8 @@ var require_datetime = __commonJS({
         return repr;
       }
     };
-    exports2.LocalTime = LocalTime;
-    exports2.localDateInstances = /* @__PURE__ */ new WeakMap();
+    exports.LocalTime = LocalTime;
+    exports.localDateInstances = /* @__PURE__ */ new WeakMap();
     var LocalDate = class {
       constructor(isoYear, isoMonth, isoDay) {
         isoYear = Math.trunc(toNumber(isoYear));
@@ -61408,31 +61449,31 @@ var require_datetime = __commonJS({
         if (isoYear >= 0 && isoYear <= 99) {
           date.setUTCFullYear(isoYear);
         }
-        exports2.localDateInstances.set(this, date);
+        exports.localDateInstances.set(this, date);
         forwardJsonAsToString(this);
         throwOnValueOf(this, "LocalDate");
       }
       get year() {
-        return exports2.localDateInstances.get(this).getUTCFullYear();
+        return exports.localDateInstances.get(this).getUTCFullYear();
       }
       get month() {
-        return exports2.localDateInstances.get(this).getUTCMonth() + 1;
+        return exports.localDateInstances.get(this).getUTCMonth() + 1;
       }
       get day() {
-        return exports2.localDateInstances.get(this).getUTCDate();
+        return exports.localDateInstances.get(this).getUTCDate();
       }
       get dayOfWeek() {
-        return (exports2.localDateInstances.get(this).getUTCDay() + 6) % 7 + 1;
+        return (exports.localDateInstances.get(this).getUTCDay() + 6) % 7 + 1;
       }
       get dayOfYear() {
-        const date = exports2.localDateInstances.get(this);
+        const date = exports.localDateInstances.get(this);
         return (0, dateutil_1.daysBeforeMonth)(date.getUTCFullYear(), date.getUTCMonth() + 1) + date.getUTCDate();
       }
       get daysInWeek() {
         return 7;
       }
       get daysInMonth() {
-        const date = exports2.localDateInstances.get(this);
+        const date = exports.localDateInstances.get(this);
         return (0, dateutil_1.daysInMonth)(date.getUTCFullYear(), date.getUTCMonth() + 1);
       }
       get daysInYear() {
@@ -61442,7 +61483,7 @@ var require_datetime = __commonJS({
         return 12;
       }
       get inLeapYear() {
-        return (0, dateutil_1.isLeapYear)(exports2.localDateInstances.get(this).getUTCFullYear());
+        return (0, dateutil_1.isLeapYear)(exports.localDateInstances.get(this).getUTCFullYear());
       }
       toString() {
         const year = this.year < 0 || this.year > 9999 ? (this.year < 0 ? "-" : "+") + Math.abs(this.year).toString().padStart(6, "0") : this.year.toString().padStart(4, "0");
@@ -61451,7 +61492,7 @@ var require_datetime = __commonJS({
         return `${year}-${month}-${day}`;
       }
     };
-    exports2.LocalDate = LocalDate;
+    exports.LocalDate = LocalDate;
     function LocalDateToOrdinal(localdate) {
       return (0, dateutil_1.ymd2ord)(localdate.year, localdate.month, localdate.day);
     }
@@ -61463,32 +61504,32 @@ var require_datetime = __commonJS({
       constructor(isoYear, isoMonth, isoDay, isoHour = 0, isoMinute = 0, isoSecond = 0, isoMillisecond = 0, isoMicrosecond = 0, isoNanosecond = 0) {
         super(isoYear, isoMonth, isoDay);
         const time = new LocalTime(isoHour, isoMinute, isoSecond, isoMillisecond, isoMicrosecond, isoNanosecond);
-        exports2.localTimeInstances.set(this, time);
+        exports.localTimeInstances.set(this, time);
         throwOnValueOf(this, "LocalDateTime");
       }
       get hour() {
-        return exports2.localTimeInstances.get(this).hour;
+        return exports.localTimeInstances.get(this).hour;
       }
       get minute() {
-        return exports2.localTimeInstances.get(this).minute;
+        return exports.localTimeInstances.get(this).minute;
       }
       get second() {
-        return exports2.localTimeInstances.get(this).second;
+        return exports.localTimeInstances.get(this).second;
       }
       get millisecond() {
-        return exports2.localTimeInstances.get(this).millisecond;
+        return exports.localTimeInstances.get(this).millisecond;
       }
       get microsecond() {
-        return exports2.localTimeInstances.get(this).microsecond;
+        return exports.localTimeInstances.get(this).microsecond;
       }
       get nanosecond() {
-        return exports2.localTimeInstances.get(this).nanosecond;
+        return exports.localTimeInstances.get(this).nanosecond;
       }
       toString() {
-        return `${super.toString()}T${exports2.localTimeInstances.get(this).toString()}`;
+        return `${super.toString()}T${exports.localTimeInstances.get(this).toString()}`;
       }
     };
-    exports2.LocalDateTime = LocalDateTime;
+    exports.LocalDateTime = LocalDateTime;
     var durationRegex2 = new RegExp(`^(\\-|\\+)?P(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)W)?(?:(\\d+)D)?(T(?:(\\d+)(\\.\\d{1,10})?H)?(?:(\\d+)(\\.\\d{1,10})?M)?(?:(\\d+)(\\.\\d{1,9})?S)?)?$`, "i");
     var Duration = class _Duration {
       constructor(years = 0, months = 0, weeks = 0, days = 0, hours = 0, minutes = 0, seconds = 0, milliseconds = 0, microseconds = 0, nanoseconds = 0) {
@@ -61655,7 +61696,7 @@ var require_datetime = __commonJS({
         return new _Duration(result.years, result.months, result.weeks, result.days, result.hours, result.minutes, result.seconds, result.milliseconds, result.microseconds, result.nanoseconds);
       }
     };
-    exports2.Duration = Duration;
+    exports.Duration = Duration;
     var RelativeDuration = class {
       constructor(years = 0, months = 0, weeks = 0, days = 0, hours = 0, minutes = 0, seconds = 0, milliseconds = 0, microseconds = 0) {
         __publicField(this, "years");
@@ -61711,7 +61752,7 @@ var require_datetime = __commonJS({
         return str;
       }
     };
-    exports2.RelativeDuration = RelativeDuration;
+    exports.RelativeDuration = RelativeDuration;
     var DateDuration = class {
       constructor(years = 0, months = 0, weeks = 0, days = 0) {
         __publicField(this, "years");
@@ -61743,7 +61784,7 @@ var require_datetime = __commonJS({
         return str;
       }
     };
-    exports2.DateDuration = DateDuration;
+    exports.DateDuration = DateDuration;
     var humanDurationPrefixes = {
       h: 36e5,
       hou: 36e5,
@@ -61799,11 +61840,11 @@ var require_datetime = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/datetime.js
 var require_datetime2 = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/datetime.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/datetime.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.DateDurationCodec = exports2.RelativeDurationCodec = exports2.DurationCodec = exports2.LocalTimeCodec = exports2.LocalDateCodec = exports2.LocalDateTimeCodec = exports2.DateTimeCodec = void 0;
-    exports2.checkValidGelDuration = checkValidGelDuration;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.DateDurationCodec = exports.RelativeDurationCodec = exports.DurationCodec = exports.LocalTimeCodec = exports.LocalDateCodec = exports.LocalDateTimeCodec = exports.DateTimeCodec = void 0;
+    exports.checkValidGelDuration = checkValidGelDuration;
     var ifaces_1 = require_ifaces();
     var datetime_1 = require_datetime();
     var dateutil_1 = require_dateutil();
@@ -61848,7 +61889,7 @@ var require_datetime2 = __commonJS({
         return new Date(ms);
       }
     };
-    exports2.DateTimeCodec = DateTimeCodec;
+    exports.DateTimeCodec = DateTimeCodec;
     var LocalDateTimeCodec = class extends ifaces_1.ScalarCodec {
       constructor() {
         super(...arguments);
@@ -61894,7 +61935,7 @@ var require_datetime2 = __commonJS({
         return new datetime_1.LocalDateTime(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds(), us);
       }
     };
-    exports2.LocalDateTimeCodec = LocalDateTimeCodec;
+    exports.LocalDateTimeCodec = LocalDateTimeCodec;
     var LocalDateCodec = class extends ifaces_1.ScalarCodec {
       constructor() {
         super(...arguments);
@@ -61924,7 +61965,7 @@ var require_datetime2 = __commonJS({
         return (0, datetime_1.LocalDateFromOrdinal)(ord);
       }
     };
-    exports2.LocalDateCodec = LocalDateCodec;
+    exports.LocalDateCodec = LocalDateCodec;
     var LocalTimeCodec = class extends ifaces_1.ScalarCodec {
       constructor() {
         super(...arguments);
@@ -61967,7 +62008,7 @@ var require_datetime2 = __commonJS({
         return new datetime_1.LocalTime(hours, minutes, seconds, ms, us);
       }
     };
-    exports2.LocalTimeCodec = LocalTimeCodec;
+    exports.LocalTimeCodec = LocalTimeCodec;
     var unencodableDurationFields = [
       "years",
       "months",
@@ -62054,7 +62095,7 @@ var require_datetime2 = __commonJS({
         return new datetime_1.Duration(0, 0, 0, 0, hours * sign, minutes * sign, seconds * sign, ms * sign, us * sign);
       }
     };
-    exports2.DurationCodec = DurationCodec;
+    exports.DurationCodec = DurationCodec;
     var RelativeDurationCodec = class extends ifaces_1.ScalarCodec {
       constructor() {
         super(...arguments);
@@ -62114,7 +62155,7 @@ var require_datetime2 = __commonJS({
         return new datetime_1.RelativeDuration(years, months, weeks, days, hours * sign, minutes * sign, seconds * sign, ms * sign, us * sign);
       }
     };
-    exports2.RelativeDurationCodec = RelativeDurationCodec;
+    exports.RelativeDurationCodec = RelativeDurationCodec;
     var DateDurationCodec = class extends ifaces_1.ScalarCodec {
       constructor() {
         super(...arguments);
@@ -62154,16 +62195,16 @@ var require_datetime2 = __commonJS({
         return new datetime_1.DateDuration(years, months, weeks, days);
       }
     };
-    exports2.DateDurationCodec = DateDurationCodec;
+    exports.DateDurationCodec = DateDurationCodec;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/datatypes/memory.js
 var require_memory = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/datatypes/memory.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/datatypes/memory.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.ConfigMemory = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.ConfigMemory = void 0;
     var KiB = 1024;
     var MiB = 1024 * KiB;
     var GiB = 1024 * MiB;
@@ -62220,16 +62261,16 @@ var require_memory = __commonJS({
         return `${bytes}B`;
       }
     };
-    exports2.ConfigMemory = ConfigMemory;
+    exports.ConfigMemory = ConfigMemory;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/memory.js
 var require_memory2 = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/memory.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/memory.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.ConfigMemoryCodec = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.ConfigMemoryCodec = void 0;
     var ifaces_1 = require_ifaces();
     var memory_1 = require_memory();
     var errors_1 = require_errors();
@@ -62263,38 +62304,38 @@ var require_memory2 = __commonJS({
         return new memory_1.ConfigMemory(val2);
       }
     };
-    exports2.ConfigMemoryCodec = ConfigMemoryCodec;
+    exports.ConfigMemoryCodec = ConfigMemoryCodec;
   }
 });
 
 // ../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/_util/messages.cjs
 var require_messages = __commonJS({
-  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/_util/messages.cjs"(exports2) {
+  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/_util/messages.cjs"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", {
+    Object.defineProperty(exports, "__esModule", {
       value: true
     });
-    var THIS_IS_NOT_AN_OBJECT = exports2.THIS_IS_NOT_AN_OBJECT = "This is not an object";
-    var THIS_IS_NOT_A_FLOAT16ARRAY_OBJECT = exports2.THIS_IS_NOT_A_FLOAT16ARRAY_OBJECT = "This is not a Float16Array object";
-    var THIS_CONSTRUCTOR_IS_NOT_A_SUBCLASS_OF_FLOAT16ARRAY = exports2.THIS_CONSTRUCTOR_IS_NOT_A_SUBCLASS_OF_FLOAT16ARRAY = "This constructor is not a subclass of Float16Array";
-    var THE_CONSTRUCTOR_PROPERTY_VALUE_IS_NOT_AN_OBJECT = exports2.THE_CONSTRUCTOR_PROPERTY_VALUE_IS_NOT_AN_OBJECT = "The constructor property value is not an object";
-    var SPECIES_CONSTRUCTOR_DIDNT_RETURN_TYPEDARRAY_OBJECT = exports2.SPECIES_CONSTRUCTOR_DIDNT_RETURN_TYPEDARRAY_OBJECT = "Species constructor didn't return TypedArray object";
-    var DERIVED_CONSTRUCTOR_CREATED_TYPEDARRAY_OBJECT_WHICH_WAS_TOO_SMALL_LENGTH = exports2.DERIVED_CONSTRUCTOR_CREATED_TYPEDARRAY_OBJECT_WHICH_WAS_TOO_SMALL_LENGTH = "Derived constructor created TypedArray object which was too small length";
-    var ATTEMPTING_TO_ACCESS_DETACHED_ARRAYBUFFER = exports2.ATTEMPTING_TO_ACCESS_DETACHED_ARRAYBUFFER = "Attempting to access detached ArrayBuffer";
-    var CANNOT_CONVERT_UNDEFINED_OR_NULL_TO_OBJECT = exports2.CANNOT_CONVERT_UNDEFINED_OR_NULL_TO_OBJECT = "Cannot convert undefined or null to object";
-    var CANNOT_MIX_BIGINT_AND_OTHER_TYPES = exports2.CANNOT_MIX_BIGINT_AND_OTHER_TYPES = "Cannot mix BigInt and other types, use explicit conversions";
-    var ITERATOR_PROPERTY_IS_NOT_CALLABLE = exports2.ITERATOR_PROPERTY_IS_NOT_CALLABLE = "@@iterator property is not callable";
-    var REDUCE_OF_EMPTY_ARRAY_WITH_NO_INITIAL_VALUE = exports2.REDUCE_OF_EMPTY_ARRAY_WITH_NO_INITIAL_VALUE = "Reduce of empty array with no initial value";
-    var THE_COMPARISON_FUNCTION_MUST_BE_EITHER_A_FUNCTION_OR_UNDEFINED = exports2.THE_COMPARISON_FUNCTION_MUST_BE_EITHER_A_FUNCTION_OR_UNDEFINED = "The comparison function must be either a function or undefined";
-    var OFFSET_IS_OUT_OF_BOUNDS = exports2.OFFSET_IS_OUT_OF_BOUNDS = "Offset is out of bounds";
+    var THIS_IS_NOT_AN_OBJECT = exports.THIS_IS_NOT_AN_OBJECT = "This is not an object";
+    var THIS_IS_NOT_A_FLOAT16ARRAY_OBJECT = exports.THIS_IS_NOT_A_FLOAT16ARRAY_OBJECT = "This is not a Float16Array object";
+    var THIS_CONSTRUCTOR_IS_NOT_A_SUBCLASS_OF_FLOAT16ARRAY = exports.THIS_CONSTRUCTOR_IS_NOT_A_SUBCLASS_OF_FLOAT16ARRAY = "This constructor is not a subclass of Float16Array";
+    var THE_CONSTRUCTOR_PROPERTY_VALUE_IS_NOT_AN_OBJECT = exports.THE_CONSTRUCTOR_PROPERTY_VALUE_IS_NOT_AN_OBJECT = "The constructor property value is not an object";
+    var SPECIES_CONSTRUCTOR_DIDNT_RETURN_TYPEDARRAY_OBJECT = exports.SPECIES_CONSTRUCTOR_DIDNT_RETURN_TYPEDARRAY_OBJECT = "Species constructor didn't return TypedArray object";
+    var DERIVED_CONSTRUCTOR_CREATED_TYPEDARRAY_OBJECT_WHICH_WAS_TOO_SMALL_LENGTH = exports.DERIVED_CONSTRUCTOR_CREATED_TYPEDARRAY_OBJECT_WHICH_WAS_TOO_SMALL_LENGTH = "Derived constructor created TypedArray object which was too small length";
+    var ATTEMPTING_TO_ACCESS_DETACHED_ARRAYBUFFER = exports.ATTEMPTING_TO_ACCESS_DETACHED_ARRAYBUFFER = "Attempting to access detached ArrayBuffer";
+    var CANNOT_CONVERT_UNDEFINED_OR_NULL_TO_OBJECT = exports.CANNOT_CONVERT_UNDEFINED_OR_NULL_TO_OBJECT = "Cannot convert undefined or null to object";
+    var CANNOT_MIX_BIGINT_AND_OTHER_TYPES = exports.CANNOT_MIX_BIGINT_AND_OTHER_TYPES = "Cannot mix BigInt and other types, use explicit conversions";
+    var ITERATOR_PROPERTY_IS_NOT_CALLABLE = exports.ITERATOR_PROPERTY_IS_NOT_CALLABLE = "@@iterator property is not callable";
+    var REDUCE_OF_EMPTY_ARRAY_WITH_NO_INITIAL_VALUE = exports.REDUCE_OF_EMPTY_ARRAY_WITH_NO_INITIAL_VALUE = "Reduce of empty array with no initial value";
+    var THE_COMPARISON_FUNCTION_MUST_BE_EITHER_A_FUNCTION_OR_UNDEFINED = exports.THE_COMPARISON_FUNCTION_MUST_BE_EITHER_A_FUNCTION_OR_UNDEFINED = "The comparison function must be either a function or undefined";
+    var OFFSET_IS_OUT_OF_BOUNDS = exports.OFFSET_IS_OUT_OF_BOUNDS = "Offset is out of bounds";
   }
 });
 
 // ../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/_util/primordials.cjs
 var require_primordials = __commonJS({
-  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/_util/primordials.cjs"(exports2) {
+  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/_util/primordials.cjs"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", {
+    Object.defineProperty(exports, "__esModule", {
       value: true
     });
     var _messages = require_messages();
@@ -62318,50 +62359,50 @@ var require_primordials = __commonJS({
       set: ReflectSet,
       setPrototypeOf: ReflectSetPrototypeOf
     } = Reflect;
-    exports2.ReflectSetPrototypeOf = ReflectSetPrototypeOf;
-    exports2.ReflectSet = ReflectSet;
-    exports2.ReflectOwnKeys = ReflectOwnKeys;
-    exports2.ReflectHas = ReflectHas;
-    exports2.ReflectGetPrototypeOf = ReflectGetPrototypeOf;
-    exports2.ReflectGetOwnPropertyDescriptor = ReflectGetOwnPropertyDescriptor;
-    exports2.ReflectGet = ReflectGet;
-    exports2.ReflectDefineProperty = ReflectDefineProperty;
-    exports2.ReflectConstruct = ReflectConstruct;
-    exports2.ReflectApply = ReflectApply;
-    var NativeProxy = exports2.NativeProxy = Proxy;
+    exports.ReflectSetPrototypeOf = ReflectSetPrototypeOf;
+    exports.ReflectSet = ReflectSet;
+    exports.ReflectOwnKeys = ReflectOwnKeys;
+    exports.ReflectHas = ReflectHas;
+    exports.ReflectGetPrototypeOf = ReflectGetPrototypeOf;
+    exports.ReflectGetOwnPropertyDescriptor = ReflectGetOwnPropertyDescriptor;
+    exports.ReflectGet = ReflectGet;
+    exports.ReflectDefineProperty = ReflectDefineProperty;
+    exports.ReflectConstruct = ReflectConstruct;
+    exports.ReflectApply = ReflectApply;
+    var NativeProxy = exports.NativeProxy = Proxy;
     var {
       EPSILON,
       MAX_SAFE_INTEGER,
       isFinite: NumberIsFinite,
       isNaN: NumberIsNaN
     } = Number;
-    exports2.NumberIsNaN = NumberIsNaN;
-    exports2.NumberIsFinite = NumberIsFinite;
-    exports2.MAX_SAFE_INTEGER = MAX_SAFE_INTEGER;
-    exports2.EPSILON = EPSILON;
+    exports.NumberIsNaN = NumberIsNaN;
+    exports.NumberIsFinite = NumberIsFinite;
+    exports.MAX_SAFE_INTEGER = MAX_SAFE_INTEGER;
+    exports.EPSILON = EPSILON;
     var {
       iterator: SymbolIterator,
       species: SymbolSpecies,
       toStringTag: SymbolToStringTag,
       for: SymbolFor
     } = Symbol;
-    exports2.SymbolFor = SymbolFor;
-    exports2.SymbolToStringTag = SymbolToStringTag;
-    exports2.SymbolSpecies = SymbolSpecies;
-    exports2.SymbolIterator = SymbolIterator;
-    var NativeObject = exports2.NativeObject = Object;
+    exports.SymbolFor = SymbolFor;
+    exports.SymbolToStringTag = SymbolToStringTag;
+    exports.SymbolSpecies = SymbolSpecies;
+    exports.SymbolIterator = SymbolIterator;
+    var NativeObject = exports.NativeObject = Object;
     var {
       create: ObjectCreate,
       defineProperty: ObjectDefineProperty,
       freeze: ObjectFreeze,
       is: ObjectIs
     } = NativeObject;
-    exports2.ObjectIs = ObjectIs;
-    exports2.ObjectFreeze = ObjectFreeze;
-    exports2.ObjectDefineProperty = ObjectDefineProperty;
-    exports2.ObjectCreate = ObjectCreate;
+    exports.ObjectIs = ObjectIs;
+    exports.ObjectFreeze = ObjectFreeze;
+    exports.ObjectDefineProperty = ObjectDefineProperty;
+    exports.ObjectCreate = ObjectCreate;
     var ObjectPrototype = NativeObject.prototype;
-    var ObjectPrototype__lookupGetter__ = exports2.ObjectPrototype__lookupGetter__ = ObjectPrototype.__lookupGetter__ ? uncurryThis(ObjectPrototype.__lookupGetter__) : (object, key) => {
+    var ObjectPrototype__lookupGetter__ = exports.ObjectPrototype__lookupGetter__ = ObjectPrototype.__lookupGetter__ ? uncurryThis(ObjectPrototype.__lookupGetter__) : (object, key) => {
       if (object == null) {
         throw NativeTypeError(_messages.CANNOT_CONVERT_UNDEFINED_OR_NULL_TO_OBJECT);
       }
@@ -62376,85 +62417,85 @@ var require_primordials = __commonJS({
         }
       } while ((target = ReflectGetPrototypeOf(target)) !== null);
     };
-    var ObjectHasOwn = exports2.ObjectHasOwn = NativeObject.hasOwn || uncurryThis(ObjectPrototype.hasOwnProperty);
+    var ObjectHasOwn = exports.ObjectHasOwn = NativeObject.hasOwn || uncurryThis(ObjectPrototype.hasOwnProperty);
     var NativeArray = Array;
-    var ArrayIsArray = exports2.ArrayIsArray = NativeArray.isArray;
+    var ArrayIsArray = exports.ArrayIsArray = NativeArray.isArray;
     var ArrayPrototype = NativeArray.prototype;
-    var ArrayPrototypeJoin = exports2.ArrayPrototypeJoin = uncurryThis(ArrayPrototype.join);
-    var ArrayPrototypePush = exports2.ArrayPrototypePush = uncurryThis(ArrayPrototype.push);
-    var ArrayPrototypeToLocaleString = exports2.ArrayPrototypeToLocaleString = uncurryThis(ArrayPrototype.toLocaleString);
-    var NativeArrayPrototypeSymbolIterator = exports2.NativeArrayPrototypeSymbolIterator = ArrayPrototype[SymbolIterator];
-    var ArrayPrototypeSymbolIterator = exports2.ArrayPrototypeSymbolIterator = uncurryThis(NativeArrayPrototypeSymbolIterator);
+    var ArrayPrototypeJoin = exports.ArrayPrototypeJoin = uncurryThis(ArrayPrototype.join);
+    var ArrayPrototypePush = exports.ArrayPrototypePush = uncurryThis(ArrayPrototype.push);
+    var ArrayPrototypeToLocaleString = exports.ArrayPrototypeToLocaleString = uncurryThis(ArrayPrototype.toLocaleString);
+    var NativeArrayPrototypeSymbolIterator = exports.NativeArrayPrototypeSymbolIterator = ArrayPrototype[SymbolIterator];
+    var ArrayPrototypeSymbolIterator = exports.ArrayPrototypeSymbolIterator = uncurryThis(NativeArrayPrototypeSymbolIterator);
     var {
       abs: MathAbs,
       trunc: MathTrunc
     } = Math;
-    exports2.MathTrunc = MathTrunc;
-    exports2.MathAbs = MathAbs;
-    var NativeArrayBuffer = exports2.NativeArrayBuffer = ArrayBuffer;
-    var ArrayBufferIsView = exports2.ArrayBufferIsView = NativeArrayBuffer.isView;
+    exports.MathTrunc = MathTrunc;
+    exports.MathAbs = MathAbs;
+    var NativeArrayBuffer = exports.NativeArrayBuffer = ArrayBuffer;
+    var ArrayBufferIsView = exports.ArrayBufferIsView = NativeArrayBuffer.isView;
     var ArrayBufferPrototype = NativeArrayBuffer.prototype;
-    var ArrayBufferPrototypeSlice = exports2.ArrayBufferPrototypeSlice = uncurryThis(ArrayBufferPrototype.slice);
-    var ArrayBufferPrototypeGetByteLength = exports2.ArrayBufferPrototypeGetByteLength = uncurryThisGetter(ArrayBufferPrototype, "byteLength");
-    var NativeSharedArrayBuffer = exports2.NativeSharedArrayBuffer = typeof SharedArrayBuffer !== "undefined" ? SharedArrayBuffer : null;
-    var SharedArrayBufferPrototypeGetByteLength = exports2.SharedArrayBufferPrototypeGetByteLength = NativeSharedArrayBuffer && uncurryThisGetter(NativeSharedArrayBuffer.prototype, "byteLength");
-    var TypedArray = exports2.TypedArray = ReflectGetPrototypeOf(Uint8Array);
+    var ArrayBufferPrototypeSlice = exports.ArrayBufferPrototypeSlice = uncurryThis(ArrayBufferPrototype.slice);
+    var ArrayBufferPrototypeGetByteLength = exports.ArrayBufferPrototypeGetByteLength = uncurryThisGetter(ArrayBufferPrototype, "byteLength");
+    var NativeSharedArrayBuffer = exports.NativeSharedArrayBuffer = typeof SharedArrayBuffer !== "undefined" ? SharedArrayBuffer : null;
+    var SharedArrayBufferPrototypeGetByteLength = exports.SharedArrayBufferPrototypeGetByteLength = NativeSharedArrayBuffer && uncurryThisGetter(NativeSharedArrayBuffer.prototype, "byteLength");
+    var TypedArray = exports.TypedArray = ReflectGetPrototypeOf(Uint8Array);
     var TypedArrayFrom = TypedArray.from;
-    var TypedArrayPrototype = exports2.TypedArrayPrototype = TypedArray.prototype;
-    var NativeTypedArrayPrototypeSymbolIterator = exports2.NativeTypedArrayPrototypeSymbolIterator = TypedArrayPrototype[SymbolIterator];
-    var TypedArrayPrototypeKeys = exports2.TypedArrayPrototypeKeys = uncurryThis(TypedArrayPrototype.keys);
-    var TypedArrayPrototypeValues = exports2.TypedArrayPrototypeValues = uncurryThis(TypedArrayPrototype.values);
-    var TypedArrayPrototypeEntries = exports2.TypedArrayPrototypeEntries = uncurryThis(TypedArrayPrototype.entries);
-    var TypedArrayPrototypeSet = exports2.TypedArrayPrototypeSet = uncurryThis(TypedArrayPrototype.set);
-    var TypedArrayPrototypeReverse = exports2.TypedArrayPrototypeReverse = uncurryThis(TypedArrayPrototype.reverse);
-    var TypedArrayPrototypeFill = exports2.TypedArrayPrototypeFill = uncurryThis(TypedArrayPrototype.fill);
-    var TypedArrayPrototypeCopyWithin = exports2.TypedArrayPrototypeCopyWithin = uncurryThis(TypedArrayPrototype.copyWithin);
-    var TypedArrayPrototypeSort = exports2.TypedArrayPrototypeSort = uncurryThis(TypedArrayPrototype.sort);
-    var TypedArrayPrototypeSlice = exports2.TypedArrayPrototypeSlice = uncurryThis(TypedArrayPrototype.slice);
-    var TypedArrayPrototypeSubarray = exports2.TypedArrayPrototypeSubarray = uncurryThis(TypedArrayPrototype.subarray);
-    var TypedArrayPrototypeGetBuffer = exports2.TypedArrayPrototypeGetBuffer = uncurryThisGetter(TypedArrayPrototype, "buffer");
-    var TypedArrayPrototypeGetByteOffset = exports2.TypedArrayPrototypeGetByteOffset = uncurryThisGetter(TypedArrayPrototype, "byteOffset");
-    var TypedArrayPrototypeGetLength = exports2.TypedArrayPrototypeGetLength = uncurryThisGetter(TypedArrayPrototype, "length");
-    var TypedArrayPrototypeGetSymbolToStringTag = exports2.TypedArrayPrototypeGetSymbolToStringTag = uncurryThisGetter(TypedArrayPrototype, SymbolToStringTag);
-    var NativeUint8Array = exports2.NativeUint8Array = Uint8Array;
-    var NativeUint16Array = exports2.NativeUint16Array = Uint16Array;
+    var TypedArrayPrototype = exports.TypedArrayPrototype = TypedArray.prototype;
+    var NativeTypedArrayPrototypeSymbolIterator = exports.NativeTypedArrayPrototypeSymbolIterator = TypedArrayPrototype[SymbolIterator];
+    var TypedArrayPrototypeKeys = exports.TypedArrayPrototypeKeys = uncurryThis(TypedArrayPrototype.keys);
+    var TypedArrayPrototypeValues = exports.TypedArrayPrototypeValues = uncurryThis(TypedArrayPrototype.values);
+    var TypedArrayPrototypeEntries = exports.TypedArrayPrototypeEntries = uncurryThis(TypedArrayPrototype.entries);
+    var TypedArrayPrototypeSet = exports.TypedArrayPrototypeSet = uncurryThis(TypedArrayPrototype.set);
+    var TypedArrayPrototypeReverse = exports.TypedArrayPrototypeReverse = uncurryThis(TypedArrayPrototype.reverse);
+    var TypedArrayPrototypeFill = exports.TypedArrayPrototypeFill = uncurryThis(TypedArrayPrototype.fill);
+    var TypedArrayPrototypeCopyWithin = exports.TypedArrayPrototypeCopyWithin = uncurryThis(TypedArrayPrototype.copyWithin);
+    var TypedArrayPrototypeSort = exports.TypedArrayPrototypeSort = uncurryThis(TypedArrayPrototype.sort);
+    var TypedArrayPrototypeSlice = exports.TypedArrayPrototypeSlice = uncurryThis(TypedArrayPrototype.slice);
+    var TypedArrayPrototypeSubarray = exports.TypedArrayPrototypeSubarray = uncurryThis(TypedArrayPrototype.subarray);
+    var TypedArrayPrototypeGetBuffer = exports.TypedArrayPrototypeGetBuffer = uncurryThisGetter(TypedArrayPrototype, "buffer");
+    var TypedArrayPrototypeGetByteOffset = exports.TypedArrayPrototypeGetByteOffset = uncurryThisGetter(TypedArrayPrototype, "byteOffset");
+    var TypedArrayPrototypeGetLength = exports.TypedArrayPrototypeGetLength = uncurryThisGetter(TypedArrayPrototype, "length");
+    var TypedArrayPrototypeGetSymbolToStringTag = exports.TypedArrayPrototypeGetSymbolToStringTag = uncurryThisGetter(TypedArrayPrototype, SymbolToStringTag);
+    var NativeUint8Array = exports.NativeUint8Array = Uint8Array;
+    var NativeUint16Array = exports.NativeUint16Array = Uint16Array;
     var Uint16ArrayFrom = (...args) => {
       return ReflectApply(TypedArrayFrom, NativeUint16Array, args);
     };
-    exports2.Uint16ArrayFrom = Uint16ArrayFrom;
-    var NativeUint32Array = exports2.NativeUint32Array = Uint32Array;
-    var NativeFloat32Array = exports2.NativeFloat32Array = Float32Array;
-    var ArrayIteratorPrototype = exports2.ArrayIteratorPrototype = ReflectGetPrototypeOf([][SymbolIterator]());
-    var ArrayIteratorPrototypeNext = exports2.ArrayIteratorPrototypeNext = uncurryThis(ArrayIteratorPrototype.next);
-    var GeneratorPrototypeNext = exports2.GeneratorPrototypeNext = uncurryThis(function* () {
+    exports.Uint16ArrayFrom = Uint16ArrayFrom;
+    var NativeUint32Array = exports.NativeUint32Array = Uint32Array;
+    var NativeFloat32Array = exports.NativeFloat32Array = Float32Array;
+    var ArrayIteratorPrototype = exports.ArrayIteratorPrototype = ReflectGetPrototypeOf([][SymbolIterator]());
+    var ArrayIteratorPrototypeNext = exports.ArrayIteratorPrototypeNext = uncurryThis(ArrayIteratorPrototype.next);
+    var GeneratorPrototypeNext = exports.GeneratorPrototypeNext = uncurryThis(function* () {
     }().next);
-    var IteratorPrototype = exports2.IteratorPrototype = ReflectGetPrototypeOf(ArrayIteratorPrototype);
+    var IteratorPrototype = exports.IteratorPrototype = ReflectGetPrototypeOf(ArrayIteratorPrototype);
     var DataViewPrototype = DataView.prototype;
-    var DataViewPrototypeGetUint16 = exports2.DataViewPrototypeGetUint16 = uncurryThis(DataViewPrototype.getUint16);
-    var DataViewPrototypeSetUint16 = exports2.DataViewPrototypeSetUint16 = uncurryThis(DataViewPrototype.setUint16);
-    var NativeTypeError = exports2.NativeTypeError = TypeError;
-    var NativeRangeError = exports2.NativeRangeError = RangeError;
-    var NativeWeakSet = exports2.NativeWeakSet = WeakSet;
+    var DataViewPrototypeGetUint16 = exports.DataViewPrototypeGetUint16 = uncurryThis(DataViewPrototype.getUint16);
+    var DataViewPrototypeSetUint16 = exports.DataViewPrototypeSetUint16 = uncurryThis(DataViewPrototype.setUint16);
+    var NativeTypeError = exports.NativeTypeError = TypeError;
+    var NativeRangeError = exports.NativeRangeError = RangeError;
+    var NativeWeakSet = exports.NativeWeakSet = WeakSet;
     var WeakSetPrototype = NativeWeakSet.prototype;
-    var WeakSetPrototypeAdd = exports2.WeakSetPrototypeAdd = uncurryThis(WeakSetPrototype.add);
-    var WeakSetPrototypeHas = exports2.WeakSetPrototypeHas = uncurryThis(WeakSetPrototype.has);
-    var NativeWeakMap = exports2.NativeWeakMap = WeakMap;
+    var WeakSetPrototypeAdd = exports.WeakSetPrototypeAdd = uncurryThis(WeakSetPrototype.add);
+    var WeakSetPrototypeHas = exports.WeakSetPrototypeHas = uncurryThis(WeakSetPrototype.has);
+    var NativeWeakMap = exports.NativeWeakMap = WeakMap;
     var WeakMapPrototype = NativeWeakMap.prototype;
-    var WeakMapPrototypeGet = exports2.WeakMapPrototypeGet = uncurryThis(WeakMapPrototype.get);
-    var WeakMapPrototypeHas = exports2.WeakMapPrototypeHas = uncurryThis(WeakMapPrototype.has);
-    var WeakMapPrototypeSet = exports2.WeakMapPrototypeSet = uncurryThis(WeakMapPrototype.set);
+    var WeakMapPrototypeGet = exports.WeakMapPrototypeGet = uncurryThis(WeakMapPrototype.get);
+    var WeakMapPrototypeHas = exports.WeakMapPrototypeHas = uncurryThis(WeakMapPrototype.has);
+    var WeakMapPrototypeSet = exports.WeakMapPrototypeSet = uncurryThis(WeakMapPrototype.set);
   }
 });
 
 // ../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/_util/arrayIterator.cjs
 var require_arrayIterator = __commonJS({
-  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/_util/arrayIterator.cjs"(exports2) {
+  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/_util/arrayIterator.cjs"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", {
+    Object.defineProperty(exports, "__esModule", {
       value: true
     });
-    exports2.safeIfNeeded = safeIfNeeded;
-    exports2.wrap = wrap;
+    exports.safeIfNeeded = safeIfNeeded;
+    exports.wrap = wrap;
     var _primordials = require_primordials();
     var arrayIterators = new _primordials.NativeWeakMap();
     var SafeIteratorPrototype = (0, _primordials.ObjectCreate)(null, {
@@ -62505,20 +62546,20 @@ var require_arrayIterator = __commonJS({
 
 // ../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/_util/is.cjs
 var require_is = __commonJS({
-  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/_util/is.cjs"(exports2) {
+  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/_util/is.cjs"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", {
+    Object.defineProperty(exports, "__esModule", {
       value: true
     });
-    exports2.isAnyArrayBuffer = isAnyArrayBuffer;
-    exports2.isCanonicalIntegerIndexString = isCanonicalIntegerIndexString;
-    exports2.isNativeBigIntTypedArray = isNativeBigIntTypedArray;
-    exports2.isNativeTypedArray = isNativeTypedArray;
-    exports2.isObject = isObject;
-    exports2.isObjectLike = isObjectLike;
-    exports2.isOrdinaryArray = isOrdinaryArray;
-    exports2.isOrdinaryNativeTypedArray = isOrdinaryNativeTypedArray;
-    exports2.isSharedArrayBuffer = isSharedArrayBuffer;
+    exports.isAnyArrayBuffer = isAnyArrayBuffer;
+    exports.isCanonicalIntegerIndexString = isCanonicalIntegerIndexString;
+    exports.isNativeBigIntTypedArray = isNativeBigIntTypedArray;
+    exports.isNativeTypedArray = isNativeTypedArray;
+    exports.isObject = isObject;
+    exports.isObjectLike = isObjectLike;
+    exports.isOrdinaryArray = isOrdinaryArray;
+    exports.isOrdinaryNativeTypedArray = isOrdinaryNativeTypedArray;
+    exports.isSharedArrayBuffer = isSharedArrayBuffer;
     var _primordials = require_primordials();
     function isObject(value) {
       return value !== null && typeof value === "object" || typeof value === "function";
@@ -62588,16 +62629,16 @@ var require_is = __commonJS({
 
 // ../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/_util/brand.cjs
 var require_brand = __commonJS({
-  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/_util/brand.cjs"(exports2) {
+  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/_util/brand.cjs"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", {
+    Object.defineProperty(exports, "__esModule", {
       value: true
     });
-    exports2.hasFloat16ArrayBrand = hasFloat16ArrayBrand;
+    exports.hasFloat16ArrayBrand = hasFloat16ArrayBrand;
     var _is = require_is();
     var _messages = require_messages();
     var _primordials = require_primordials();
-    var brand = exports2.brand = (0, _primordials.SymbolFor)("__Float16Array__");
+    var brand = exports.brand = (0, _primordials.SymbolFor)("__Float16Array__");
     function hasFloat16ArrayBrand(target) {
       if (!(0, _is.isObjectLike)(target)) {
         return false;
@@ -62620,14 +62661,14 @@ var require_brand = __commonJS({
 
 // ../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/_util/converter.cjs
 var require_converter = __commonJS({
-  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/_util/converter.cjs"(exports2) {
+  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/_util/converter.cjs"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", {
+    Object.defineProperty(exports, "__esModule", {
       value: true
     });
-    exports2.convertToNumber = convertToNumber;
-    exports2.roundToFloat16 = roundToFloat16;
-    exports2.roundToFloat16Bits = roundToFloat16Bits;
+    exports.convertToNumber = convertToNumber;
+    exports.roundToFloat16 = roundToFloat16;
+    exports.roundToFloat16Bits = roundToFloat16Bits;
     var _primordials = require_primordials();
     var INVERSE_OF_EPSILON = 1 / _primordials.EPSILON;
     function roundTiesToEven(num) {
@@ -62736,16 +62777,16 @@ var require_converter = __commonJS({
 
 // ../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/_util/spec.cjs
 var require_spec = __commonJS({
-  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/_util/spec.cjs"(exports2) {
+  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/_util/spec.cjs"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", {
+    Object.defineProperty(exports, "__esModule", {
       value: true
     });
-    exports2.IsDetachedBuffer = IsDetachedBuffer;
-    exports2.SpeciesConstructor = SpeciesConstructor;
-    exports2.ToIntegerOrInfinity = ToIntegerOrInfinity;
-    exports2.ToLength = ToLength;
-    exports2.defaultCompare = defaultCompare;
+    exports.IsDetachedBuffer = IsDetachedBuffer;
+    exports.SpeciesConstructor = SpeciesConstructor;
+    exports.ToIntegerOrInfinity = ToIntegerOrInfinity;
+    exports.ToLength = ToLength;
+    exports.defaultCompare = defaultCompare;
     var _is = require_is();
     var _messages = require_messages();
     var _primordials = require_primordials();
@@ -62826,12 +62867,12 @@ var require_spec = __commonJS({
 
 // ../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/Float16Array.cjs
 var require_Float16Array = __commonJS({
-  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/Float16Array.cjs"(exports2) {
+  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/Float16Array.cjs"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", {
+    Object.defineProperty(exports, "__esModule", {
       value: true
     });
-    exports2.isFloat16Array = isFloat16Array;
+    exports.isFloat16Array = isFloat16Array;
     var _arrayIterator = require_arrayIterator();
     var _brand = require_brand();
     var _converter = require_converter();
@@ -63500,7 +63541,7 @@ var require_Float16Array = __commonJS({
         }
       }
     };
-    exports2.Float16Array = Float16Array;
+    exports.Float16Array = Float16Array;
     (0, _primordials.ObjectDefineProperty)(Float16Array, "BYTES_PER_ELEMENT", {
       value: BYTES_PER_ELEMENT
     });
@@ -63521,12 +63562,12 @@ var require_Float16Array = __commonJS({
 
 // ../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/isTypedArray.cjs
 var require_isTypedArray = __commonJS({
-  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/isTypedArray.cjs"(exports2) {
+  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/isTypedArray.cjs"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", {
+    Object.defineProperty(exports, "__esModule", {
       value: true
     });
-    exports2.isTypedArray = isTypedArray;
+    exports.isTypedArray = isTypedArray;
     var _Float16Array = require_Float16Array();
     var _is = require_is();
     function isTypedArray(target) {
@@ -63537,13 +63578,13 @@ var require_isTypedArray = __commonJS({
 
 // ../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/DataView.cjs
 var require_DataView = __commonJS({
-  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/DataView.cjs"(exports2) {
+  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/DataView.cjs"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", {
+    Object.defineProperty(exports, "__esModule", {
       value: true
     });
-    exports2.getFloat16 = getFloat16;
-    exports2.setFloat16 = setFloat16;
+    exports.getFloat16 = getFloat16;
+    exports.setFloat16 = setFloat16;
     var _arrayIterator = require_arrayIterator();
     var _converter = require_converter();
     var _primordials = require_primordials();
@@ -63558,12 +63599,12 @@ var require_DataView = __commonJS({
 
 // ../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/f16round.cjs
 var require_f16round = __commonJS({
-  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/f16round.cjs"(exports2) {
+  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/f16round.cjs"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", {
+    Object.defineProperty(exports, "__esModule", {
       value: true
     });
-    exports2.f16round = f16round;
+    exports.f16round = f16round;
     var _converter = require_converter();
     function f16round(x5) {
       return (0, _converter.roundToFloat16)(x5);
@@ -63573,48 +63614,48 @@ var require_f16round = __commonJS({
 
 // ../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/index.cjs
 var require_lib2 = __commonJS({
-  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/index.cjs"(exports2) {
+  "../node_modules/.pnpm/@petamoriken+float16@3.9.2/node_modules/@petamoriken/float16/lib/index.cjs"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", {
+    Object.defineProperty(exports, "__esModule", {
       value: true
     });
     var _Float16Array = require_Float16Array();
-    exports2.Float16Array = _Float16Array.Float16Array;
-    exports2.isFloat16Array = _Float16Array.isFloat16Array;
+    exports.Float16Array = _Float16Array.Float16Array;
+    exports.isFloat16Array = _Float16Array.isFloat16Array;
     var _isTypedArray = require_isTypedArray();
-    exports2.isTypedArray = _isTypedArray.isTypedArray;
+    exports.isTypedArray = _isTypedArray.isTypedArray;
     var _DataView = require_DataView();
-    exports2.getFloat16 = _DataView.getFloat16;
-    exports2.setFloat16 = _DataView.setFloat16;
+    exports.getFloat16 = _DataView.getFloat16;
+    exports.setFloat16 = _DataView.setFloat16;
     var _f16round = require_f16round();
-    exports2.f16round = _f16round.f16round;
-    exports2.hfround = _f16round.f16round;
+    exports.f16round = _f16round.f16round;
+    exports.hfround = _f16round.f16round;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/utils.js
 var require_utils2 = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/utils.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/utils.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.setFloat16 = exports2.isFloat16Array = exports2.getFloat16 = exports2.Float16Array = void 0;
-    exports2.getUniqueId = getUniqueId;
-    exports2.sleep = sleep;
-    exports2.versionEqual = versionEqual;
-    exports2.versionGreaterThan = versionGreaterThan;
-    exports2.versionGreaterThanOrEqual = versionGreaterThanOrEqual;
-    exports2.getAuthenticatedFetch = getAuthenticatedFetch;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.setFloat16 = exports.isFloat16Array = exports.getFloat16 = exports.Float16Array = void 0;
+    exports.getUniqueId = getUniqueId;
+    exports.sleep = sleep;
+    exports.versionEqual = versionEqual;
+    exports.versionGreaterThan = versionGreaterThan;
+    exports.versionGreaterThanOrEqual = versionGreaterThanOrEqual;
+    exports.getAuthenticatedFetch = getAuthenticatedFetch;
     var float16_1 = require_lib2();
-    Object.defineProperty(exports2, "Float16Array", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "Float16Array", { enumerable: true, get: function() {
       return float16_1.Float16Array;
     } });
-    Object.defineProperty(exports2, "getFloat16", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "getFloat16", { enumerable: true, get: function() {
       return float16_1.getFloat16;
     } });
-    Object.defineProperty(exports2, "isFloat16Array", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "isFloat16Array", { enumerable: true, get: function() {
       return float16_1.isFloat16Array;
     } });
-    Object.defineProperty(exports2, "setFloat16", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "setFloat16", { enumerable: true, get: function() {
       return float16_1.setFloat16;
     } });
     var idCounter = {};
@@ -63686,10 +63727,10 @@ var require_utils2 = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/datatypes/pgvector.js
 var require_pgvector = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/datatypes/pgvector.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/datatypes/pgvector.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.SparseVector = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.SparseVector = void 0;
     var SparseVector = class {
       constructor(length, indexesOrMap, values) {
         __publicField(this, "length");
@@ -63751,21 +63792,21 @@ var require_pgvector = __commonJS({
         }
       }
     };
-    exports2.SparseVector = SparseVector;
+    exports.SparseVector = SparseVector;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/pgvector.js
 var require_pgvector2 = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/pgvector.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/pgvector.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.PgVectorSparseVecCodec = exports2.PgVectorHalfVecCodec = exports2.PgVectorCodec = exports2.PG_VECTOR_MAX_DIM = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.PgVectorSparseVecCodec = exports.PgVectorHalfVecCodec = exports.PgVectorCodec = exports.PG_VECTOR_MAX_DIM = void 0;
     var ifaces_1 = require_ifaces();
     var errors_1 = require_errors();
     var utils_1 = require_utils2();
     var pgvector_1 = require_pgvector();
-    exports2.PG_VECTOR_MAX_DIM = (1 << 16) - 1;
+    exports.PG_VECTOR_MAX_DIM = (1 << 16) - 1;
     var PgVectorCodec = class extends ifaces_1.ScalarCodec {
       constructor() {
         super(...arguments);
@@ -63776,7 +63817,7 @@ var require_pgvector2 = __commonJS({
         if (!(object instanceof Float32Array || Array.isArray(object))) {
           throw new errors_1.InvalidArgumentError(`a Float32Array or array of numbers was expected, got "${object}"`);
         }
-        if (object.length > exports2.PG_VECTOR_MAX_DIM) {
+        if (object.length > exports.PG_VECTOR_MAX_DIM) {
           throw new errors_1.InvalidArgumentError("too many elements in array to encode into pgvector");
         }
         buf.writeInt32(4 + object.length * 4).writeUInt16(object.length).writeUInt16(0);
@@ -63805,7 +63846,7 @@ var require_pgvector2 = __commonJS({
         return ctx.postDecode(this, vec);
       }
     };
-    exports2.PgVectorCodec = PgVectorCodec;
+    exports.PgVectorCodec = PgVectorCodec;
     var PgVectorHalfVecCodec = class extends ifaces_1.ScalarCodec {
       constructor() {
         super(...arguments);
@@ -63817,7 +63858,7 @@ var require_pgvector2 = __commonJS({
         if (!((0, utils_1.isFloat16Array)(object) || Array.isArray(object))) {
           throw new errors_1.InvalidArgumentError(`a Float16Array or array of numbers was expected, got "${object}"`);
         }
-        if (object.length > exports2.PG_VECTOR_MAX_DIM) {
+        if (object.length > exports.PG_VECTOR_MAX_DIM) {
           throw new errors_1.InvalidArgumentError("too many elements in array to encode into pgvector");
         }
         buf.writeInt32(4 + object.length * 2).writeUInt16(object.length).writeUInt16(0);
@@ -63849,7 +63890,7 @@ var require_pgvector2 = __commonJS({
         return ctx.postDecode(this, vec);
       }
     };
-    exports2.PgVectorHalfVecCodec = PgVectorHalfVecCodec;
+    exports.PgVectorHalfVecCodec = PgVectorHalfVecCodec;
     var PgVectorSparseVecCodec = class extends ifaces_1.ScalarCodec {
       constructor() {
         super(...arguments);
@@ -63871,7 +63912,7 @@ var require_pgvector2 = __commonJS({
           values = object.values;
         }
         const indexesLength = indexes.length;
-        if (indexesLength > exports2.PG_VECTOR_MAX_DIM || indexesLength > dims) {
+        if (indexesLength > exports.PG_VECTOR_MAX_DIM || indexesLength > dims) {
           throw new errors_1.InvalidArgumentError("too many elements in sparse vector value");
         }
         buf.writeUInt32(4 * (3 + indexesLength * 2)).writeUInt32(dims).writeUInt32(indexesLength).writeUInt32(0);
@@ -63909,19 +63950,19 @@ var require_pgvector2 = __commonJS({
         return new pgvector_1.SparseVector(dim, indexes, vecData);
       }
     };
-    exports2.PgVectorSparseVecCodec = PgVectorSparseVecCodec;
+    exports.PgVectorSparseVecCodec = PgVectorSparseVecCodec;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/datatypes/postgis.js
 var require_postgis = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/datatypes/postgis.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/datatypes/postgis.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.Box3D = exports2.Box2D = exports2.GeometryCollection = exports2.MultiSurface = exports2.TriangulatedIrregularNetwork = exports2.PolyhedralSurface = exports2.MultiPolygon = exports2.CurvePolygon = exports2.Triangle = exports2.Polygon = exports2.MultiCurve = exports2.CompoundCurve = exports2.MultiLineString = exports2.CircularString = exports2.LineString = exports2.MultiPoint = exports2.Point = exports2.Geometry = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Box3D = exports.Box2D = exports.GeometryCollection = exports.MultiSurface = exports.TriangulatedIrregularNetwork = exports.PolyhedralSurface = exports.MultiPolygon = exports.CurvePolygon = exports.Triangle = exports.Polygon = exports.MultiCurve = exports.CompoundCurve = exports.MultiLineString = exports.CircularString = exports.LineString = exports.MultiPoint = exports.Point = exports.Geometry = void 0;
     var Geometry = class {
     };
-    exports2.Geometry = Geometry;
+    exports.Geometry = Geometry;
     function _pointToWKT(p5) {
       return `${p5.x} ${p5.y}${p5.z !== null ? ` ${p5.z}` : ""}${p5.m !== null ? ` ${p5.m}` : ""}`;
     }
@@ -63963,7 +64004,7 @@ var require_postgis = __commonJS({
         return this.srid === other.srid && (Number.isNaN(this.x) ? this.hasZ === other.hasZ && this.hasM === other.hasM : this.x === other.x && this.y === other.y && this.z === other.z && this.m === other.m);
       }
     };
-    exports2.Point = Point;
+    exports.Point = Point;
     var MultiPoint = class extends Geometry {
       constructor(geometries, hasZ, hasM, srid) {
         super();
@@ -63989,7 +64030,7 @@ var require_postgis = __commonJS({
         return wkt + _indent(indent, depth) + ")";
       }
     };
-    exports2.MultiPoint = MultiPoint;
+    exports.MultiPoint = MultiPoint;
     function _linestringToWKT(points, indent, truncate = Infinity, depth = 0) {
       let wkt = `(`;
       let i6 = 0;
@@ -64025,7 +64066,7 @@ var require_postgis = __commonJS({
       }
     };
     __publicField(LineString, "_wktName", "LINESTRING");
-    exports2.LineString = LineString;
+    exports.LineString = LineString;
     var CircularString = class extends LineString {
       _validate() {
         if (this.points.length !== 0 && (this.points.length <= 1 || this.points.length % 2 !== 1)) {
@@ -64034,7 +64075,7 @@ var require_postgis = __commonJS({
       }
     };
     __publicField(CircularString, "_wktName", "CIRCULARSTRING");
-    exports2.CircularString = CircularString;
+    exports.CircularString = CircularString;
     function _multilinestringToWKT(lineStrings, indent, truncate = Infinity, depth = 0) {
       let wkt = `(`;
       let i6 = 0;
@@ -64063,7 +64104,7 @@ var require_postgis = __commonJS({
         return wkt + _multilinestringToWKT(this.geometries, indent, truncate - wkt.length, depth);
       }
     };
-    exports2.MultiLineString = MultiLineString;
+    exports.MultiLineString = MultiLineString;
     var CompoundCurve = class extends Geometry {
       constructor(geometries, hasZ, hasM, srid) {
         super();
@@ -64096,7 +64137,7 @@ var require_postgis = __commonJS({
         return wkt + _indent(indent, depth) + ")";
       }
     };
-    exports2.CompoundCurve = CompoundCurve;
+    exports.CompoundCurve = CompoundCurve;
     var MultiCurve = class extends Geometry {
       constructor(geometries, hasZ, hasM, srid) {
         super();
@@ -64122,7 +64163,7 @@ var require_postgis = __commonJS({
         return wkt + _indent(indent, depth) + ")";
       }
     };
-    exports2.MultiCurve = MultiCurve;
+    exports.MultiCurve = MultiCurve;
     var Polygon = class extends Geometry {
       constructor(rings, hasZ, hasM, srid) {
         super();
@@ -64150,7 +64191,7 @@ var require_postgis = __commonJS({
       }
     };
     __publicField(Polygon, "_wktName", "POLYGON");
-    exports2.Polygon = Polygon;
+    exports.Polygon = Polygon;
     var Triangle = class extends Polygon {
       _validate() {
         if (this.rings.length > 1) {
@@ -64162,7 +64203,7 @@ var require_postgis = __commonJS({
       }
     };
     __publicField(Triangle, "_wktName", "TRIANGLE");
-    exports2.Triangle = Triangle;
+    exports.Triangle = Triangle;
     var CurvePolygon = class extends Geometry {
       constructor(geometries, hasZ, hasM, srid) {
         super();
@@ -64191,7 +64232,7 @@ var require_postgis = __commonJS({
         return wkt + _indent(indent, depth) + ")";
       }
     };
-    exports2.CurvePolygon = CurvePolygon;
+    exports.CurvePolygon = CurvePolygon;
     var MultiPolygon = class extends Geometry {
       constructor(geometries, hasZ, hasM, srid) {
         super();
@@ -64218,15 +64259,15 @@ var require_postgis = __commonJS({
       }
     };
     __publicField(MultiPolygon, "_wktName", "MULTIPOLYGON");
-    exports2.MultiPolygon = MultiPolygon;
+    exports.MultiPolygon = MultiPolygon;
     var PolyhedralSurface = class extends MultiPolygon {
     };
     __publicField(PolyhedralSurface, "_wktName", "POLYHEDRALSURFACE");
-    exports2.PolyhedralSurface = PolyhedralSurface;
+    exports.PolyhedralSurface = PolyhedralSurface;
     var TriangulatedIrregularNetwork = class extends MultiPolygon {
     };
     __publicField(TriangulatedIrregularNetwork, "_wktName", "TIN");
-    exports2.TriangulatedIrregularNetwork = TriangulatedIrregularNetwork;
+    exports.TriangulatedIrregularNetwork = TriangulatedIrregularNetwork;
     var MultiSurface = class extends Geometry {
       constructor(geometries, hasZ, hasM, srid) {
         super();
@@ -64252,7 +64293,7 @@ var require_postgis = __commonJS({
         return wkt + _indent(indent, depth) + ")";
       }
     };
-    exports2.MultiSurface = MultiSurface;
+    exports.MultiSurface = MultiSurface;
     var GeometryCollection = class extends Geometry {
       constructor(geometries, hasZ, hasM, srid) {
         super();
@@ -64278,7 +64319,7 @@ var require_postgis = __commonJS({
         return wkt + _indent(indent, depth) + ")";
       }
     };
-    exports2.GeometryCollection = GeometryCollection;
+    exports.GeometryCollection = GeometryCollection;
     var Box2D = class {
       constructor(min, max) {
         __publicField(this, "min");
@@ -64290,7 +64331,7 @@ var require_postgis = __commonJS({
         return `BOX(${this.min[0]} ${this.min[1]}, ${this.max[0]} ${this.max[1]})`;
       }
     };
-    exports2.Box2D = Box2D;
+    exports.Box2D = Box2D;
     var Box3D = class {
       constructor(min, max) {
         __publicField(this, "min");
@@ -64302,16 +64343,16 @@ var require_postgis = __commonJS({
         return `BOX3D(${this.min[0]} ${this.min[1]} ${this.min[2]}, ${this.max[0]} ${this.max[1]} ${this.max[2]})`;
       }
     };
-    exports2.Box3D = Box3D;
+    exports.Box3D = Box3D;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/postgis.js
 var require_postgis2 = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/postgis.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/postgis.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.PostgisBox3dCodec = exports2.PostgisBox2dCodec = exports2.PostgisGeometryCodec = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.PostgisBox3dCodec = exports.PostgisBox2dCodec = exports.PostgisGeometryCodec = void 0;
     var postgis_1 = require_postgis();
     var errors_1 = require_errors();
     var ifaces_1 = require_ifaces();
@@ -64336,7 +64377,7 @@ var require_postgis2 = __commonJS({
         return _parseGeometry(buf);
       }
     };
-    exports2.PostgisGeometryCodec = PostgisGeometryCodec;
+    exports.PostgisGeometryCodec = PostgisGeometryCodec;
     var PostgisBox2dCodec = class extends ifaces_1.ScalarCodec {
       encode(buf, object, ctx) {
         let min;
@@ -64375,7 +64416,7 @@ var require_postgis2 = __commonJS({
         return new postgis_1.Box2D(min, max);
       }
     };
-    exports2.PostgisBox2dCodec = PostgisBox2dCodec;
+    exports.PostgisBox2dCodec = PostgisBox2dCodec;
     var PostgisBox3dCodec = class extends ifaces_1.ScalarCodec {
       encode(buf, object, ctx) {
         let min;
@@ -64423,7 +64464,7 @@ var require_postgis2 = __commonJS({
         return new postgis_1.Box3D([min.x, min.y, min.z ?? 0], [max.x, max.y, max.z ?? 0]);
       }
     };
-    exports2.PostgisBox3dCodec = PostgisBox3dCodec;
+    exports.PostgisBox3dCodec = PostgisBox3dCodec;
     var zFlag = 2147483648;
     var mFlag = 1073741824;
     var sridFlag = 536870912;
@@ -64653,10 +64694,10 @@ var require_postgis2 = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/codecs.js
 var require_codecs = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/codecs.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/codecs.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.INVALID_CODEC = exports2.NULL_CODEC = exports2.SCALAR_CODECS = exports2.NullCodec = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.INVALID_CODEC = exports.NULL_CODEC = exports.SCALAR_CODECS = exports.NullCodec = void 0;
     var buffer_1 = require_buffer();
     var boolean_1 = require_boolean();
     var ifaces_1 = require_ifaces();
@@ -64687,17 +64728,17 @@ var require_codecs = __commonJS({
       }
     };
     __publicField(NullCodec, "BUFFER", new buffer_1.WriteBuffer().writeInt32(0).unwrap());
-    exports2.NullCodec = NullCodec;
-    exports2.SCALAR_CODECS = /* @__PURE__ */ new Map();
-    exports2.NULL_CODEC = new NullCodec(consts_1.NULL_CODEC_ID);
-    exports2.INVALID_CODEC = new NullCodec(consts_1.INVALID_CODEC_ID);
+    exports.NullCodec = NullCodec;
+    exports.SCALAR_CODECS = /* @__PURE__ */ new Map();
+    exports.NULL_CODEC = new NullCodec(consts_1.NULL_CODEC_ID);
+    exports.INVALID_CODEC = new NullCodec(consts_1.INVALID_CODEC_ID);
     function registerScalarCodecs(codecs) {
       for (const [typename, type] of Object.entries(codecs)) {
         const id = consts_1.KNOWN_TYPENAMES.get(typename);
         if (id == null) {
           throw new errors_1.InternalClientError("unknown type name");
         }
-        exports2.SCALAR_CODECS.set(id, new type(id, typename));
+        exports.SCALAR_CODECS.set(id, new type(id, typename));
       }
     }
     registerScalarCodecs({
@@ -64739,10 +64780,10 @@ var require_codecs = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/tuple.js
 var require_tuple = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/tuple.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/tuple.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.EMPTY_TUPLE_CODEC = exports2.EMPTY_TUPLE_CODEC_ID = exports2.EmptyTupleCodec = exports2.TupleCodec = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.EMPTY_TUPLE_CODEC = exports.EMPTY_TUPLE_CODEC_ID = exports.EmptyTupleCodec = exports.TupleCodec = void 0;
     var consts_1 = require_consts();
     var ifaces_1 = require_ifaces();
     var buffer_1 = require_buffer();
@@ -64818,7 +64859,7 @@ var require_tuple = __commonJS({
         return "tuple";
       }
     };
-    exports2.TupleCodec = TupleCodec;
+    exports.TupleCodec = TupleCodec;
     var EmptyTupleCodec = class extends ifaces_1.Codec {
       encode(buf, object, _ctx) {
         if (!Array.isArray(object)) {
@@ -64845,18 +64886,18 @@ var require_tuple = __commonJS({
       }
     };
     __publicField(EmptyTupleCodec, "BUFFER", new buffer_1.WriteBuffer().writeInt32(4).writeInt32(0).unwrap());
-    exports2.EmptyTupleCodec = EmptyTupleCodec;
-    exports2.EMPTY_TUPLE_CODEC_ID = consts_1.KNOWN_TYPENAMES.get("empty-tuple");
-    exports2.EMPTY_TUPLE_CODEC = new EmptyTupleCodec(exports2.EMPTY_TUPLE_CODEC_ID);
+    exports.EmptyTupleCodec = EmptyTupleCodec;
+    exports.EMPTY_TUPLE_CODEC_ID = consts_1.KNOWN_TYPENAMES.get("empty-tuple");
+    exports.EMPTY_TUPLE_CODEC = new EmptyTupleCodec(exports.EMPTY_TUPLE_CODEC_ID);
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/datatypes/range.js
 var require_range2 = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/datatypes/range.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/datatypes/range.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.MultiRange = exports2.Range = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.MultiRange = exports.Range = void 0;
     var Range = class _Range {
       constructor(_lower, _upper, _incLower = _lower != null, _incUpper = false) {
         __publicField(this, "_lower");
@@ -64898,7 +64939,7 @@ var require_range2 = __commonJS({
         };
       }
     };
-    exports2.Range = Range;
+    exports.Range = Range;
     var MultiRange = class {
       constructor(ranges = []) {
         __publicField(this, "_ranges");
@@ -64916,16 +64957,16 @@ var require_range2 = __commonJS({
         return [...this._ranges];
       }
     };
-    exports2.MultiRange = MultiRange;
+    exports.MultiRange = MultiRange;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/range.js
 var require_range3 = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/range.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/range.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.MultiRangeCodec = exports2.RangeCodec = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.MultiRangeCodec = exports.RangeCodec = void 0;
     var ifaces_1 = require_ifaces();
     var buffer_1 = require_buffer();
     var range_1 = require_range2();
@@ -64998,7 +65039,7 @@ var require_range3 = __commonJS({
         return "range";
       }
     };
-    exports2.RangeCodec = RangeCodec;
+    exports.RangeCodec = RangeCodec;
     var MultiRangeCodec = class extends ifaces_1.Codec {
       constructor(tid, typeName, subCodec) {
         super(tid);
@@ -65066,16 +65107,16 @@ var require_range3 = __commonJS({
         return "multirange";
       }
     };
-    exports2.MultiRangeCodec = MultiRangeCodec;
+    exports.MultiRangeCodec = MultiRangeCodec;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/namedtuple.js
 var require_namedtuple = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/namedtuple.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/namedtuple.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.NamedTupleCodec = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.NamedTupleCodec = void 0;
     var ifaces_1 = require_ifaces();
     var buffer_1 = require_buffer();
     var errors_1 = require_errors();
@@ -65153,16 +65194,16 @@ var require_namedtuple = __commonJS({
         return "namedtuple";
       }
     };
-    exports2.NamedTupleCodec = NamedTupleCodec;
+    exports.NamedTupleCodec = NamedTupleCodec;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/array.js
 var require_array = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/array.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/array.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.ArrayCodec = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.ArrayCodec = void 0;
     var ifaces_1 = require_ifaces();
     var buffer_1 = require_buffer();
     var tuple_1 = require_tuple();
@@ -65246,7 +65287,7 @@ var require_array = __commonJS({
         return "array";
       }
     };
-    exports2.ArrayCodec = ArrayCodec;
+    exports.ArrayCodec = ArrayCodec;
     function isTypedArray(obj) {
       return !!(obj.buffer instanceof ArrayBuffer && obj.BYTES_PER_ELEMENT);
     }
@@ -65255,10 +65296,10 @@ var require_array = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/enum.js
 var require_enum = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/enum.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/enum.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.EnumCodec = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.EnumCodec = void 0;
     var text_1 = require_text();
     var EnumCodec = class extends text_1.StrCodec {
       constructor(tid, typeName, values) {
@@ -65267,15 +65308,15 @@ var require_enum = __commonJS({
         this.values = values;
       }
     };
-    exports2.EnumCodec = EnumCodec;
+    exports.EnumCodec = EnumCodec;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/ifaces.js
 var require_ifaces2 = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/ifaces.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/ifaces.js"(exports) {
     "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
       if (k22 === void 0) k22 = k5;
       var desc = Object.getOwnPropertyDescriptor(m6, k5);
       if (!desc || ("get" in desc ? !m6.__esModule : desc.writable || desc.configurable)) {
@@ -65288,12 +65329,12 @@ var require_ifaces2 = __commonJS({
       if (k22 === void 0) k22 = k5;
       o5[k22] = m6[k5];
     });
-    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o5, v6) {
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o5, v6) {
       Object.defineProperty(o5, "default", { enumerable: true, value: v6 });
     } : function(o5, v6) {
       o5["default"] = v6;
     });
-    var __importStar = exports2 && exports2.__importStar || function(mod) {
+    var __importStar = exports && exports.__importStar || function(mod) {
       if (mod && mod.__esModule) return mod;
       var result = {};
       if (mod != null) {
@@ -65302,15 +65343,15 @@ var require_ifaces2 = __commonJS({
       __setModuleDefault(result, mod);
       return result;
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.Language = exports2.Cardinality = exports2.OutputFormat = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Language = exports.Cardinality = exports.OutputFormat = void 0;
     var chars = __importStar(require_chars());
     var OutputFormat;
     (function(OutputFormat2) {
       OutputFormat2[OutputFormat2["BINARY"] = chars.$b] = "BINARY";
       OutputFormat2[OutputFormat2["JSON"] = chars.$j] = "JSON";
       OutputFormat2[OutputFormat2["NONE"] = chars.$n] = "NONE";
-    })(OutputFormat || (exports2.OutputFormat = OutputFormat = {}));
+    })(OutputFormat || (exports.OutputFormat = OutputFormat = {}));
     var Cardinality;
     (function(Cardinality2) {
       Cardinality2[Cardinality2["NO_RESULT"] = chars.$n] = "NO_RESULT";
@@ -65318,21 +65359,21 @@ var require_ifaces2 = __commonJS({
       Cardinality2[Cardinality2["ONE"] = chars.$A] = "ONE";
       Cardinality2[Cardinality2["MANY"] = chars.$m] = "MANY";
       Cardinality2[Cardinality2["AT_LEAST_ONE"] = chars.$M] = "AT_LEAST_ONE";
-    })(Cardinality || (exports2.Cardinality = Cardinality = {}));
+    })(Cardinality || (exports.Cardinality = Cardinality = {}));
     var Language;
     (function(Language2) {
       Language2[Language2["EDGEQL"] = chars.$E] = "EDGEQL";
       Language2[Language2["SQL"] = chars.$S] = "SQL";
-    })(Language || (exports2.Language = Language = {}));
+    })(Language || (exports.Language = Language = {}));
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/object.js
 var require_object = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/object.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/object.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.ObjectCodec = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.ObjectCodec = void 0;
     var ifaces_1 = require_ifaces2();
     var ifaces_2 = require_ifaces();
     var buffer_1 = require_buffer();
@@ -65471,16 +65512,16 @@ var require_object = __commonJS({
         return "object";
       }
     };
-    exports2.ObjectCodec = ObjectCodec;
+    exports.ObjectCodec = ObjectCodec;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/set.js
 var require_set = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/set.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/set.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.SetCodec = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.SetCodec = void 0;
     var ifaces_1 = require_ifaces();
     var buffer_1 = require_buffer();
     var array_1 = require_array();
@@ -65567,16 +65608,16 @@ var require_set = __commonJS({
         return "set";
       }
     };
-    exports2.SetCodec = SetCodec;
+    exports.SetCodec = SetCodec;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/record.js
 var require_record = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/record.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/record.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.RecordCodec = exports2.SQLRowModeObject = exports2.SQLRowModeArray = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.RecordCodec = exports.SQLRowModeObject = exports.SQLRowModeArray = void 0;
     var ifaces_1 = require_ifaces();
     var buffer_1 = require_buffer();
     var errors_1 = require_errors();
@@ -65596,10 +65637,10 @@ var require_record = __commonJS({
         throw new errors_1.InternalClientError("cannot encode SQL record as a query argument");
       }
     };
-    exports2.SQLRowModeArray = {
+    exports.SQLRowModeArray = {
       _private_sql_row: SQLRowArrayCodec
     };
-    exports2.SQLRowModeObject = {
+    exports.SQLRowModeObject = {
       _private_sql_row: SQLRowObjectCodec
     };
     var RecordCodec = class extends ifaces_1.Codec {
@@ -65665,16 +65706,16 @@ var require_record = __commonJS({
         return "record";
       }
     };
-    exports2.RecordCodec = RecordCodec;
+    exports.RecordCodec = RecordCodec;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/sparseObject.js
 var require_sparseObject = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/sparseObject.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/sparseObject.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.SparseObjectCodec = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.SparseObjectCodec = void 0;
     var ifaces_1 = require_ifaces();
     var buffer_1 = require_buffer();
     var errors_1 = require_errors();
@@ -65736,19 +65777,19 @@ var require_sparseObject = __commonJS({
         return "sparse_object";
       }
     };
-    exports2.SparseObjectCodec = SparseObjectCodec;
+    exports.SparseObjectCodec = SparseObjectCodec;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/registry.js
 var require_registry = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/registry.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/registry.js"(exports) {
     "use strict";
-    var __importDefault = exports2 && exports2.__importDefault || function(mod) {
+    var __importDefault = exports && exports.__importDefault || function(mod) {
       return mod && mod.__esModule ? mod : { "default": mod };
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.CodecsRegistry = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.CodecsRegistry = void 0;
     var buffer_1 = require_buffer();
     var lru_1 = __importDefault(require_lru());
     var ifaces_1 = require_ifaces();
@@ -66075,16 +66116,16 @@ var require_registry = __commonJS({
         return res;
       }
     };
-    exports2.CodecsRegistry = CodecsRegistry;
+    exports.CodecsRegistry = CodecsRegistry;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/context.js
 var require_context = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/context.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/codecs/context.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.NOOP_CODEC_CONTEXT = exports2.CodecContext = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.NOOP_CODEC_CONTEXT = exports.CodecContext = void 0;
     var NOOP = {
       toDatabase(data) {
         return data;
@@ -66174,16 +66215,16 @@ var require_context = __commonJS({
         return op.toDatabase(value);
       }
     };
-    exports2.CodecContext = CodecContext;
-    exports2.NOOP_CODEC_CONTEXT = new CodecContext(null);
+    exports.CodecContext = CodecContext;
+    exports.NOOP_CODEC_CONTEXT = new CodecContext(null);
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/options.js
 var require_options = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/options.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/options.js"(exports) {
     "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
       if (k22 === void 0) k22 = k5;
       var desc = Object.getOwnPropertyDescriptor(m6, k5);
       if (!desc || ("get" in desc ? !m6.__esModule : desc.writable || desc.configurable)) {
@@ -66196,12 +66237,12 @@ var require_options = __commonJS({
       if (k22 === void 0) k22 = k5;
       o5[k22] = m6[k5];
     });
-    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o5, v6) {
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o5, v6) {
       Object.defineProperty(o5, "default", { enumerable: true, value: v6 });
     } : function(o5, v6) {
       o5["default"] = v6;
     });
-    var __importStar = exports2 && exports2.__importStar || function(mod) {
+    var __importStar = exports && exports.__importStar || function(mod) {
       if (mod && mod.__esModule) return mod;
       var result = {};
       if (mod != null) {
@@ -66210,9 +66251,9 @@ var require_options = __commonJS({
       __setModuleDefault(result, mod);
       return result;
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.Options = exports2.TransactionOptions = exports2.RetryOptions = exports2.logWarnings = exports2.throwWarnings = exports2.RetryCondition = exports2.IsolationLevel = void 0;
-    exports2.defaultBackoff = defaultBackoff;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Options = exports.TransactionOptions = exports.RetryOptions = exports.logWarnings = exports.throwWarnings = exports.RetryCondition = exports.IsolationLevel = void 0;
+    exports.defaultBackoff = defaultBackoff;
     var errors = __importStar(require_errors());
     var buffer_1 = require_buffer();
     var record_1 = require_record();
@@ -66225,12 +66266,12 @@ var require_options = __commonJS({
       IsolationLevel2["Serializable"] = "Serializable";
       IsolationLevel2["RepeatableRead"] = "RepeatableRead";
       IsolationLevel2["PreferRepeatableRead"] = "PreferRepeatableRead";
-    })(IsolationLevel || (exports2.IsolationLevel = IsolationLevel = {}));
+    })(IsolationLevel || (exports.IsolationLevel = IsolationLevel = {}));
     var RetryCondition;
     (function(RetryCondition2) {
       RetryCondition2[RetryCondition2["TransactionConflict"] = 0] = "TransactionConflict";
       RetryCondition2[RetryCondition2["NetworkError"] = 1] = "NetworkError";
-    })(RetryCondition || (exports2.RetryCondition = RetryCondition = {}));
+    })(RetryCondition || (exports.RetryCondition = RetryCondition = {}));
     var RetryRule = class {
       constructor(attempts, backoff) {
         __publicField(this, "attempts");
@@ -66242,12 +66283,12 @@ var require_options = __commonJS({
     var throwWarnings = (warnings) => {
       throw new AggregateError(warnings, formatWarnings(warnings));
     };
-    exports2.throwWarnings = throwWarnings;
+    exports.throwWarnings = throwWarnings;
     var logWarnings = (warnings) => {
       const merged = new Error(formatWarnings(warnings));
       console.warn(Object.assign(merged, { name: "" }));
     };
-    exports2.logWarnings = logWarnings;
+    exports.logWarnings = logWarnings;
     var formatWarnings = (warnings) => `warnings occurred while running query:
 ${warnings.map((warn) => warn.message).join("\n")}`;
     var RetryOptions = class _RetryOptions {
@@ -66279,7 +66320,7 @@ ${warnings.map((warn) => warn.message).join("\n")}`;
         return _retryOptionsDefault;
       }
     };
-    exports2.RetryOptions = RetryOptions;
+    exports.RetryOptions = RetryOptions;
     var _retryOptionsDefault = new RetryOptions();
     var TransactionOptions = class {
       constructor({ isolation, readonly, deferrable } = {}) {
@@ -66297,11 +66338,11 @@ ${warnings.map((warn) => warn.message).join("\n")}`;
         return _defaultTransactionOptions;
       }
     };
-    exports2.TransactionOptions = TransactionOptions;
+    exports.TransactionOptions = TransactionOptions;
     var _defaultTransactionOptions = new TransactionOptions();
     var TAG_ANNOTATION_KEY = "tag";
     var _Options = class _Options {
-      constructor({ retryOptions = RetryOptions.defaults(), transactionOptions = TransactionOptions.defaults(), warningHandler = exports2.logWarnings, module: module3 = "default", moduleAliases = {}, config = {}, globals = {}, codecs = {} } = {}) {
+      constructor({ retryOptions = RetryOptions.defaults(), transactionOptions = TransactionOptions.defaults(), warningHandler = exports.logWarnings, module: module2 = "default", moduleAliases = {}, config = {}, globals = {}, codecs = {} } = {}) {
         __publicField(this, "module");
         __publicField(this, "moduleAliases");
         __publicField(this, "config");
@@ -66316,7 +66357,7 @@ ${warnings.map((warn) => warn.message).join("\n")}`;
         this.retryOptions = retryOptions;
         this.transactionOptions = transactionOptions;
         this.warningHandler = warningHandler;
-        this.module = module3;
+        this.module = module2;
         this.moduleAliases = new Map(Object.entries(moduleAliases));
         this.config = new Map(Object.entries(config));
         this.globals = new Map(Object.entries(globals));
@@ -66411,9 +66452,9 @@ ${warnings.map((warn) => warn.message).join("\n")}`;
         }
         return state2;
       }
-      withModuleAliases({ module: module3, ...aliases }) {
+      withModuleAliases({ module: module2, ...aliases }) {
         return this._cloneWith({
-          module: module3 ?? this.module,
+          module: module2 ?? this.module,
           moduleAliases: aliases
         });
       }
@@ -66479,16 +66520,16 @@ ${warnings.map((warn) => warn.message).join("\n")}`;
     };
     __publicField(_Options, "schemaVersion", 0);
     var Options = _Options;
-    exports2.Options = Options;
+    exports.Options = Options;
     var _defaultOptions = new Options();
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/primitives/event.js
 var require_event = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/primitives/event.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/primitives/event.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
+    Object.defineProperty(exports, "__esModule", { value: true });
     var errors_1 = require_errors();
     var Event = class {
       constructor() {
@@ -66537,16 +66578,16 @@ var require_event = __commonJS({
         this._reject(reason);
       }
     };
-    exports2.default = Event;
+    exports.default = Event;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/primitives/queues.js
 var require_queues = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/primitives/queues.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/primitives/queues.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.LifoQueue = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.LifoQueue = void 0;
     var errors_1 = require_errors();
     var LifoQueue = class {
       constructor() {
@@ -66599,15 +66640,15 @@ var require_queues = __commonJS({
         return Math.max(0, this._resolvers.length - this._promises.length);
       }
     };
-    exports2.LifoQueue = LifoQueue;
+    exports.LifoQueue = LifoQueue;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/retry.js
 var require_retry = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/retry.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/retry.js"(exports) {
     "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
       if (k22 === void 0) k22 = k5;
       var desc = Object.getOwnPropertyDescriptor(m6, k5);
       if (!desc || ("get" in desc ? !m6.__esModule : desc.writable || desc.configurable)) {
@@ -66620,12 +66661,12 @@ var require_retry = __commonJS({
       if (k22 === void 0) k22 = k5;
       o5[k22] = m6[k5];
     });
-    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o5, v6) {
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o5, v6) {
       Object.defineProperty(o5, "default", { enumerable: true, value: v6 });
     } : function(o5, v6) {
       o5["default"] = v6;
     });
-    var __importStar = exports2 && exports2.__importStar || function(mod) {
+    var __importStar = exports && exports.__importStar || function(mod) {
       if (mod && mod.__esModule) return mod;
       var result = {};
       if (mod != null) {
@@ -66634,8 +66675,8 @@ var require_retry = __commonJS({
       __setModuleDefault(result, mod);
       return result;
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.retryingConnect = retryingConnect;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.retryingConnect = retryingConnect;
     var errors = __importStar(require_errors());
     var utils_1 = require_utils2();
     var lastLoggingAt = 0;
@@ -66682,10 +66723,10 @@ Hint: it looks like the program is running from a directory initialized with "ge
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/enums.js
 var require_enums = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/enums.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/enums.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.OperatorKind = exports2.SelectModifierKind = exports2.ExpressionKind = exports2.TypeKind = exports2.Cardinality = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.OperatorKind = exports.SelectModifierKind = exports.ExpressionKind = exports.TypeKind = exports.Cardinality = void 0;
     var Cardinality;
     (function(Cardinality2) {
       Cardinality2["AtMostOne"] = "AtMostOne";
@@ -66693,7 +66734,7 @@ var require_enums = __commonJS({
       Cardinality2["Many"] = "Many";
       Cardinality2["AtLeastOne"] = "AtLeastOne";
       Cardinality2["Empty"] = "Empty";
-    })(Cardinality || (exports2.Cardinality = Cardinality = {}));
+    })(Cardinality || (exports.Cardinality = Cardinality = {}));
     var TypeKind;
     (function(TypeKind2) {
       TypeKind2["scalar"] = "scalar";
@@ -66704,7 +66745,7 @@ var require_enums = __commonJS({
       TypeKind2["array"] = "array";
       TypeKind2["range"] = "range";
       TypeKind2["multirange"] = "multirange";
-    })(TypeKind || (exports2.TypeKind = TypeKind = {}));
+    })(TypeKind || (exports.TypeKind = TypeKind = {}));
     var ExpressionKind;
     (function(ExpressionKind2) {
       ExpressionKind2["Set"] = "Set";
@@ -66735,30 +66776,30 @@ var require_enums = __commonJS({
       ExpressionKind2["Global"] = "Global";
       ExpressionKind2["PolyShapeElement"] = "PolyShapeElement";
       ExpressionKind2["Group"] = "Group";
-    })(ExpressionKind || (exports2.ExpressionKind = ExpressionKind = {}));
+    })(ExpressionKind || (exports.ExpressionKind = ExpressionKind = {}));
     var SelectModifierKind;
     (function(SelectModifierKind2) {
       SelectModifierKind2["filter"] = "filter";
       SelectModifierKind2["order_by"] = "order_by";
       SelectModifierKind2["offset"] = "offset";
       SelectModifierKind2["limit"] = "limit";
-    })(SelectModifierKind || (exports2.SelectModifierKind = SelectModifierKind = {}));
+    })(SelectModifierKind || (exports.SelectModifierKind = SelectModifierKind = {}));
     var OperatorKind;
     (function(OperatorKind2) {
       OperatorKind2["Infix"] = "Infix";
       OperatorKind2["Postfix"] = "Postfix";
       OperatorKind2["Prefix"] = "Prefix";
       OperatorKind2["Ternary"] = "Ternary";
-    })(OperatorKind || (exports2.OperatorKind = OperatorKind = {}));
+    })(OperatorKind || (exports.OperatorKind = OperatorKind = {}));
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/util.js
 var require_util3 = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/util.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/util.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.util = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.util = void 0;
     var ifaces_1 = require_ifaces2();
     var enums_1 = require_enums();
     var util2;
@@ -66830,15 +66871,15 @@ var require_util3 = __commonJS({
         }
         throw new Error(`Unexpected cardinality: ${cardinality}`);
       };
-    })(util2 || (exports2.util = util2 = {}));
+    })(util2 || (exports.util = util2 = {}));
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/transaction.js
 var require_transaction = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/transaction.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/transaction.js"(exports) {
     "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
       if (k22 === void 0) k22 = k5;
       var desc = Object.getOwnPropertyDescriptor(m6, k5);
       if (!desc || ("get" in desc ? !m6.__esModule : desc.writable || desc.configurable)) {
@@ -66851,12 +66892,12 @@ var require_transaction = __commonJS({
       if (k22 === void 0) k22 = k5;
       o5[k22] = m6[k5];
     });
-    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o5, v6) {
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o5, v6) {
       Object.defineProperty(o5, "default", { enumerable: true, value: v6 });
     } : function(o5, v6) {
       o5["default"] = v6;
     });
-    var __importStar = exports2 && exports2.__importStar || function(mod) {
+    var __importStar = exports && exports.__importStar || function(mod) {
       if (mod && mod.__esModule) return mod;
       var result = {};
       if (mod != null) {
@@ -66865,8 +66906,8 @@ var require_transaction = __commonJS({
       __setModuleDefault(result, mod);
       return result;
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.Transaction = exports2.TransactionImpl = exports2.TransactionState = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Transaction = exports.TransactionImpl = exports.TransactionState = void 0;
     var errors = __importStar(require_errors());
     var ifaces_1 = require_ifaces2();
     var options_1 = require_options();
@@ -66876,7 +66917,7 @@ var require_transaction = __commonJS({
       TransactionState2[TransactionState2["COMMITTED"] = 1] = "COMMITTED";
       TransactionState2[TransactionState2["ROLLEDBACK"] = 2] = "ROLLEDBACK";
       TransactionState2[TransactionState2["FAILED"] = 3] = "FAILED";
-    })(TransactionState || (exports2.TransactionState = TransactionState = {}));
+    })(TransactionState || (exports.TransactionState = TransactionState = {}));
     var TransactionImpl = class _TransactionImpl {
       constructor(holder, rawConn) {
         __publicField(this, "_holder");
@@ -66958,7 +66999,7 @@ var require_transaction = __commonJS({
         }, "A query is still in progress after transaction block has returned.");
       }
     };
-    exports2.TransactionImpl = TransactionImpl;
+    exports.TransactionImpl = TransactionImpl;
     var Transaction = class _Transaction {
       constructor(impl, options) {
         __publicField(this, "impl");
@@ -67003,15 +67044,15 @@ var require_transaction = __commonJS({
         return this.impl._runFetchOp("queryRequiredSingleJSON", query, args, ifaces_1.OutputFormat.JSON, ifaces_1.Cardinality.ONE, this.options);
       }
     };
-    exports2.Transaction = Transaction;
+    exports.Transaction = Transaction;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/baseClient.js
 var require_baseClient = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/baseClient.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/baseClient.js"(exports) {
     "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
       if (k22 === void 0) k22 = k5;
       var desc = Object.getOwnPropertyDescriptor(m6, k5);
       if (!desc || ("get" in desc ? !m6.__esModule : desc.writable || desc.configurable)) {
@@ -67024,12 +67065,12 @@ var require_baseClient = __commonJS({
       if (k22 === void 0) k22 = k5;
       o5[k22] = m6[k5];
     });
-    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o5, v6) {
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o5, v6) {
       Object.defineProperty(o5, "default", { enumerable: true, value: v6 });
     } : function(o5, v6) {
       o5["default"] = v6;
     });
-    var __importStar = exports2 && exports2.__importStar || function(mod) {
+    var __importStar = exports && exports.__importStar || function(mod) {
       if (mod && mod.__esModule) return mod;
       var result = {};
       if (mod != null) {
@@ -67038,11 +67079,11 @@ var require_baseClient = __commonJS({
       __setModuleDefault(result, mod);
       return result;
     };
-    var __importDefault = exports2 && exports2.__importDefault || function(mod) {
+    var __importDefault = exports && exports.__importDefault || function(mod) {
       return mod && mod.__esModule ? mod : { "default": mod };
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.Client = exports2.BaseClientPool = exports2.ClientConnectionHolder = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Client = exports.BaseClientPool = exports.ClientConnectionHolder = void 0;
     var registry_1 = require_registry();
     var errors = __importStar(require_errors());
     var ifaces_1 = require_ifaces2();
@@ -67207,7 +67248,7 @@ var require_baseClient = __commonJS({
         return this.retryingFetch(query, args, ifaces_1.OutputFormat.JSON, ifaces_1.Cardinality.ONE);
       }
     };
-    exports2.ClientConnectionHolder = ClientConnectionHolder;
+    exports.ClientConnectionHolder = ClientConnectionHolder;
     var BaseClientPool = class {
       constructor(_parseConnectArguments, options) {
         __publicField(this, "_parseConnectArguments");
@@ -67344,7 +67385,7 @@ var require_baseClient = __commonJS({
         return !!this._closing;
       }
     };
-    exports2.BaseClientPool = BaseClientPool;
+    exports.BaseClientPool = BaseClientPool;
     var Client2 = class _Client {
       constructor(pool, options) {
         __publicField(this, "pool");
@@ -67514,15 +67555,15 @@ var require_baseClient = __commonJS({
         return await this.describe(query);
       }
     };
-    exports2.Client = Client2;
+    exports.Client = Client2;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/systemUtils.js
 var require_systemUtils = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/systemUtils.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/systemUtils.js"(exports) {
     "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
       if (k22 === void 0) k22 = k5;
       var desc = Object.getOwnPropertyDescriptor(m6, k5);
       if (!desc || ("get" in desc ? !m6.__esModule : desc.writable || desc.configurable)) {
@@ -67535,12 +67576,12 @@ var require_systemUtils = __commonJS({
       if (k22 === void 0) k22 = k5;
       o5[k22] = m6[k5];
     });
-    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o5, v6) {
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o5, v6) {
       Object.defineProperty(o5, "default", { enumerable: true, value: v6 });
     } : function(o5, v6) {
       o5["default"] = v6;
     });
-    var __importStar = exports2 && exports2.__importStar || function(mod) {
+    var __importStar = exports && exports.__importStar || function(mod) {
       if (mod && mod.__esModule) return mod;
       var result = {};
       if (mod != null) {
@@ -67549,22 +67590,22 @@ var require_systemUtils = __commonJS({
       __setModuleDefault(result, mod);
       return result;
     };
-    var __importDefault = exports2 && exports2.__importDefault || function(mod) {
+    var __importDefault = exports && exports.__importDefault || function(mod) {
       return mod && mod.__esModule ? mod : { "default": mod };
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.readFileUtf8 = readFileUtf8;
-    exports2.hasFSReadPermission = hasFSReadPermission;
-    exports2.hashSHA1toHex = hashSHA1toHex;
-    exports2.walk = walk;
-    exports2.exists = exists;
-    exports2.input = input;
-    var crypto5 = __importStar(require("crypto"));
-    var node_fs_1 = require("fs");
-    var node_path_1 = __importDefault(require("path"));
-    var node_process_1 = __importDefault(require("process"));
-    var readline = __importStar(require("readline"));
-    var node_stream_1 = require("stream");
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.readFileUtf8 = readFileUtf8;
+    exports.hasFSReadPermission = hasFSReadPermission;
+    exports.hashSHA1toHex = hashSHA1toHex;
+    exports.walk = walk;
+    exports.exists = exists;
+    exports.input = input;
+    var crypto5 = __importStar(__require("crypto"));
+    var node_fs_1 = __require("fs");
+    var node_path_1 = __importDefault(__require("path"));
+    var node_process_1 = __importDefault(__require("process"));
+    var readline = __importStar(__require("readline"));
+    var node_stream_1 = __require("stream");
     async function readFileUtf8(...pathParts) {
       return await node_fs_1.promises.readFile(node_path_1.default.join(...pathParts), { encoding: "utf8" });
     }
@@ -67638,18 +67679,18 @@ var require_systemUtils = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/platform.js
 var require_platform = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/platform.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/platform.js"(exports) {
     "use strict";
-    var __importDefault = exports2 && exports2.__importDefault || function(mod) {
+    var __importDefault = exports && exports.__importDefault || function(mod) {
       return mod && mod.__esModule ? mod : { "default": mod };
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.isWindows = void 0;
-    exports2.searchConfigDir = searchConfigDir;
-    var node_path_1 = __importDefault(require("path"));
-    var node_os_1 = __importDefault(require("os"));
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.isWindows = void 0;
+    exports.searchConfigDir = searchConfigDir;
+    var node_path_1 = __importDefault(__require("path"));
+    var node_os_1 = __importDefault(__require("os"));
     var systemUtils_1 = require_systemUtils();
-    exports2.isWindows = process.platform === "win32";
+    exports.isWindows = process.platform === "win32";
     var homeDir = node_os_1.default.homedir;
     var _configDir;
     if (process.platform === "darwin") {
@@ -67686,12 +67727,12 @@ var require_platform = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/credentials.js
 var require_credentials = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/credentials.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/credentials.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.getCredentialsPath = getCredentialsPath;
-    exports2.readCredentialsFile = readCredentialsFile;
-    exports2.validateCredentials = validateCredentials;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.getCredentialsPath = getCredentialsPath;
+    exports.readCredentialsFile = readCredentialsFile;
+    exports.validateCredentials = validateCredentials;
     var conUtils_1 = require_conUtils();
     var errors_1 = require_errors();
     async function getCredentialsPath(instanceName, serverUtils) {
@@ -67791,10 +67832,10 @@ var require_credentials = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/primitives/crcHqx.js
 var require_crcHqx = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/primitives/crcHqx.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/primitives/crcHqx.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.crcHqx = crcHqx;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.crcHqx = crcHqx;
     var crctabHqx = new Uint16Array([
       0,
       4129,
@@ -68067,9 +68108,9 @@ var require_crcHqx = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/conUtils.js
 var require_conUtils = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/conUtils.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/conUtils.js"(exports) {
     "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
       if (k22 === void 0) k22 = k5;
       var desc = Object.getOwnPropertyDescriptor(m6, k5);
       if (!desc || ("get" in desc ? !m6.__esModule : desc.writable || desc.configurable)) {
@@ -68082,12 +68123,12 @@ var require_conUtils = __commonJS({
       if (k22 === void 0) k22 = k5;
       o5[k22] = m6[k5];
     });
-    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o5, v6) {
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o5, v6) {
       Object.defineProperty(o5, "default", { enumerable: true, value: v6 });
     } : function(o5, v6) {
       o5["default"] = v6;
     });
-    var __importStar = exports2 && exports2.__importStar || function(mod) {
+    var __importStar = exports && exports.__importStar || function(mod) {
       if (mod && mod.__esModule) return mod;
       var result = {};
       if (mod != null) {
@@ -68096,11 +68137,11 @@ var require_conUtils = __commonJS({
       __setModuleDefault(result, mod);
       return result;
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.ResolvedConnectConfig = exports2.validTlsSecurityValues = void 0;
-    exports2.isValidTlsSecurityValue = isValidTlsSecurityValue;
-    exports2.getConnectArgumentsParser = getConnectArgumentsParser;
-    exports2.parseDuration = parseDuration;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.ResolvedConnectConfig = exports.validTlsSecurityValues = void 0;
+    exports.isValidTlsSecurityValue = isValidTlsSecurityValue;
+    exports.getConnectArgumentsParser = getConnectArgumentsParser;
+    exports.parseDuration = parseDuration;
     var errors = __importStar(require_errors());
     var credentials_1 = require_credentials();
     var datetime_1 = require_datetime();
@@ -68109,14 +68150,14 @@ var require_conUtils = __commonJS({
     var buffer_1 = require_buffer();
     var crcHqx_1 = require_crcHqx();
     var DOMAIN_NAME_MAX_LEN = 63;
-    exports2.validTlsSecurityValues = [
+    exports.validTlsSecurityValues = [
       "insecure",
       "no_host_verification",
       "strict",
       "default"
     ];
     function isValidTlsSecurityValue(candidate) {
-      return typeof candidate === "string" && exports2.validTlsSecurityValues.includes(candidate);
+      return typeof candidate === "string" && exports.validTlsSecurityValues.includes(candidate);
     }
     function getConnectArgumentsParser(utils) {
       return async (opts) => {
@@ -68247,8 +68288,8 @@ var require_conUtils = __commonJS({
       }
       setTlsSecurity(tlsSecurity, source) {
         return this._setParam("tlsSecurity", tlsSecurity, source, (_tlsSecurity) => {
-          if (!exports2.validTlsSecurityValues.includes(_tlsSecurity)) {
-            throw new errors_1.InterfaceError(`invalid 'tlsSecurity' value: '${_tlsSecurity}', must be one of ${exports2.validTlsSecurityValues.map((val2) => `'${val2}'`).join(", ")}`);
+          if (!exports.validTlsSecurityValues.includes(_tlsSecurity)) {
+            throw new errors_1.InterfaceError(`invalid 'tlsSecurity' value: '${_tlsSecurity}', must be one of ${exports.validTlsSecurityValues.map((val2) => `'${val2}'`).join(", ")}`);
           }
           const clientSecurity = getEnv("GEL_CLIENT_SECURITY");
           if (clientSecurity !== void 0) {
@@ -68335,7 +68376,7 @@ var require_conUtils = __commonJS({
         return output.join("\n");
       }
     };
-    exports2.ResolvedConnectConfig = ResolvedConnectConfig;
+    exports.ResolvedConnectConfig = ResolvedConnectConfig;
     function parseValidatePort(port) {
       let parsedPort;
       if (typeof port === "string") {
@@ -68775,9 +68816,9 @@ var require_conUtils = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/conUtils.server.js
 var require_conUtils_server = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/conUtils.server.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/conUtils.server.js"(exports) {
     "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
       if (k22 === void 0) k22 = k5;
       var desc = Object.getOwnPropertyDescriptor(m6, k5);
       if (!desc || ("get" in desc ? !m6.__esModule : desc.writable || desc.configurable)) {
@@ -68790,12 +68831,12 @@ var require_conUtils_server = __commonJS({
       if (k22 === void 0) k22 = k5;
       o5[k22] = m6[k5];
     });
-    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o5, v6) {
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o5, v6) {
       Object.defineProperty(o5, "default", { enumerable: true, value: v6 });
     } : function(o5, v6) {
       o5["default"] = v6;
     });
-    var __importStar = exports2 && exports2.__importStar || function(mod) {
+    var __importStar = exports && exports.__importStar || function(mod) {
       if (mod && mod.__esModule) return mod;
       var result = {};
       if (mod != null) {
@@ -68804,15 +68845,15 @@ var require_conUtils_server = __commonJS({
       __setModuleDefault(result, mod);
       return result;
     };
-    var __importDefault = exports2 && exports2.__importDefault || function(mod) {
+    var __importDefault = exports && exports.__importDefault || function(mod) {
       return mod && mod.__esModule ? mod : { "default": mod };
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.parseConnectArguments = exports2.serverUtils = void 0;
-    exports2.findStashPath = findStashPath;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.parseConnectArguments = exports.serverUtils = void 0;
+    exports.findStashPath = findStashPath;
     var platform2 = __importStar(require_platform());
-    var node_fs_1 = require("fs");
-    var node_path_1 = __importDefault(require("path"));
+    var node_fs_1 = __require("fs");
+    var node_path_1 = __importDefault(__require("path"));
     var systemUtils_1 = require_systemUtils();
     var conUtils_1 = require_conUtils();
     var projectDirCache = /* @__PURE__ */ new Map();
@@ -68849,21 +68890,21 @@ var require_conUtils_server = __commonJS({
       const dirName = baseName + "-" + hash;
       return platform2.searchConfigDir("projects", dirName);
     }
-    exports2.serverUtils = {
+    exports.serverUtils = {
       findProjectDir,
       findStashPath,
       readFileUtf8: systemUtils_1.readFileUtf8,
       searchConfigDir: platform2.searchConfigDir
     };
-    exports2.parseConnectArguments = (0, conUtils_1.getConnectArgumentsParser)(exports2.serverUtils);
+    exports.parseConnectArguments = (0, conUtils_1.getConnectArgumentsParser)(exports.serverUtils);
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/errors/map.js
 var require_map = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/errors/map.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/errors/map.js"(exports) {
     "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
       if (k22 === void 0) k22 = k5;
       var desc = Object.getOwnPropertyDescriptor(m6, k5);
       if (!desc || ("get" in desc ? !m6.__esModule : desc.writable || desc.configurable)) {
@@ -68876,12 +68917,12 @@ var require_map = __commonJS({
       if (k22 === void 0) k22 = k5;
       o5[k22] = m6[k5];
     });
-    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o5, v6) {
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o5, v6) {
       Object.defineProperty(o5, "default", { enumerable: true, value: v6 });
     } : function(o5, v6) {
       o5["default"] = v6;
     });
-    var __importStar = exports2 && exports2.__importStar || function(mod) {
+    var __importStar = exports && exports.__importStar || function(mod) {
       if (mod && mod.__esModule) return mod;
       var result = {};
       if (mod != null) {
@@ -68890,122 +68931,122 @@ var require_map = __commonJS({
       __setModuleDefault(result, mod);
       return result;
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.errorMapping = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.errorMapping = void 0;
     var errors = __importStar(require_errors());
-    exports2.errorMapping = /* @__PURE__ */ new Map();
-    exports2.errorMapping.set(16777216, errors.InternalServerError);
-    exports2.errorMapping.set(33554432, errors.UnsupportedFeatureError);
-    exports2.errorMapping.set(50331648, errors.ProtocolError);
-    exports2.errorMapping.set(50397184, errors.BinaryProtocolError);
-    exports2.errorMapping.set(50397185, errors.UnsupportedProtocolVersionError);
-    exports2.errorMapping.set(50397186, errors.TypeSpecNotFoundError);
-    exports2.errorMapping.set(50397187, errors.UnexpectedMessageError);
-    exports2.errorMapping.set(50462720, errors.InputDataError);
-    exports2.errorMapping.set(50462976, errors.ParameterTypeMismatchError);
-    exports2.errorMapping.set(50463232, errors.StateMismatchError);
-    exports2.errorMapping.set(50528256, errors.ResultCardinalityMismatchError);
-    exports2.errorMapping.set(50593792, errors.CapabilityError);
-    exports2.errorMapping.set(50594048, errors.UnsupportedCapabilityError);
-    exports2.errorMapping.set(50594304, errors.DisabledCapabilityError);
-    exports2.errorMapping.set(50594560, errors.UnsafeIsolationLevelError);
-    exports2.errorMapping.set(67108864, errors.QueryError);
-    exports2.errorMapping.set(67174400, errors.InvalidSyntaxError);
-    exports2.errorMapping.set(67174656, errors.EdgeQLSyntaxError);
-    exports2.errorMapping.set(67174912, errors.SchemaSyntaxError);
-    exports2.errorMapping.set(67175168, errors.GraphQLSyntaxError);
-    exports2.errorMapping.set(67239936, errors.InvalidTypeError);
-    exports2.errorMapping.set(67240192, errors.InvalidTargetError);
-    exports2.errorMapping.set(67240193, errors.InvalidLinkTargetError);
-    exports2.errorMapping.set(67240194, errors.InvalidPropertyTargetError);
-    exports2.errorMapping.set(67305472, errors.InvalidReferenceError);
-    exports2.errorMapping.set(67305473, errors.UnknownModuleError);
-    exports2.errorMapping.set(67305474, errors.UnknownLinkError);
-    exports2.errorMapping.set(67305475, errors.UnknownPropertyError);
-    exports2.errorMapping.set(67305476, errors.UnknownUserError);
-    exports2.errorMapping.set(67305477, errors.UnknownDatabaseError);
-    exports2.errorMapping.set(67305478, errors.UnknownParameterError);
-    exports2.errorMapping.set(67305479, errors.DeprecatedScopingError);
-    exports2.errorMapping.set(67371008, errors.SchemaError);
-    exports2.errorMapping.set(67436544, errors.SchemaDefinitionError);
-    exports2.errorMapping.set(67436800, errors.InvalidDefinitionError);
-    exports2.errorMapping.set(67436801, errors.InvalidModuleDefinitionError);
-    exports2.errorMapping.set(67436802, errors.InvalidLinkDefinitionError);
-    exports2.errorMapping.set(67436803, errors.InvalidPropertyDefinitionError);
-    exports2.errorMapping.set(67436804, errors.InvalidUserDefinitionError);
-    exports2.errorMapping.set(67436805, errors.InvalidDatabaseDefinitionError);
-    exports2.errorMapping.set(67436806, errors.InvalidOperatorDefinitionError);
-    exports2.errorMapping.set(67436807, errors.InvalidAliasDefinitionError);
-    exports2.errorMapping.set(67436808, errors.InvalidFunctionDefinitionError);
-    exports2.errorMapping.set(67436809, errors.InvalidConstraintDefinitionError);
-    exports2.errorMapping.set(67436810, errors.InvalidCastDefinitionError);
-    exports2.errorMapping.set(67437056, errors.DuplicateDefinitionError);
-    exports2.errorMapping.set(67437057, errors.DuplicateModuleDefinitionError);
-    exports2.errorMapping.set(67437058, errors.DuplicateLinkDefinitionError);
-    exports2.errorMapping.set(67437059, errors.DuplicatePropertyDefinitionError);
-    exports2.errorMapping.set(67437060, errors.DuplicateUserDefinitionError);
-    exports2.errorMapping.set(67437061, errors.DuplicateDatabaseDefinitionError);
-    exports2.errorMapping.set(67437062, errors.DuplicateOperatorDefinitionError);
-    exports2.errorMapping.set(67437063, errors.DuplicateViewDefinitionError);
-    exports2.errorMapping.set(67437064, errors.DuplicateFunctionDefinitionError);
-    exports2.errorMapping.set(67437065, errors.DuplicateConstraintDefinitionError);
-    exports2.errorMapping.set(67437066, errors.DuplicateCastDefinitionError);
-    exports2.errorMapping.set(67437067, errors.DuplicateMigrationError);
-    exports2.errorMapping.set(67502080, errors.SessionTimeoutError);
-    exports2.errorMapping.set(67502336, errors.IdleSessionTimeoutError);
-    exports2.errorMapping.set(67502592, errors.QueryTimeoutError);
-    exports2.errorMapping.set(67504640, errors.TransactionTimeoutError);
-    exports2.errorMapping.set(67504641, errors.IdleTransactionTimeoutError);
-    exports2.errorMapping.set(83886080, errors.ExecutionError);
-    exports2.errorMapping.set(83951616, errors.InvalidValueError);
-    exports2.errorMapping.set(83951617, errors.DivisionByZeroError);
-    exports2.errorMapping.set(83951618, errors.NumericOutOfRangeError);
-    exports2.errorMapping.set(83951619, errors.AccessPolicyError);
-    exports2.errorMapping.set(83951620, errors.QueryAssertionError);
-    exports2.errorMapping.set(84017152, errors.IntegrityError);
-    exports2.errorMapping.set(84017153, errors.ConstraintViolationError);
-    exports2.errorMapping.set(84017154, errors.CardinalityViolationError);
-    exports2.errorMapping.set(84017155, errors.MissingRequiredError);
-    exports2.errorMapping.set(84082688, errors.TransactionError);
-    exports2.errorMapping.set(84082944, errors.TransactionConflictError);
-    exports2.errorMapping.set(84082945, errors.TransactionSerializationError);
-    exports2.errorMapping.set(84082946, errors.TransactionDeadlockError);
-    exports2.errorMapping.set(84148224, errors.WatchError);
-    exports2.errorMapping.set(100663296, errors.ConfigurationError);
-    exports2.errorMapping.set(117440512, errors.AccessError);
-    exports2.errorMapping.set(117506048, errors.AuthenticationError);
-    exports2.errorMapping.set(134217728, errors.AvailabilityError);
-    exports2.errorMapping.set(134217729, errors.BackendUnavailableError);
-    exports2.errorMapping.set(134217730, errors.ServerOfflineError);
-    exports2.errorMapping.set(134217731, errors.UnknownTenantError);
-    exports2.errorMapping.set(134217732, errors.ServerBlockedError);
-    exports2.errorMapping.set(150994944, errors.BackendError);
-    exports2.errorMapping.set(150995200, errors.UnsupportedBackendFeatureError);
-    exports2.errorMapping.set(4026531840, errors.LogMessage);
-    exports2.errorMapping.set(4026597376, errors.WarningMessage);
-    exports2.errorMapping.set(4026662912, errors.StatusMessage);
-    exports2.errorMapping.set(4026662913, errors.MigrationStatusMessage);
-    exports2.errorMapping.set(4278190080, errors.ClientError);
-    exports2.errorMapping.set(4278255616, errors.ClientConnectionError);
-    exports2.errorMapping.set(4278255872, errors.ClientConnectionFailedError);
-    exports2.errorMapping.set(4278255873, errors.ClientConnectionFailedTemporarilyError);
-    exports2.errorMapping.set(4278256128, errors.ClientConnectionTimeoutError);
-    exports2.errorMapping.set(4278256384, errors.ClientConnectionClosedError);
-    exports2.errorMapping.set(4278321152, errors.InterfaceError);
-    exports2.errorMapping.set(4278321408, errors.QueryArgumentError);
-    exports2.errorMapping.set(4278321409, errors.MissingArgumentError);
-    exports2.errorMapping.set(4278321410, errors.UnknownArgumentError);
-    exports2.errorMapping.set(4278321411, errors.InvalidArgumentError);
-    exports2.errorMapping.set(4278386688, errors.NoDataError);
-    exports2.errorMapping.set(4278452224, errors.InternalClientError);
+    exports.errorMapping = /* @__PURE__ */ new Map();
+    exports.errorMapping.set(16777216, errors.InternalServerError);
+    exports.errorMapping.set(33554432, errors.UnsupportedFeatureError);
+    exports.errorMapping.set(50331648, errors.ProtocolError);
+    exports.errorMapping.set(50397184, errors.BinaryProtocolError);
+    exports.errorMapping.set(50397185, errors.UnsupportedProtocolVersionError);
+    exports.errorMapping.set(50397186, errors.TypeSpecNotFoundError);
+    exports.errorMapping.set(50397187, errors.UnexpectedMessageError);
+    exports.errorMapping.set(50462720, errors.InputDataError);
+    exports.errorMapping.set(50462976, errors.ParameterTypeMismatchError);
+    exports.errorMapping.set(50463232, errors.StateMismatchError);
+    exports.errorMapping.set(50528256, errors.ResultCardinalityMismatchError);
+    exports.errorMapping.set(50593792, errors.CapabilityError);
+    exports.errorMapping.set(50594048, errors.UnsupportedCapabilityError);
+    exports.errorMapping.set(50594304, errors.DisabledCapabilityError);
+    exports.errorMapping.set(50594560, errors.UnsafeIsolationLevelError);
+    exports.errorMapping.set(67108864, errors.QueryError);
+    exports.errorMapping.set(67174400, errors.InvalidSyntaxError);
+    exports.errorMapping.set(67174656, errors.EdgeQLSyntaxError);
+    exports.errorMapping.set(67174912, errors.SchemaSyntaxError);
+    exports.errorMapping.set(67175168, errors.GraphQLSyntaxError);
+    exports.errorMapping.set(67239936, errors.InvalidTypeError);
+    exports.errorMapping.set(67240192, errors.InvalidTargetError);
+    exports.errorMapping.set(67240193, errors.InvalidLinkTargetError);
+    exports.errorMapping.set(67240194, errors.InvalidPropertyTargetError);
+    exports.errorMapping.set(67305472, errors.InvalidReferenceError);
+    exports.errorMapping.set(67305473, errors.UnknownModuleError);
+    exports.errorMapping.set(67305474, errors.UnknownLinkError);
+    exports.errorMapping.set(67305475, errors.UnknownPropertyError);
+    exports.errorMapping.set(67305476, errors.UnknownUserError);
+    exports.errorMapping.set(67305477, errors.UnknownDatabaseError);
+    exports.errorMapping.set(67305478, errors.UnknownParameterError);
+    exports.errorMapping.set(67305479, errors.DeprecatedScopingError);
+    exports.errorMapping.set(67371008, errors.SchemaError);
+    exports.errorMapping.set(67436544, errors.SchemaDefinitionError);
+    exports.errorMapping.set(67436800, errors.InvalidDefinitionError);
+    exports.errorMapping.set(67436801, errors.InvalidModuleDefinitionError);
+    exports.errorMapping.set(67436802, errors.InvalidLinkDefinitionError);
+    exports.errorMapping.set(67436803, errors.InvalidPropertyDefinitionError);
+    exports.errorMapping.set(67436804, errors.InvalidUserDefinitionError);
+    exports.errorMapping.set(67436805, errors.InvalidDatabaseDefinitionError);
+    exports.errorMapping.set(67436806, errors.InvalidOperatorDefinitionError);
+    exports.errorMapping.set(67436807, errors.InvalidAliasDefinitionError);
+    exports.errorMapping.set(67436808, errors.InvalidFunctionDefinitionError);
+    exports.errorMapping.set(67436809, errors.InvalidConstraintDefinitionError);
+    exports.errorMapping.set(67436810, errors.InvalidCastDefinitionError);
+    exports.errorMapping.set(67437056, errors.DuplicateDefinitionError);
+    exports.errorMapping.set(67437057, errors.DuplicateModuleDefinitionError);
+    exports.errorMapping.set(67437058, errors.DuplicateLinkDefinitionError);
+    exports.errorMapping.set(67437059, errors.DuplicatePropertyDefinitionError);
+    exports.errorMapping.set(67437060, errors.DuplicateUserDefinitionError);
+    exports.errorMapping.set(67437061, errors.DuplicateDatabaseDefinitionError);
+    exports.errorMapping.set(67437062, errors.DuplicateOperatorDefinitionError);
+    exports.errorMapping.set(67437063, errors.DuplicateViewDefinitionError);
+    exports.errorMapping.set(67437064, errors.DuplicateFunctionDefinitionError);
+    exports.errorMapping.set(67437065, errors.DuplicateConstraintDefinitionError);
+    exports.errorMapping.set(67437066, errors.DuplicateCastDefinitionError);
+    exports.errorMapping.set(67437067, errors.DuplicateMigrationError);
+    exports.errorMapping.set(67502080, errors.SessionTimeoutError);
+    exports.errorMapping.set(67502336, errors.IdleSessionTimeoutError);
+    exports.errorMapping.set(67502592, errors.QueryTimeoutError);
+    exports.errorMapping.set(67504640, errors.TransactionTimeoutError);
+    exports.errorMapping.set(67504641, errors.IdleTransactionTimeoutError);
+    exports.errorMapping.set(83886080, errors.ExecutionError);
+    exports.errorMapping.set(83951616, errors.InvalidValueError);
+    exports.errorMapping.set(83951617, errors.DivisionByZeroError);
+    exports.errorMapping.set(83951618, errors.NumericOutOfRangeError);
+    exports.errorMapping.set(83951619, errors.AccessPolicyError);
+    exports.errorMapping.set(83951620, errors.QueryAssertionError);
+    exports.errorMapping.set(84017152, errors.IntegrityError);
+    exports.errorMapping.set(84017153, errors.ConstraintViolationError);
+    exports.errorMapping.set(84017154, errors.CardinalityViolationError);
+    exports.errorMapping.set(84017155, errors.MissingRequiredError);
+    exports.errorMapping.set(84082688, errors.TransactionError);
+    exports.errorMapping.set(84082944, errors.TransactionConflictError);
+    exports.errorMapping.set(84082945, errors.TransactionSerializationError);
+    exports.errorMapping.set(84082946, errors.TransactionDeadlockError);
+    exports.errorMapping.set(84148224, errors.WatchError);
+    exports.errorMapping.set(100663296, errors.ConfigurationError);
+    exports.errorMapping.set(117440512, errors.AccessError);
+    exports.errorMapping.set(117506048, errors.AuthenticationError);
+    exports.errorMapping.set(134217728, errors.AvailabilityError);
+    exports.errorMapping.set(134217729, errors.BackendUnavailableError);
+    exports.errorMapping.set(134217730, errors.ServerOfflineError);
+    exports.errorMapping.set(134217731, errors.UnknownTenantError);
+    exports.errorMapping.set(134217732, errors.ServerBlockedError);
+    exports.errorMapping.set(150994944, errors.BackendError);
+    exports.errorMapping.set(150995200, errors.UnsupportedBackendFeatureError);
+    exports.errorMapping.set(4026531840, errors.LogMessage);
+    exports.errorMapping.set(4026597376, errors.WarningMessage);
+    exports.errorMapping.set(4026662912, errors.StatusMessage);
+    exports.errorMapping.set(4026662913, errors.MigrationStatusMessage);
+    exports.errorMapping.set(4278190080, errors.ClientError);
+    exports.errorMapping.set(4278255616, errors.ClientConnectionError);
+    exports.errorMapping.set(4278255872, errors.ClientConnectionFailedError);
+    exports.errorMapping.set(4278255873, errors.ClientConnectionFailedTemporarilyError);
+    exports.errorMapping.set(4278256128, errors.ClientConnectionTimeoutError);
+    exports.errorMapping.set(4278256384, errors.ClientConnectionClosedError);
+    exports.errorMapping.set(4278321152, errors.InterfaceError);
+    exports.errorMapping.set(4278321408, errors.QueryArgumentError);
+    exports.errorMapping.set(4278321409, errors.MissingArgumentError);
+    exports.errorMapping.set(4278321410, errors.UnknownArgumentError);
+    exports.errorMapping.set(4278321411, errors.InvalidArgumentError);
+    exports.errorMapping.set(4278386688, errors.NoDataError);
+    exports.errorMapping.set(4278452224, errors.InternalClientError);
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/errors/resolve.js
 var require_resolve = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/errors/resolve.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/errors/resolve.js"(exports) {
     "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
       if (k22 === void 0) k22 = k5;
       var desc = Object.getOwnPropertyDescriptor(m6, k5);
       if (!desc || ("get" in desc ? !m6.__esModule : desc.writable || desc.configurable)) {
@@ -69018,12 +69059,12 @@ var require_resolve = __commonJS({
       if (k22 === void 0) k22 = k5;
       o5[k22] = m6[k5];
     });
-    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o5, v6) {
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o5, v6) {
       Object.defineProperty(o5, "default", { enumerable: true, value: v6 });
     } : function(o5, v6) {
       o5["default"] = v6;
     });
-    var __importStar = exports2 && exports2.__importStar || function(mod) {
+    var __importStar = exports && exports.__importStar || function(mod) {
       if (mod && mod.__esModule) return mod;
       var result = {};
       if (mod != null) {
@@ -69032,9 +69073,9 @@ var require_resolve = __commonJS({
       __setModuleDefault(result, mod);
       return result;
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.resolveErrorCode = resolveErrorCode;
-    exports2.errorFromJSON = errorFromJSON;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.resolveErrorCode = resolveErrorCode;
+    exports.errorFromJSON = errorFromJSON;
     var errors = __importStar(require_errors());
     var base_1 = require_base();
     var map_1 = require_map();
@@ -69086,9 +69127,9 @@ var require_resolve = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/baseConn.js
 var require_baseConn = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/baseConn.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/baseConn.js"(exports) {
     "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
       if (k22 === void 0) k22 = k5;
       var desc = Object.getOwnPropertyDescriptor(m6, k5);
       if (!desc || ("get" in desc ? !m6.__esModule : desc.writable || desc.configurable)) {
@@ -69101,12 +69142,12 @@ var require_baseConn = __commonJS({
       if (k22 === void 0) k22 = k5;
       o5[k22] = m6[k5];
     });
-    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o5, v6) {
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o5, v6) {
       Object.defineProperty(o5, "default", { enumerable: true, value: v6 });
     } : function(o5, v6) {
       o5["default"] = v6;
     });
-    var __importStar = exports2 && exports2.__importStar || function(mod) {
+    var __importStar = exports && exports.__importStar || function(mod) {
       if (mod && mod.__esModule) return mod;
       var result = {};
       if (mod != null) {
@@ -69115,11 +69156,11 @@ var require_baseConn = __commonJS({
       __setModuleDefault(result, mod);
       return result;
     };
-    var __importDefault = exports2 && exports2.__importDefault || function(mod) {
+    var __importDefault = exports && exports.__importDefault || function(mod) {
       return mod && mod.__esModule ? mod : { "default": mod };
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.BaseRawConnection = exports2.RESTRICTED_CAPABILITIES = exports2.Capabilities = exports2.PROTO_VER_MIN = exports2.PROTO_VER = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.BaseRawConnection = exports.RESTRICTED_CAPABILITIES = exports.Capabilities = exports.PROTO_VER_MIN = exports.PROTO_VER = void 0;
     var codecs_1 = require_codecs();
     var object_1 = require_object();
     var utils_1 = require_utils2();
@@ -69132,8 +69173,8 @@ var require_baseConn = __commonJS({
     var event_1 = __importDefault(require_event());
     var lru_1 = __importDefault(require_lru());
     var options_1 = require_options();
-    exports2.PROTO_VER = [3, 0];
-    exports2.PROTO_VER_MIN = [0, 9];
+    exports.PROTO_VER = [3, 0];
+    exports.PROTO_VER_MIN = [0, 9];
     var TransactionStatus;
     (function(TransactionStatus2) {
       TransactionStatus2[TransactionStatus2["TRANS_IDLE"] = 0] = "TRANS_IDLE";
@@ -69152,11 +69193,11 @@ var require_baseConn = __commonJS({
       Capabilities2[Capabilities2["PERSISTENT_CONFIG"] = 16] = "PERSISTENT_CONFIG";
       Capabilities2[Capabilities2["SET_GLOBAL"] = 32] = "SET_GLOBAL";
       Capabilities2[Capabilities2["ALL"] = 4294967295] = "ALL";
-    })(Capabilities || (exports2.Capabilities = Capabilities = {}));
+    })(Capabilities || (exports.Capabilities = Capabilities = {}));
     var NO_TRANSACTION_CAPABILITIES = (Capabilities.ALL & ~Capabilities.TRANSACTION) >>> 0;
     var NO_TRANSACTION_CAPABILITIES_BYTES = new Uint8Array(Array(8).fill(255));
     new DataView(NO_TRANSACTION_CAPABILITIES_BYTES.buffer).setUint32(4, NO_TRANSACTION_CAPABILITIES);
-    exports2.RESTRICTED_CAPABILITIES = (Capabilities.ALL & ~Capabilities.TRANSACTION & ~Capabilities.SESSION_CONFIG & ~Capabilities.SET_GLOBAL) >>> 0;
+    exports.RESTRICTED_CAPABILITIES = (Capabilities.ALL & ~Capabilities.TRANSACTION & ~Capabilities.SESSION_CONFIG & ~Capabilities.SET_GLOBAL) >>> 0;
     var CompilationFlag;
     (function(CompilationFlag2) {
       CompilationFlag2[CompilationFlag2["INJECT_OUTPUT_TYPE_IDS"] = 1] = "INJECT_OUTPUT_TYPE_IDS";
@@ -69181,7 +69222,7 @@ var require_baseConn = __commonJS({
         __publicField(this, "connWaiter");
         __publicField(this, "connAbortWaiter");
         __publicField(this, "_abortedWith", null);
-        __publicField(this, "protocolVersion", exports2.PROTO_VER);
+        __publicField(this, "protocolVersion", exports.PROTO_VER);
         __publicField(this, "stateCodec", codecs_1.INVALID_CODEC);
         __publicField(this, "stateCache", /* @__PURE__ */ new WeakMap());
         __publicField(this, "lastStateUpdate", null);
@@ -69503,7 +69544,7 @@ var require_baseConn = __commonJS({
           }
         }
       }
-      async _parse(language, query, outputFormat, expectedCardinality, state2, capabilitiesFlags = exports2.RESTRICTED_CAPABILITIES, options, unsafeIsolationDangers = []) {
+      async _parse(language, query, outputFormat, expectedCardinality, state2, capabilitiesFlags = exports.RESTRICTED_CAPABILITIES, options, unsafeIsolationDangers = []) {
         const wb = new buffer_1.WriteMessageBuffer();
         wb.beginMessage(chars.$P);
         this._encodeParseParams(wb, query, outputFormat, expectedCardinality, state2, capabilitiesFlags, options, language, false, unsafeIsolationDangers);
@@ -69586,7 +69627,7 @@ var require_baseConn = __commonJS({
           unsafeIsolationDangers
         ];
       }
-      async _executeFlow(language, query, args, outputFormat, expectedCardinality, state2, inCodec, outCodec, result, capabilitiesFlags = exports2.RESTRICTED_CAPABILITIES, options, unsafeIsolationDangers = []) {
+      async _executeFlow(language, query, args, outputFormat, expectedCardinality, state2, inCodec, outCodec, result, capabilitiesFlags = exports.RESTRICTED_CAPABILITIES, options, unsafeIsolationDangers = []) {
         let currentUnsafeIsolationDangers = unsafeIsolationDangers;
         let ctx = state2.makeCodecContext();
         const wb = new buffer_1.WriteMessageBuffer();
@@ -69774,17 +69815,17 @@ var require_baseConn = __commonJS({
         this._abort();
       }
     };
-    exports2.BaseRawConnection = BaseRawConnection;
+    exports.BaseRawConnection = BaseRawConnection;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/scram.js
 var require_scram = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/scram.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/scram.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.saslprep = saslprep;
-    exports2.getSCRAM = getSCRAM;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.saslprep = saslprep;
+    exports.getSCRAM = getSCRAM;
     var buffer_1 = require_buffer();
     var errors_1 = require_errors();
     var RAW_NONCE_LENGTH = 18;
@@ -69922,10 +69963,10 @@ var require_scram = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/browserCrypto.js
 var require_browserCrypto = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/browserCrypto.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/browserCrypto.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.cryptoUtils = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.cryptoUtils = void 0;
     async function makeKey(key) {
       return await crypto.subtle.importKey("raw", key, {
         name: "HMAC",
@@ -69942,7 +69983,7 @@ var require_browserCrypto = __commonJS({
       const cryptoKey = key instanceof Uint8Array ? await makeKey(key) : key;
       return new Uint8Array(await crypto.subtle.sign("HMAC", cryptoKey, msg));
     }
-    exports2.cryptoUtils = {
+    exports.cryptoUtils = {
       makeKey,
       randomBytes,
       H: H2,
@@ -69953,14 +69994,14 @@ var require_browserCrypto = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/nodeCrypto.js
 var require_nodeCrypto = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/nodeCrypto.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/nodeCrypto.js"(exports) {
     "use strict";
-    var __importDefault = exports2 && exports2.__importDefault || function(mod) {
+    var __importDefault = exports && exports.__importDefault || function(mod) {
       return mod && mod.__esModule ? mod : { "default": mod };
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.cryptoUtils = void 0;
-    var node_crypto_1 = __importDefault(require("crypto"));
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.cryptoUtils = void 0;
+    var node_crypto_1 = __importDefault(__require("crypto"));
     function makeKey(keyBytes) {
       return Promise.resolve(keyBytes);
     }
@@ -69978,7 +70019,7 @@ var require_nodeCrypto = __commonJS({
       hm.update(msg);
       return hm.digest();
     }
-    exports2.cryptoUtils = {
+    exports.cryptoUtils = {
       makeKey,
       randomBytes,
       H: H2,
@@ -69989,16 +70030,16 @@ var require_nodeCrypto = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/cryptoUtils.js
 var require_cryptoUtils = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/cryptoUtils.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/cryptoUtils.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
+    Object.defineProperty(exports, "__esModule", { value: true });
     var browserCrypto_1 = require_browserCrypto();
     var isNode = typeof process !== "undefined" && process.versions != null && process.versions.node != null;
     var cryptoUtils;
     function loadCrypto() {
       if (isNode) {
         try {
-          require("crypto");
+          __require("crypto");
           cryptoUtils = require_nodeCrypto().cryptoUtils;
         } catch (_3) {
           if (typeof globalThis.crypto !== "undefined") {
@@ -70012,15 +70053,15 @@ var require_cryptoUtils = __commonJS({
       }
     }
     loadCrypto();
-    exports2.default = cryptoUtils;
+    exports.default = cryptoUtils;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/rawConn.js
 var require_rawConn = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/rawConn.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/rawConn.js"(exports) {
     "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
       if (k22 === void 0) k22 = k5;
       var desc = Object.getOwnPropertyDescriptor(m6, k5);
       if (!desc || ("get" in desc ? !m6.__esModule : desc.writable || desc.configurable)) {
@@ -70033,12 +70074,12 @@ var require_rawConn = __commonJS({
       if (k22 === void 0) k22 = k5;
       o5[k22] = m6[k5];
     });
-    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o5, v6) {
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o5, v6) {
       Object.defineProperty(o5, "default", { enumerable: true, value: v6 });
     } : function(o5, v6) {
       o5["default"] = v6;
     });
-    var __importStar = exports2 && exports2.__importStar || function(mod) {
+    var __importStar = exports && exports.__importStar || function(mod) {
       if (mod && mod.__esModule) return mod;
       var result = {};
       if (mod != null) {
@@ -70047,13 +70088,13 @@ var require_rawConn = __commonJS({
       __setModuleDefault(result, mod);
       return result;
     };
-    var __importDefault = exports2 && exports2.__importDefault || function(mod) {
+    var __importDefault = exports && exports.__importDefault || function(mod) {
       return mod && mod.__esModule ? mod : { "default": mod };
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.RawConnection = void 0;
-    var node_net_1 = __importDefault(require("net"));
-    var tls = __importStar(require("tls"));
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.RawConnection = void 0;
+    var node_net_1 = __importDefault(__require("net"));
+    var tls = __importStar(__require("tls"));
     var baseConn_1 = require_baseConn();
     var utils_1 = require_utils2();
     var buffer_1 = require_buffer();
@@ -70413,15 +70454,15 @@ ${config.connectionParams.explainConfig()}
         }
       }
     };
-    exports2.RawConnection = RawConnection;
+    exports.RawConnection = RawConnection;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/fetchConn.js
 var require_fetchConn = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/fetchConn.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/fetchConn.js"(exports) {
     "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
       if (k22 === void 0) k22 = k5;
       var desc = Object.getOwnPropertyDescriptor(m6, k5);
       if (!desc || ("get" in desc ? !m6.__esModule : desc.writable || desc.configurable)) {
@@ -70434,12 +70475,12 @@ var require_fetchConn = __commonJS({
       if (k22 === void 0) k22 = k5;
       o5[k22] = m6[k5];
     });
-    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o5, v6) {
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o5, v6) {
       Object.defineProperty(o5, "default", { enumerable: true, value: v6 });
     } : function(o5, v6) {
       o5["default"] = v6;
     });
-    var __importStar = exports2 && exports2.__importStar || function(mod) {
+    var __importStar = exports && exports.__importStar || function(mod) {
       if (mod && mod.__esModule) return mod;
       var result = {};
       if (mod != null) {
@@ -70448,11 +70489,11 @@ var require_fetchConn = __commonJS({
       __setModuleDefault(result, mod);
       return result;
     };
-    var __importDefault = exports2 && exports2.__importDefault || function(mod) {
+    var __importDefault = exports && exports.__importDefault || function(mod) {
       return mod && mod.__esModule ? mod : { "default": mod };
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.FetchConnection = exports2.AdminUIFetchConnection = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.FetchConnection = exports.AdminUIFetchConnection = void 0;
     var baseConn_1 = require_baseConn();
     var codecs_1 = require_codecs();
     var errors_1 = require_errors();
@@ -70568,7 +70609,7 @@ var require_fetchConn = __commonJS({
         return [result.unwrap(), warnings];
       }
     };
-    exports2.AdminUIFetchConnection = AdminUIFetchConnection;
+    exports.AdminUIFetchConnection = AdminUIFetchConnection;
     var FetchConnection = class _FetchConnection extends BaseFetchConnection {
       static createConnectWithTimeout(httpSCRAMAuth) {
         return async function connectWithTimeout(config, registry) {
@@ -70580,16 +70621,16 @@ var require_fetchConn = __commonJS({
         };
       }
     };
-    exports2.FetchConnection = FetchConnection;
+    exports.FetchConnection = FetchConnection;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/httpScram.js
 var require_httpScram = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/httpScram.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/httpScram.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.getHTTPSCRAMAuth = getHTTPSCRAMAuth;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.getHTTPSCRAMAuth = getHTTPSCRAMAuth;
     var errors_1 = require_errors();
     var buffer_1 = require_buffer();
     var scram_1 = require_scram();
@@ -70667,14 +70708,14 @@ var require_httpScram = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/nodeClient.js
 var require_nodeClient = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/nodeClient.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/nodeClient.js"(exports) {
     "use strict";
-    var __importDefault = exports2 && exports2.__importDefault || function(mod) {
+    var __importDefault = exports && exports.__importDefault || function(mod) {
       return mod && mod.__esModule ? mod : { "default": mod };
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.createClient = createClient;
-    exports2.createHttpClient = createHttpClient;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.createClient = createClient;
+    exports.createHttpClient = createHttpClient;
     var baseClient_1 = require_baseClient();
     var conUtils_server_1 = require_conUtils_server();
     var options_1 = require_options();
@@ -70708,10 +70749,10 @@ var require_nodeClient = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/datatypes/wkt.js
 var require_wkt = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/datatypes/wkt.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/datatypes/wkt.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.parseWKT = parseWKT;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.parseWKT = parseWKT;
     var postgis_1 = require_postgis();
     var sridRegex = /\s*SRID=([0-9]+)\s*;/iy;
     var endRegex = /\s*$/y;
@@ -70951,9 +70992,9 @@ var require_wkt = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/index.shared.js
 var require_index_shared = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/index.shared.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/index.shared.js"(exports) {
     "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
       if (k22 === void 0) k22 = k5;
       var desc = Object.getOwnPropertyDescriptor(m6, k5);
       if (!desc || ("get" in desc ? !m6.__esModule : desc.writable || desc.configurable)) {
@@ -70966,15 +71007,15 @@ var require_index_shared = __commonJS({
       if (k22 === void 0) k22 = k5;
       o5[k22] = m6[k5];
     });
-    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o5, v6) {
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o5, v6) {
       Object.defineProperty(o5, "default", { enumerable: true, value: v6 });
     } : function(o5, v6) {
       o5["default"] = v6;
     });
-    var __exportStar = exports2 && exports2.__exportStar || function(m6, exports3) {
-      for (var p5 in m6) if (p5 !== "default" && !Object.prototype.hasOwnProperty.call(exports3, p5)) __createBinding(exports3, m6, p5);
+    var __exportStar = exports && exports.__exportStar || function(m6, exports2) {
+      for (var p5 in m6) if (p5 !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p5)) __createBinding(exports2, m6, p5);
     };
-    var __importStar = exports2 && exports2.__importStar || function(mod) {
+    var __importStar = exports && exports.__importStar || function(mod) {
       if (mod && mod.__esModule) return mod;
       var result = {};
       if (mod != null) {
@@ -70983,95 +71024,95 @@ var require_index_shared = __commonJS({
       __setModuleDefault(result, mod);
       return result;
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2._ReadBuffer = exports2._CodecsRegistry = exports2.throwWarnings = exports2.logWarnings = exports2.defaultBackoff = exports2.Options = exports2.RetryOptions = exports2.RetryCondition = exports2.IsolationLevel = exports2.parseWKT = exports2.Float16Array = exports2.SparseVector = exports2.MultiRange = exports2.Range = exports2.ConfigMemory = exports2.DateDuration = exports2.RelativeDuration = exports2.Duration = exports2.LocalTime = exports2.LocalDate = exports2.LocalDateTime = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports._ReadBuffer = exports._CodecsRegistry = exports.throwWarnings = exports.logWarnings = exports.defaultBackoff = exports.Options = exports.RetryOptions = exports.RetryCondition = exports.IsolationLevel = exports.parseWKT = exports.Float16Array = exports.SparseVector = exports.MultiRange = exports.Range = exports.ConfigMemory = exports.DateDuration = exports.RelativeDuration = exports.Duration = exports.LocalTime = exports.LocalDate = exports.LocalDateTime = void 0;
     var datetime_1 = require_datetime();
-    Object.defineProperty(exports2, "LocalDateTime", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "LocalDateTime", { enumerable: true, get: function() {
       return datetime_1.LocalDateTime;
     } });
-    Object.defineProperty(exports2, "LocalDate", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "LocalDate", { enumerable: true, get: function() {
       return datetime_1.LocalDate;
     } });
-    Object.defineProperty(exports2, "LocalTime", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "LocalTime", { enumerable: true, get: function() {
       return datetime_1.LocalTime;
     } });
-    Object.defineProperty(exports2, "Duration", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "Duration", { enumerable: true, get: function() {
       return datetime_1.Duration;
     } });
-    Object.defineProperty(exports2, "RelativeDuration", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "RelativeDuration", { enumerable: true, get: function() {
       return datetime_1.RelativeDuration;
     } });
-    Object.defineProperty(exports2, "DateDuration", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "DateDuration", { enumerable: true, get: function() {
       return datetime_1.DateDuration;
     } });
     var memory_1 = require_memory();
-    Object.defineProperty(exports2, "ConfigMemory", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "ConfigMemory", { enumerable: true, get: function() {
       return memory_1.ConfigMemory;
     } });
     var range_1 = require_range2();
-    Object.defineProperty(exports2, "Range", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "Range", { enumerable: true, get: function() {
       return range_1.Range;
     } });
-    Object.defineProperty(exports2, "MultiRange", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "MultiRange", { enumerable: true, get: function() {
       return range_1.MultiRange;
     } });
     var pgvector_1 = require_pgvector();
-    Object.defineProperty(exports2, "SparseVector", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "SparseVector", { enumerable: true, get: function() {
       return pgvector_1.SparseVector;
     } });
     var utils_1 = require_utils2();
-    Object.defineProperty(exports2, "Float16Array", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "Float16Array", { enumerable: true, get: function() {
       return utils_1.Float16Array;
     } });
-    __exportStar(require_postgis(), exports2);
+    __exportStar(require_postgis(), exports);
     var wkt_1 = require_wkt();
-    Object.defineProperty(exports2, "parseWKT", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "parseWKT", { enumerable: true, get: function() {
       return wkt_1.parseWKT;
     } });
     var options_1 = require_options();
-    Object.defineProperty(exports2, "IsolationLevel", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "IsolationLevel", { enumerable: true, get: function() {
       return options_1.IsolationLevel;
     } });
-    Object.defineProperty(exports2, "RetryCondition", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "RetryCondition", { enumerable: true, get: function() {
       return options_1.RetryCondition;
     } });
-    Object.defineProperty(exports2, "RetryOptions", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "RetryOptions", { enumerable: true, get: function() {
       return options_1.RetryOptions;
     } });
-    Object.defineProperty(exports2, "Options", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "Options", { enumerable: true, get: function() {
       return options_1.Options;
     } });
-    Object.defineProperty(exports2, "defaultBackoff", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "defaultBackoff", { enumerable: true, get: function() {
       return options_1.defaultBackoff;
     } });
-    Object.defineProperty(exports2, "logWarnings", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "logWarnings", { enumerable: true, get: function() {
       return options_1.logWarnings;
     } });
-    Object.defineProperty(exports2, "throwWarnings", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "throwWarnings", { enumerable: true, get: function() {
       return options_1.throwWarnings;
     } });
-    __exportStar(require_errors(), exports2);
+    __exportStar(require_errors(), exports);
     var reg = __importStar(require_registry());
     var buf = __importStar(require_buffer());
-    exports2._CodecsRegistry = reg.CodecsRegistry;
-    exports2._ReadBuffer = buf.ReadBuffer;
+    exports._CodecsRegistry = reg.CodecsRegistry;
+    exports._ReadBuffer = buf.ReadBuffer;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/typeutil.js
 var require_typeutil = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/typeutil.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/typeutil.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
+    Object.defineProperty(exports, "__esModule", { value: true });
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/strictMap.js
 var require_strictMap = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/strictMap.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/strictMap.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.StrictMapSet = exports2.StrictMap = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.StrictMapSet = exports.StrictMap = void 0;
     var StrictMap = class extends Map {
       get(key) {
         if (!this.has(key)) {
@@ -71080,7 +71121,7 @@ var require_strictMap = __commonJS({
         return super.get(key);
       }
     };
-    exports2.StrictMap = StrictMap;
+    exports.StrictMap = StrictMap;
     var StrictMapSet = class extends StrictMap {
       appendAt(key, value) {
         const set = this.has(key) ? this.get(key) : /* @__PURE__ */ new Set();
@@ -71088,17 +71129,17 @@ var require_strictMap = __commonJS({
         this.set(key, set);
       }
     };
-    exports2.StrictMapSet = StrictMapSet;
+    exports.StrictMapSet = StrictMapSet;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/reservedKeywords.js
 var require_reservedKeywords = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/reservedKeywords.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/reservedKeywords.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.reservedKeywords = void 0;
-    exports2.reservedKeywords = /* @__PURE__ */ new Set([
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.reservedKeywords = void 0;
+    exports.reservedKeywords = /* @__PURE__ */ new Set([
       "__edgedbsys__",
       "__edgedbtpl__",
       "__source__",
@@ -71192,15 +71233,15 @@ var require_reservedKeywords = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/queries/types.js
 var require_types = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/queries/types.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/queries/types.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.typeMapping = void 0;
-    exports2.getTypes = getTypes;
-    exports2.types = getTypes;
-    exports2.topoSort = topoSort;
-    exports2.getTypes = getTypes;
-    exports2.types = getTypes;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.typeMapping = void 0;
+    exports.getTypes = getTypes;
+    exports.types = getTypes;
+    exports.topoSort = topoSort;
+    exports.getTypes = getTypes;
+    exports.types = getTypes;
     var strictMap_1 = require_strictMap();
     var numberType2 = {
       id: "00000000-0000-0000-0000-0000000001ff",
@@ -71212,7 +71253,7 @@ var require_types = __commonJS({
       material_id: null,
       bases: []
     };
-    exports2.typeMapping = /* @__PURE__ */ new Map([
+    exports.typeMapping = /* @__PURE__ */ new Map([
       [
         "00000000-0000-0000-0000-000000000103",
         numberType2
@@ -71362,21 +71403,21 @@ var require_types = __commonJS({
         }
         switch (type.kind) {
           case "scalar":
-            if (exports2.typeMapping.has(type.id)) {
-              type.cast_type = exports2.typeMapping.get(type.id).id;
+            if (exports.typeMapping.has(type.id)) {
+              type.cast_type = exports.typeMapping.get(type.id).id;
             }
             if (type.is_seq) {
               type.cast_type = numberType2.id;
             }
             if (type.name !== "std::sequence" && type.bases[0]?.id === type.material_id) {
-              type.cast_type = exports2.typeMapping.get(type.material_id)?.id ?? type.material_id;
+              type.cast_type = exports.typeMapping.get(type.material_id)?.id ?? type.material_id;
             }
             break;
           case "multirange":
-            type.multirange_element_id = exports2.typeMapping.get(type.multirange_element_id)?.id ?? type.multirange_element_id;
+            type.multirange_element_id = exports.typeMapping.get(type.multirange_element_id)?.id ?? type.multirange_element_id;
             break;
           case "range":
-            type.range_element_id = exports2.typeMapping.get(type.range_element_id)?.id ?? type.range_element_id;
+            type.range_element_id = exports.typeMapping.get(type.range_element_id)?.id ?? type.range_element_id;
             break;
           case "object": {
             const ptrs = {};
@@ -71488,10 +71529,10 @@ var require_types = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/queries/casts.js
 var require_casts = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/queries/casts.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/queries/casts.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.casts = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.casts = void 0;
     var types_1 = require_types();
     var reachableFrom = (source, adj, seen = /* @__PURE__ */ new Set()) => {
       const reachable = /* @__PURE__ */ new Set();
@@ -71604,17 +71645,17 @@ EXPLICIT`);
         assignableByMap
       };
     };
-    exports2.casts = casts;
+    exports.casts = casts;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/queries/functions.js
 var require_functions = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/queries/functions.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/queries/functions.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.functions = void 0;
-    exports2.replaceNumberTypes = replaceNumberTypes;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.functions = void 0;
+    exports.replaceNumberTypes = replaceNumberTypes;
     var strictMap_1 = require_strictMap();
     var types_1 = require_types();
     var functions = async (cxn) => {
@@ -71660,7 +71701,7 @@ var require_functions = __commonJS({
       }
       return functionMap;
     };
-    exports2.functions = functions;
+    exports.functions = functions;
     function replaceNumberTypes(def) {
       if (types_1.typeMapping.has(def.return_type.id)) {
         const type = types_1.typeMapping.get(def.return_type.id);
@@ -71698,10 +71739,10 @@ var require_functions = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/queries/globals.js
 var require_globals = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/queries/globals.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/queries/globals.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.globals = globals;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.globals = globals;
     async function globals(cxn) {
       const globalsMap = /* @__PURE__ */ new Map();
       const version = await cxn.queryRequiredSingle(`select sys::get_version().major;`);
@@ -71733,10 +71774,10 @@ var require_globals = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/queries/operators.js
 var require_operators = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/queries/operators.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/queries/operators.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.operators = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.operators = void 0;
     var strictMap_1 = require_strictMap();
     var functions_1 = require_functions();
     var util_1 = require_util3();
@@ -71791,7 +71832,7 @@ var require_operators = __commonJS({
       }
       return operators;
     };
-    exports2.operators = _operators;
+    exports.operators = _operators;
     function hashOpDef(def) {
       return JSON.stringify({
         name: def.name,
@@ -71811,10 +71852,10 @@ var require_operators = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/queries/scalars.js
 var require_scalars = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/queries/scalars.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/queries/scalars.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.scalars = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.scalars = void 0;
     var strictMap_1 = require_strictMap();
     var _scalars = async (cxn) => {
       const scalarArray = await cxn.queryJSON(`with module schema
@@ -71837,15 +71878,15 @@ FILTER
       }
       return scalars;
     };
-    exports2.scalars = _scalars;
+    exports.scalars = _scalars;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/queries.js
 var require_queries = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/queries.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/queries.js"(exports) {
     "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
       if (k22 === void 0) k22 = k5;
       var desc = Object.getOwnPropertyDescriptor(m6, k5);
       if (!desc || ("get" in desc ? !m6.__esModule : desc.writable || desc.configurable)) {
@@ -71858,26 +71899,26 @@ var require_queries = __commonJS({
       if (k22 === void 0) k22 = k5;
       o5[k22] = m6[k5];
     });
-    var __exportStar = exports2 && exports2.__exportStar || function(m6, exports3) {
-      for (var p5 in m6) if (p5 !== "default" && !Object.prototype.hasOwnProperty.call(exports3, p5)) __createBinding(exports3, m6, p5);
+    var __exportStar = exports && exports.__exportStar || function(m6, exports2) {
+      for (var p5 in m6) if (p5 !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p5)) __createBinding(exports2, m6, p5);
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    __exportStar(require_casts(), exports2);
-    __exportStar(require_functions(), exports2);
-    __exportStar(require_globals(), exports2);
-    __exportStar(require_operators(), exports2);
-    __exportStar(require_scalars(), exports2);
-    __exportStar(require_types(), exports2);
+    Object.defineProperty(exports, "__esModule", { value: true });
+    __exportStar(require_casts(), exports);
+    __exportStar(require_functions(), exports);
+    __exportStar(require_globals(), exports);
+    __exportStar(require_operators(), exports);
+    __exportStar(require_scalars(), exports);
+    __exportStar(require_types(), exports);
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/analyzeQuery.js
 var require_analyzeQuery = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/analyzeQuery.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/analyzeQuery.js"(exports) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.ImportMap = exports2.defaultApplyCardinalityToTsType = exports2.generateTsObjectField = exports2.generateTsObject = exports2.defaultCodecGenerators = exports2.defineCodecGeneratorTuple = exports2.generateTSTypeFromCodec = void 0;
-    exports2.analyzeQuery = analyzeQuery;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.ImportMap = exports.defaultApplyCardinalityToTsType = exports.generateTsObjectField = exports.generateTsObject = exports.defaultCodecGenerators = exports.defineCodecGeneratorTuple = exports.generateTSTypeFromCodec = void 0;
+    exports.analyzeQuery = analyzeQuery;
     var array_1 = require_array();
     var enum_1 = require_enum();
     var ifaces_1 = require_ifaces();
@@ -71891,11 +71932,11 @@ var require_analyzeQuery = __commonJS({
     var util_1 = require_util3();
     async function analyzeQuery(client, query) {
       const { cardinality, capabilities, in: inCodec, out: outCodec } = await client.describe(query);
-      const args = (0, exports2.generateTSTypeFromCodec)(inCodec, enums_1.Cardinality.One, {
+      const args = (0, exports.generateTSTypeFromCodec)(inCodec, enums_1.Cardinality.One, {
         optionalNulls: true,
         readonly: true
       });
-      const result = (0, exports2.generateTSTypeFromCodec)(outCodec, cardinality);
+      const result = (0, exports.generateTSTypeFromCodec)(outCodec, cardinality);
       const imports = args.imports.merge(result.imports);
       return {
         result: result.type,
@@ -71916,8 +71957,8 @@ var require_analyzeQuery = __commonJS({
       };
       const context = {
         ...optionsWithDefaults,
-        generators: exports2.defaultCodecGenerators,
-        applyCardinality: (0, exports2.defaultApplyCardinalityToTsType)(optionsWithDefaults),
+        generators: exports.defaultCodecGenerators,
+        applyCardinality: (0, exports.defaultApplyCardinalityToTsType)(optionsWithDefaults),
         ...options,
         imports: new ImportMap(),
         walk: (codec2, innerContext) => {
@@ -71936,10 +71977,10 @@ var require_analyzeQuery = __commonJS({
         imports: context.imports
       };
     };
-    exports2.generateTSTypeFromCodec = generateTSTypeFromCodec;
+    exports.generateTSTypeFromCodec = generateTSTypeFromCodec;
     var genDef = (codecType, generator) => [codecType, generator];
-    exports2.defineCodecGeneratorTuple = genDef;
-    exports2.defaultCodecGenerators = new Map([
+    exports.defineCodecGeneratorTuple = genDef;
+    exports.defaultCodecGenerators = new Map([
       genDef(codecs_1.NullCodec, () => "null"),
       genDef(enum_1.EnumCodec, (codec) => {
         return `(${codec.values.map((val2) => JSON.stringify(val2)).join(" | ")})`;
@@ -71957,7 +71998,7 @@ var require_analyzeQuery = __commonJS({
           codec: subCodecs[i6],
           cardinality: util_1.util.parseCardinality(field.cardinality)
         }));
-        return (0, exports2.generateTsObject)(fields, ctx);
+        return (0, exports.generateTsObject)(fields, ctx);
       }),
       genDef(namedtuple_1.NamedTupleCodec, (codec, ctx) => {
         const subCodecs = codec.getSubcodecs();
@@ -71966,7 +72007,7 @@ var require_analyzeQuery = __commonJS({
           codec: subCodecs[i6],
           cardinality: enums_1.Cardinality.One
         }));
-        return (0, exports2.generateTsObject)(fields, ctx);
+        return (0, exports.generateTsObject)(fields, ctx);
       }),
       genDef(tuple_1.TupleCodec, (codec, ctx) => {
         const subCodecs = codec.getSubcodecs().map((subCodec) => ctx.walk(subCodec));
@@ -71992,12 +72033,12 @@ var require_analyzeQuery = __commonJS({
       })
     ]);
     var generateTsObject = (fields, ctx) => {
-      const properties = fields.map((field) => (0, exports2.generateTsObjectField)(field, ctx));
+      const properties = fields.map((field) => (0, exports.generateTsObjectField)(field, ctx));
       return `{
 ${properties.join("\n")}
 ${ctx.indent}}`;
     };
-    exports2.generateTsObject = generateTsObject;
+    exports.generateTsObject = generateTsObject;
     var generateTsObjectField = (field, ctx) => {
       const codec = unwrapSetCodec(field.codec, field.cardinality);
       const name = JSON.stringify(field.name);
@@ -72007,7 +72048,7 @@ ${ctx.indent}}`;
       const isReadonly = ctx.readonly ? "readonly " : "";
       return `${ctx.indent}  ${isReadonly}${name}${questionMark}: ${value};`;
     };
-    exports2.generateTsObjectField = generateTsObjectField;
+    exports.generateTsObjectField = generateTsObjectField;
     function unwrapSetCodec(codec, cardinality) {
       if (!(codec instanceof set_1.SetCodec)) {
         return codec;
@@ -72032,13 +72073,13 @@ ${ctx.indent}}`;
       }
       throw new Error(`Unexpected cardinality: ${cardinality}`);
     };
-    exports2.defaultApplyCardinalityToTsType = defaultApplyCardinalityToTsType;
+    exports.defaultApplyCardinalityToTsType = defaultApplyCardinalityToTsType;
     var ImportMap = class _ImportMap extends Map {
-      add(module3, specifier) {
-        if (!this.has(module3)) {
-          this.set(module3, /* @__PURE__ */ new Set());
+      add(module2, specifier) {
+        if (!this.has(module2)) {
+          this.set(module2, /* @__PURE__ */ new Set());
         }
-        this.get(module3).add(specifier);
+        this.get(module2).add(specifier);
         return this;
       }
       merge(map2) {
@@ -72051,15 +72092,15 @@ ${ctx.indent}}`;
         return out;
       }
     };
-    exports2.ImportMap = ImportMap;
+    exports.ImportMap = ImportMap;
   }
 });
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/index.js
 var require_reflection = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/index.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/reflection/index.js"(exports) {
     "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
       if (k22 === void 0) k22 = k5;
       var desc = Object.getOwnPropertyDescriptor(m6, k5);
       if (!desc || ("get" in desc ? !m6.__esModule : desc.writable || desc.configurable)) {
@@ -72072,15 +72113,15 @@ var require_reflection = __commonJS({
       if (k22 === void 0) k22 = k5;
       o5[k22] = m6[k5];
     });
-    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o5, v6) {
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o5, v6) {
       Object.defineProperty(o5, "default", { enumerable: true, value: v6 });
     } : function(o5, v6) {
       o5["default"] = v6;
     });
-    var __exportStar = exports2 && exports2.__exportStar || function(m6, exports3) {
-      for (var p5 in m6) if (p5 !== "default" && !Object.prototype.hasOwnProperty.call(exports3, p5)) __createBinding(exports3, m6, p5);
+    var __exportStar = exports && exports.__exportStar || function(m6, exports2) {
+      for (var p5 in m6) if (p5 !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p5)) __createBinding(exports2, m6, p5);
     };
-    var __importStar = exports2 && exports2.__importStar || function(mod) {
+    var __importStar = exports && exports.__importStar || function(mod) {
       if (mod && mod.__esModule) return mod;
       var result = {};
       if (mod != null) {
@@ -72089,18 +72130,18 @@ var require_reflection = __commonJS({
       __setModuleDefault(result, mod);
       return result;
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.Capabilities = exports2.introspect = void 0;
-    __exportStar(require_enums(), exports2);
-    __exportStar(require_util3(), exports2);
-    __exportStar(require_typeutil(), exports2);
-    __exportStar(require_util3(), exports2);
-    __exportStar(require_strictMap(), exports2);
-    __exportStar(require_reservedKeywords(), exports2);
-    exports2.introspect = __importStar(require_queries());
-    __exportStar(require_analyzeQuery(), exports2);
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Capabilities = exports.introspect = void 0;
+    __exportStar(require_enums(), exports);
+    __exportStar(require_util3(), exports);
+    __exportStar(require_typeutil(), exports);
+    __exportStar(require_util3(), exports);
+    __exportStar(require_strictMap(), exports);
+    __exportStar(require_reservedKeywords(), exports);
+    exports.introspect = __importStar(require_queries());
+    __exportStar(require_analyzeQuery(), exports);
     var baseConn_1 = require_baseConn();
-    Object.defineProperty(exports2, "Capabilities", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "Capabilities", { enumerable: true, get: function() {
       return baseConn_1.Capabilities;
     } });
   }
@@ -72108,9 +72149,9 @@ var require_reflection = __commonJS({
 
 // ../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/index.node.js
 var require_index_node = __commonJS({
-  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/index.node.js"(exports2) {
+  "../node_modules/.pnpm/gel@2.1.0/node_modules/gel/dist/index.node.js"(exports) {
     "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o5, m6, k5, k22) {
       if (k22 === void 0) k22 = k5;
       var desc = Object.getOwnPropertyDescriptor(m6, k5);
       if (!desc || ("get" in desc ? !m6.__esModule : desc.writable || desc.configurable)) {
@@ -72123,12 +72164,12 @@ var require_index_node = __commonJS({
       if (k22 === void 0) k22 = k5;
       o5[k22] = m6[k5];
     });
-    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o5, v6) {
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o5, v6) {
       Object.defineProperty(o5, "default", { enumerable: true, value: v6 });
     } : function(o5, v6) {
       o5["default"] = v6;
     });
-    var __importStar = exports2 && exports2.__importStar || function(mod) {
+    var __importStar = exports && exports.__importStar || function(mod) {
       if (mod && mod.__esModule) return mod;
       var result = {};
       if (mod != null) {
@@ -72137,36 +72178,36 @@ var require_index_node = __commonJS({
       __setModuleDefault(result, mod);
       return result;
     };
-    var __exportStar = exports2 && exports2.__exportStar || function(m6, exports3) {
-      for (var p5 in m6) if (p5 !== "default" && !Object.prototype.hasOwnProperty.call(exports3, p5)) __createBinding(exports3, m6, p5);
+    var __exportStar = exports && exports.__exportStar || function(m6, exports2) {
+      for (var p5 in m6) if (p5 !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p5)) __createBinding(exports2, m6, p5);
     };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.$ = exports2.Client = exports2.ResolvedConnectConfig = exports2._RawConnection = exports2.systemUtils = exports2.createHttpClient = exports2.createClient = void 0;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.$ = exports.Client = exports.ResolvedConnectConfig = exports._RawConnection = exports.systemUtils = exports.createHttpClient = exports.createClient = void 0;
     var nodeClient_1 = require_nodeClient();
-    exports2.default = nodeClient_1.createClient;
+    exports.default = nodeClient_1.createClient;
     var nodeClient_2 = require_nodeClient();
-    Object.defineProperty(exports2, "createClient", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "createClient", { enumerable: true, get: function() {
       return nodeClient_2.createClient;
     } });
-    Object.defineProperty(exports2, "createHttpClient", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "createHttpClient", { enumerable: true, get: function() {
       return nodeClient_2.createHttpClient;
     } });
     var systemUtils = __importStar(require_systemUtils());
-    exports2.systemUtils = systemUtils;
+    exports.systemUtils = systemUtils;
     var rawConn_1 = require_rawConn();
-    Object.defineProperty(exports2, "_RawConnection", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "_RawConnection", { enumerable: true, get: function() {
       return rawConn_1.RawConnection;
     } });
     var conUtils_1 = require_conUtils();
-    Object.defineProperty(exports2, "ResolvedConnectConfig", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "ResolvedConnectConfig", { enumerable: true, get: function() {
       return conUtils_1.ResolvedConnectConfig;
     } });
     var baseClient_1 = require_baseClient();
-    Object.defineProperty(exports2, "Client", { enumerable: true, get: function() {
+    Object.defineProperty(exports, "Client", { enumerable: true, get: function() {
       return baseClient_1.Client;
     } });
-    __exportStar(require_index_shared(), exports2);
-    exports2.$ = __importStar(require_reflection());
+    __exportStar(require_index_shared(), exports);
+    exports.$ = __importStar(require_reflection());
   }
 });
 
@@ -72197,9 +72238,9 @@ var init_connections = __esm({
         if (driver2 === "aws-data-api") {
           assertPackages("@aws-sdk/client-rds-data");
           const { RDSDataClient: RDSDataClient2, ExecuteStatementCommand: ExecuteStatementCommand2, TypeHint: TypeHint2 } = await Promise.resolve().then(() => (init_dist_es53(), dist_es_exports8));
-          const { AwsDataApiSession, drizzle } = require("drizzle-orm/aws-data-api/pg");
-          const { migrate } = require("drizzle-orm/aws-data-api/pg/migrator");
-          const { PgDialect: PgDialect2 } = require("drizzle-orm/pg-core");
+          const { AwsDataApiSession, drizzle } = await import("drizzle-orm/aws-data-api/pg");
+          const { migrate } = await import("drizzle-orm/aws-data-api/pg/migrator");
+          const { PgDialect: PgDialect2 } = await import("drizzle-orm/pg-core");
           const config = {
             database: credentials2.database,
             resourceArn: credentials2.resourceArn,
@@ -72258,9 +72299,9 @@ var init_connections = __esm({
         }
         if (driver2 === "pglite") {
           assertPackages("@electric-sql/pglite");
-          const { PGlite, types: types3 } = require("@electric-sql/pglite");
-          const { drizzle } = require("drizzle-orm/pglite");
-          const { migrate } = require("drizzle-orm/pglite/migrator");
+          const { PGlite, types: types3 } = await import("@electric-sql/pglite");
+          const { drizzle } = await import("drizzle-orm/pglite");
+          const { migrate } = await import("drizzle-orm/pglite/migrator");
           const pglite = "client" in credentials2 ? credentials2.client : new PGlite(normalisePGliteUrl(credentials2.url));
           await pglite.waitReady;
           const drzl = drizzle(pglite);
@@ -72309,9 +72350,9 @@ var init_connections = __esm({
       }
       if (await checkPackage("pg")) {
         console.log(withStyle.info(`Using 'pg' driver for database querying`));
-        const { default: pg } = require("pg");
-        const { drizzle } = require("drizzle-orm/node-postgres");
-        const { migrate } = require("drizzle-orm/node-postgres/migrator");
+        const { default: pg } = await import("pg");
+        const { drizzle } = await import("drizzle-orm/node-postgres");
+        const { migrate } = await import("drizzle-orm/node-postgres/migrator");
         const ssl = "ssl" in credentials2 ? credentials2.ssl === "prefer" || credentials2.ssl === "require" || credentials2.ssl === "allow" ? { rejectUnauthorized: false } : credentials2.ssl === "verify-full" ? {} : credentials2.ssl : {};
         const types3 = {
           // @ts-ignore
@@ -72380,9 +72421,9 @@ var init_connections = __esm({
         console.log(
           withStyle.info(`Using 'postgres' driver for database querying`)
         );
-        const postgres = require("postgres");
-        const { drizzle } = require("drizzle-orm/postgres-js");
-        const { migrate } = require("drizzle-orm/postgres-js/migrator");
+        const postgres = await import("postgres");
+        const { drizzle } = await import("drizzle-orm/postgres-js");
+        const { migrate } = await import("drizzle-orm/postgres-js/migrator");
         const client = "url" in credentials2 ? postgres.default(credentials2.url, { max: 1 }) : postgres.default({ ...credentials2, max: 1 });
         const transparentParser = (val2) => val2;
         for (const type of ["1184", "1082", "1083", "1114"]) {
@@ -72430,9 +72471,9 @@ var init_connections = __esm({
             "'@vercel/postgres' can only connect to remote Neon/Vercel Postgres/Supabase instances through a websocket"
           )
         );
-        const { VercelPool, types: pgTypes } = require("@vercel/postgres");
-        const { drizzle } = require("drizzle-orm/vercel-postgres");
-        const { migrate } = require("drizzle-orm/vercel-postgres/migrator");
+        const { VercelPool, types: pgTypes } = await import("@vercel/postgres");
+        const { drizzle } = await import("drizzle-orm/vercel-postgres");
+        const { migrate } = await import("drizzle-orm/vercel-postgres/migrator");
         const ssl = "ssl" in credentials2 ? credentials2.ssl === "prefer" || credentials2.ssl === "require" || credentials2.ssl === "allow" ? { rejectUnauthorized: false } : credentials2.ssl === "verify-full" ? {} : credentials2.ssl : {};
         const types3 = {
           // @ts-ignore
@@ -72509,9 +72550,9 @@ var init_connections = __esm({
             "'@neondatabase/serverless' can only connect to remote Neon/Vercel Postgres/Supabase instances through a websocket"
           )
         );
-        const { Pool, neonConfig, types: pgTypes } = require("@neondatabase/serverless");
-        const { drizzle } = require("drizzle-orm/neon-serverless");
-        const { migrate } = require("drizzle-orm/neon-serverless/migrator");
+        const { Pool, neonConfig, types: pgTypes } = await import("@neondatabase/serverless");
+        const { drizzle } = await import("drizzle-orm/neon-serverless");
+        const { migrate } = await import("drizzle-orm/neon-serverless/migrator");
         const ssl = "ssl" in credentials2 ? credentials2.ssl === "prefer" || credentials2.ssl === "require" || credentials2.ssl === "allow" ? { rejectUnauthorized: false } : credentials2.ssl === "verify-full" ? {} : credentials2.ssl : {};
         const types3 = {
           // @ts-ignore
@@ -72666,9 +72707,9 @@ To link your project, please refer https://docs.geldata.com/reference/cli/gel_in
     connectToSingleStore = async (it) => {
       const result = parseSingleStoreCredentials(it);
       if (await checkPackage("mysql2")) {
-        const { createConnection } = require("mysql2/promise");
-        const { drizzle } = require("drizzle-orm/singlestore");
-        const { migrate } = require("drizzle-orm/singlestore/migrator");
+        const { createConnection } = await import("mysql2/promise");
+        const { drizzle } = await import("drizzle-orm/singlestore");
+        const { migrate } = await import("drizzle-orm/singlestore/migrator");
         const connection = result.url ? await createConnection(result.url) : await createConnection(result.credentials);
         const db = drizzle(connection);
         const migrateFn = async (config) => {
@@ -72739,9 +72780,9 @@ To link your project, please refer https://docs.geldata.com/reference/cli/gel_in
     connectToMySQL = async (it) => {
       const result = parseMysqlCredentials(it);
       if (await checkPackage("mysql2")) {
-        const { createConnection } = require("mysql2/promise");
-        const { drizzle } = require("drizzle-orm/mysql2");
-        const { migrate } = require("drizzle-orm/mysql2/migrator");
+        const { createConnection } = await import("mysql2/promise");
+        const { drizzle } = await import("drizzle-orm/mysql2");
+        const { migrate } = await import("drizzle-orm/mysql2/migrator");
         const connection = result.url ? await createConnection(result.url) : await createConnection(result.credentials);
         const db = drizzle(connection);
         const migrateFn = async (config) => {
@@ -72796,9 +72837,9 @@ To link your project, please refer https://docs.geldata.com/reference/cli/gel_in
         };
       }
       if (await checkPackage("@planetscale/database")) {
-        const { Client: Client2 } = require("@planetscale/database");
-        const { drizzle } = require("drizzle-orm/planetscale-serverless");
-        const { migrate } = require("drizzle-orm/planetscale-serverless/migrator");
+        const { Client: Client2 } = await import("@planetscale/database");
+        const { drizzle } = await import("drizzle-orm/planetscale-serverless");
+        const { migrate } = await import("drizzle-orm/planetscale-serverless/migrator");
         const connection = new Client2(result);
         const db = drizzle(connection);
         const migrateFn = async (config) => {
@@ -72908,8 +72949,8 @@ To link your project, please refer https://docs.geldata.com/reference/cli/gel_in
         }
         return results;
       };
-      const { drizzle } = require("drizzle-orm/d1");
-      const { migrate } = require("drizzle-orm/d1/migrator");
+      const { drizzle } = await import("drizzle-orm/d1");
+      const { migrate } = await import("drizzle-orm/d1/migrator");
       const drzl = drizzle(d1);
       const migrateFn = async (config) => {
         return migrate(drzl, config);
@@ -72920,8 +72961,8 @@ To link your project, please refer https://docs.geldata.com/reference/cli/gel_in
       if ("driver" in credentials2) {
         const { driver: driver2 } = credentials2;
         if (driver2 === "d1-http") {
-          const { drizzle } = require("drizzle-orm/sqlite-proxy");
-          const { migrate } = require("drizzle-orm/sqlite-proxy/migrator");
+          const { drizzle } = await import("drizzle-orm/sqlite-proxy");
+          const { migrate } = await import("drizzle-orm/sqlite-proxy/migrator");
           const remoteCallback = async (sql, params, method) => {
             const res = await fetch2(
               `https://api.cloudflare.com/client/v4/accounts/${credentials2.accountId}/d1/database/${credentials2.databaseId}/${method === "values" ? "raw" : "query"}`,
@@ -73013,9 +73054,9 @@ To link your project, please refer https://docs.geldata.com/reference/cli/gel_in
         }
       }
       if (await checkPackage("@libsql/client")) {
-        const { createClient } = require("@libsql/client");
-        const { drizzle } = require("drizzle-orm/libsql");
-        const { migrate } = require("drizzle-orm/libsql/migrator");
+        const { createClient } = await import("@libsql/client");
+        const { drizzle } = await import("drizzle-orm/libsql");
+        const { migrate } = await import("drizzle-orm/libsql/migrator");
         const client = createClient({
           url: normaliseSQLiteUrl(credentials2.url, "libsql")
         });
@@ -73065,9 +73106,9 @@ To link your project, please refer https://docs.geldata.com/reference/cli/gel_in
         return { ...db, packageName: "@libsql/client", proxy, transactionProxy, migrate: migrateFn };
       }
       if (await checkPackage("better-sqlite3")) {
-        const { default: Database } = require("better-sqlite3");
-        const { drizzle } = require("drizzle-orm/better-sqlite3");
-        const { migrate } = require("drizzle-orm/better-sqlite3/migrator");
+        const { default: Database } = await import("better-sqlite3");
+        const { drizzle } = await import("drizzle-orm/better-sqlite3");
+        const { migrate } = await import("drizzle-orm/better-sqlite3/migrator");
         const sqlite = new Database(
           normaliseSQLiteUrl(credentials2.url, "better-sqlite")
         );
@@ -73120,9 +73161,9 @@ To link your project, please refer https://docs.geldata.com/reference/cli/gel_in
     };
     connectToLibSQL = async (credentials2) => {
       if (await checkPackage("@libsql/client")) {
-        const { createClient } = require("@libsql/client");
-        const { drizzle } = require("drizzle-orm/libsql");
-        const { migrate } = require("drizzle-orm/libsql/migrator");
+        const { createClient } = await import("@libsql/client");
+        const { drizzle } = await import("drizzle-orm/libsql");
+        const { migrate } = await import("drizzle-orm/libsql/migrator");
         const client = createClient({
           url: normaliseSQLiteUrl(credentials2.url, "libsql"),
           authToken: credentials2.authToken
@@ -73198,24 +73239,34 @@ __export(studio_exports, {
   prepareServer: () => prepareServer,
   prepareSingleStoreSchema: () => prepareSingleStoreSchema
 });
-var import_crypto7, import_drizzle_orm6, import_mysql_core2, import_pg_core3, import_relations2, import_singlestore_core2, import_sqlite_core2, import_fs8, import_node_https2, preparePgSchema, prepareMySqlSchema, prepareSQLiteSchema, prepareSingleStoreSchema, getCustomDefaults, drizzleForPostgres, drizzleForMySQL, drizzleForSQLite, drizzleForLibSQL, drizzleForSingleStore, extractRelations, init, proxySchema, transactionProxySchema, defaultsSchema, schema5, jsonStringify, prepareServer;
+import { createHash as createHash3 } from "crypto";
+import { is as is6 } from "drizzle-orm";
+import { getTableConfig as mysqlTableConfig, MySqlTable } from "drizzle-orm/mysql-core";
+import { getTableConfig as pgTableConfig, PgTable as PgTable2 } from "drizzle-orm/pg-core";
+import {
+  createTableRelationsHelpers,
+  extractTablesRelationalConfig,
+  Many,
+  normalizeRelation,
+  One,
+  Relations as Relations2
+} from "drizzle-orm/relations";
+import {
+  getTableConfig as singlestoreTableConfig,
+  SingleStoreTable
+} from "drizzle-orm/singlestore-core";
+import { getTableConfig as sqliteTableConfig, SQLiteTable } from "drizzle-orm/sqlite-core";
+import fs4 from "fs";
+import { createServer } from "https";
+var preparePgSchema, prepareMySqlSchema, prepareSQLiteSchema, prepareSingleStoreSchema, getCustomDefaults, drizzleForPostgres, drizzleForMySQL, drizzleForSQLite, drizzleForLibSQL, drizzleForSingleStore, extractRelations, init, proxySchema, transactionProxySchema, defaultsSchema, schema5, jsonStringify, prepareServer;
 var init_studio2 = __esm({
   "src/serializer/studio.ts"() {
     "use strict";
     init_dist();
     init_esm2();
-    import_crypto7 = require("crypto");
-    import_drizzle_orm6 = require("drizzle-orm");
-    import_mysql_core2 = require("drizzle-orm/mysql-core");
-    import_pg_core3 = require("drizzle-orm/pg-core");
-    import_relations2 = require("drizzle-orm/relations");
-    import_singlestore_core2 = require("drizzle-orm/singlestore-core");
-    import_sqlite_core2 = require("drizzle-orm/sqlite-core");
-    import_fs8 = __toESM(require("fs"));
     init_dist2();
     init_compress2();
     init_cors();
-    import_node_https2 = require("https");
     init_global();
     init_esm();
     init_utils3();
@@ -73228,20 +73279,20 @@ var init_studio2 = __esm({
       const files = imports.map((it, index6) => ({
         // get the file name from the path
         name: it.split("/").pop() || `schema${index6}.ts`,
-        content: import_fs8.default.readFileSync(it, "utf-8")
+        content: fs4.readFileSync(it, "utf-8")
       }));
       const { unregister } = await safeRegister();
       for (let i6 = 0; i6 < imports.length; i6++) {
         const it = imports[i6];
-        const i0 = require(`${it}`);
+        const i0 = __require(`${it}`);
         const i0values = Object.entries(i0);
         i0values.forEach(([k5, t6]) => {
-          if ((0, import_drizzle_orm6.is)(t6, import_pg_core3.PgTable)) {
-            const schema6 = (0, import_pg_core3.getTableConfig)(t6).schema || "public";
+          if (is6(t6, PgTable2)) {
+            const schema6 = pgTableConfig(t6).schema || "public";
             pgSchema2[schema6] = pgSchema2[schema6] || {};
             pgSchema2[schema6][k5] = t6;
           }
-          if ((0, import_drizzle_orm6.is)(t6, import_relations2.Relations)) {
+          if (is6(t6, Relations2)) {
             relations[k5] = t6;
           }
         });
@@ -73258,19 +73309,19 @@ var init_studio2 = __esm({
       const files = imports.map((it, index6) => ({
         // get the file name from the path
         name: it.split("/").pop() || `schema${index6}.ts`,
-        content: import_fs8.default.readFileSync(it, "utf-8")
+        content: fs4.readFileSync(it, "utf-8")
       }));
       const { unregister } = await safeRegister();
       for (let i6 = 0; i6 < imports.length; i6++) {
         const it = imports[i6];
-        const i0 = require(`${it}`);
+        const i0 = __require(`${it}`);
         const i0values = Object.entries(i0);
         i0values.forEach(([k5, t6]) => {
-          if ((0, import_drizzle_orm6.is)(t6, import_mysql_core2.MySqlTable)) {
-            const schema6 = (0, import_mysql_core2.getTableConfig)(t6).schema || "public";
+          if (is6(t6, MySqlTable)) {
+            const schema6 = mysqlTableConfig(t6).schema || "public";
             mysqlSchema3[schema6][k5] = t6;
           }
-          if ((0, import_drizzle_orm6.is)(t6, import_relations2.Relations)) {
+          if (is6(t6, Relations2)) {
             relations[k5] = t6;
           }
         });
@@ -73287,19 +73338,19 @@ var init_studio2 = __esm({
       const files = imports.map((it, index6) => ({
         // get the file name from the path
         name: it.split("/").pop() || `schema${index6}.ts`,
-        content: import_fs8.default.readFileSync(it, "utf-8")
+        content: fs4.readFileSync(it, "utf-8")
       }));
       const { unregister } = await safeRegister();
       for (let i6 = 0; i6 < imports.length; i6++) {
         const it = imports[i6];
-        const i0 = require(`${it}`);
+        const i0 = __require(`${it}`);
         const i0values = Object.entries(i0);
         i0values.forEach(([k5, t6]) => {
-          if ((0, import_drizzle_orm6.is)(t6, import_sqlite_core2.SQLiteTable)) {
+          if (is6(t6, SQLiteTable)) {
             const schema6 = "public";
             sqliteSchema2[schema6][k5] = t6;
           }
-          if ((0, import_drizzle_orm6.is)(t6, import_relations2.Relations)) {
+          if (is6(t6, Relations2)) {
             relations[k5] = t6;
           }
         });
@@ -73316,19 +73367,19 @@ var init_studio2 = __esm({
       const files = imports.map((it, index6) => ({
         // get the file name from the path
         name: it.split("/").pop() || `schema${index6}.ts`,
-        content: import_fs8.default.readFileSync(it, "utf-8")
+        content: fs4.readFileSync(it, "utf-8")
       }));
       const { unregister } = await safeRegister();
       for (let i6 = 0; i6 < imports.length; i6++) {
         const it = imports[i6];
-        const i0 = require(`${it}`);
+        const i0 = __require(`${it}`);
         const i0values = Object.entries(i0);
         i0values.forEach(([k5, t6]) => {
-          if ((0, import_drizzle_orm6.is)(t6, import_singlestore_core2.SingleStoreTable)) {
-            const schema6 = (0, import_singlestore_core2.getTableConfig)(t6).schema || "public";
+          if (is6(t6, SingleStoreTable)) {
+            const schema6 = singlestoreTableConfig(t6).schema || "public";
             singlestoreSchema2[schema6][k5] = t6;
           }
-          if ((0, import_drizzle_orm6.is)(t6, import_relations2.Relations)) {
+          if (is6(t6, Relations2)) {
             relations[k5] = t6;
           }
         });
@@ -73341,14 +73392,14 @@ var init_studio2 = __esm({
       Object.entries(schema6).map(([schema7, tables]) => {
         Object.entries(tables).map(([, table6]) => {
           let tableConfig;
-          if ((0, import_drizzle_orm6.is)(table6, import_pg_core3.PgTable)) {
-            tableConfig = (0, import_pg_core3.getTableConfig)(table6);
-          } else if ((0, import_drizzle_orm6.is)(table6, import_mysql_core2.MySqlTable)) {
-            tableConfig = (0, import_mysql_core2.getTableConfig)(table6);
-          } else if ((0, import_drizzle_orm6.is)(table6, import_sqlite_core2.SQLiteTable)) {
-            tableConfig = (0, import_sqlite_core2.getTableConfig)(table6);
+          if (is6(table6, PgTable2)) {
+            tableConfig = pgTableConfig(table6);
+          } else if (is6(table6, MySqlTable)) {
+            tableConfig = mysqlTableConfig(table6);
+          } else if (is6(table6, SQLiteTable)) {
+            tableConfig = sqliteTableConfig(table6);
           } else {
-            tableConfig = (0, import_singlestore_core2.getTableConfig)(table6);
+            tableConfig = singlestoreTableConfig(table6);
           }
           tableConfig.columns.map((column6) => {
             if (column6.defaultFn) {
@@ -73383,7 +73434,7 @@ var init_studio2 = __esm({
       } else {
         dbUrl = `postgresql://${credentials2.user}:${credentials2.password}@${credentials2.host}:${credentials2.port}/${credentials2.database}`;
       }
-      const dbHash = (0, import_crypto7.createHash)("sha256").update(dbUrl).digest("hex");
+      const dbHash = createHash3("sha256").update(dbUrl).digest("hex");
       return {
         dbHash,
         dialect: "postgresql",
@@ -73408,7 +73459,7 @@ var init_studio2 = __esm({
       } else {
         dbUrl = `mysql://${credentials2.user}:${credentials2.password}@${credentials2.host}:${credentials2.port}/${credentials2.database}`;
       }
-      const dbHash = (0, import_crypto7.createHash)("sha256").update(dbUrl).digest("hex");
+      const dbHash = createHash3("sha256").update(dbUrl).digest("hex");
       return {
         dbHash,
         dialect: "mysql",
@@ -73429,7 +73480,7 @@ var init_studio2 = __esm({
         const { connectToD1: connectToD12 } = await Promise.resolve().then(() => (init_connections(), connections_exports));
         const sqliteDB2 = await connectToD12(credentials2.binding);
         const dbUrl2 = "d1://binding";
-        const dbHash2 = (0, import_crypto7.createHash)("sha256").update(dbUrl2).digest("hex");
+        const dbHash2 = createHash3("sha256").update(dbUrl2).digest("hex");
         return {
           dbHash: dbHash2,
           dialect: "sqlite",
@@ -73457,7 +73508,7 @@ var init_studio2 = __esm({
       } else {
         dbUrl = credentials2.url;
       }
-      const dbHash = (0, import_crypto7.createHash)("sha256").update(dbUrl).digest("hex");
+      const dbHash = createHash3("sha256").update(dbUrl).digest("hex");
       return {
         dbHash,
         dialect: "sqlite",
@@ -73477,7 +73528,7 @@ var init_studio2 = __esm({
       const sqliteDB = await connectToLibSQL2(credentials2);
       const customDefaults = getCustomDefaults(sqliteSchema2, casing2);
       let dbUrl = `turso://${credentials2.url}/${credentials2.authToken}`;
-      const dbHash = (0, import_crypto7.createHash)("sha256").update(dbUrl).digest("hex");
+      const dbHash = createHash3("sha256").update(dbUrl).digest("hex");
       return {
         dbHash,
         dialect: "sqlite",
@@ -73502,7 +73553,7 @@ var init_studio2 = __esm({
       } else {
         dbUrl = `singlestore://${credentials2.user}:${credentials2.password}@${credentials2.host}:${credentials2.port}/${credentials2.database}`;
       }
-      const dbHash = (0, import_crypto7.createHash)("sha256").update(dbUrl).digest("hex");
+      const dbHash = createHash3("sha256").update(dbUrl).digest("hex");
       return {
         dbHash,
         dialect: "singlestore",
@@ -73521,7 +73572,7 @@ var init_studio2 = __esm({
       const relations = Object.values(tablesConfig.tables).map(
         (it) => Object.entries(it.relations).map(([name, relation]) => {
           try {
-            const normalized = (0, import_relations2.normalizeRelation)(
+            const normalized = normalizeRelation(
               tablesConfig.tables,
               tablesConfig.tableNamesMap,
               relation
@@ -73532,21 +73583,21 @@ var init_studio2 = __esm({
             const fields = normalized.fields.map((it2) => getColumnCasing(it2, casing2)).flat();
             const refColumns = normalized.references.map((it2) => getColumnCasing(it2, casing2)).flat();
             let refSchema;
-            if ((0, import_drizzle_orm6.is)(refTable, import_pg_core3.PgTable)) {
-              refSchema = (0, import_pg_core3.getTableConfig)(refTable).schema;
-            } else if ((0, import_drizzle_orm6.is)(refTable, import_mysql_core2.MySqlTable)) {
-              refSchema = (0, import_mysql_core2.getTableConfig)(refTable).schema;
-            } else if ((0, import_drizzle_orm6.is)(refTable, import_sqlite_core2.SQLiteTable)) {
+            if (is6(refTable, PgTable2)) {
+              refSchema = pgTableConfig(refTable).schema;
+            } else if (is6(refTable, MySqlTable)) {
+              refSchema = mysqlTableConfig(refTable).schema;
+            } else if (is6(refTable, SQLiteTable)) {
               refSchema = void 0;
-            } else if ((0, import_drizzle_orm6.is)(refTable, import_singlestore_core2.SingleStoreTable)) {
-              refSchema = (0, import_singlestore_core2.getTableConfig)(refTable).schema;
+            } else if (is6(refTable, SingleStoreTable)) {
+              refSchema = singlestoreTableConfig(refTable).schema;
             } else {
               throw new Error("unsupported dialect");
             }
             let type;
-            if ((0, import_drizzle_orm6.is)(rel, import_relations2.One)) {
+            if (is6(rel, One)) {
               type = "one";
-            } else if ((0, import_drizzle_orm6.is)(rel, import_relations2.Many)) {
+            } else if (is6(rel, Many)) {
               type = "many";
             } else {
               throw new Error("unsupported relation type");
@@ -73675,9 +73726,9 @@ var init_studio2 = __esm({
         ),
         ...relations
       };
-      const relationsConfig = (0, import_relations2.extractTablesRelationalConfig)(
+      const relationsConfig = extractTablesRelationalConfig(
         relationalSchema,
-        import_relations2.createTableRelationsHelpers
+        createTableRelationsHelpers
       );
       app.post("/", zValidator("json", schema5), async (c5) => {
         const body = c5.req.valid("json");
@@ -73752,7 +73803,7 @@ var init_studio2 = __esm({
           serve(
             {
               fetch: app.fetch,
-              createServer: params.key ? import_node_https2.createServer : void 0,
+              createServer: params.key ? createServer : void 0,
               hostname: params.host,
               port: params.port,
               serverOptions: {
@@ -73774,22 +73825,22 @@ __export(sqliteImports_exports, {
   prepareFromExports: () => prepareFromExports2,
   prepareFromSqliteImports: () => prepareFromSqliteImports
 });
-var import_drizzle_orm7, import_sqlite_core3, prepareFromExports2, prepareFromSqliteImports;
+import { is as is7 } from "drizzle-orm";
+import { SQLiteTable as SQLiteTable2, SQLiteView as SQLiteView3 } from "drizzle-orm/sqlite-core";
+var prepareFromExports2, prepareFromSqliteImports;
 var init_sqliteImports = __esm({
   "src/serializer/sqliteImports.ts"() {
     "use strict";
-    import_drizzle_orm7 = require("drizzle-orm");
-    import_sqlite_core3 = require("drizzle-orm/sqlite-core");
     init_utils3();
-    prepareFromExports2 = (exports2) => {
+    prepareFromExports2 = (exports) => {
       const tables = [];
       const views = [];
-      const i0values = Object.values(exports2);
+      const i0values = Object.values(exports);
       i0values.forEach((t6) => {
-        if ((0, import_drizzle_orm7.is)(t6, import_sqlite_core3.SQLiteTable)) {
+        if (is7(t6, SQLiteTable2)) {
           tables.push(t6);
         }
-        if ((0, import_drizzle_orm7.is)(t6, import_sqlite_core3.SQLiteView)) {
+        if (is7(t6, SQLiteView3)) {
           views.push(t6);
         }
       });
@@ -73801,7 +73852,7 @@ var init_sqliteImports = __esm({
       const { unregister } = await safeRegister();
       for (let i6 = 0; i6 < imports.length; i6++) {
         const it = imports[i6];
-        const i0 = require(`${it}`);
+        const i0 = __require(`${it}`);
         const prepared = prepareFromExports2(i0);
         tables.push(...prepared.tables);
         views.push(...prepared.views);
@@ -73818,22 +73869,22 @@ __export(mysqlImports_exports, {
   prepareFromExports: () => prepareFromExports3,
   prepareFromMySqlImports: () => prepareFromMySqlImports
 });
-var import_drizzle_orm8, import_mysql_core3, prepareFromExports3, prepareFromMySqlImports;
+import { is as is8 } from "drizzle-orm";
+import { MySqlTable as MySqlTable2, MySqlView as MySqlView3 } from "drizzle-orm/mysql-core";
+var prepareFromExports3, prepareFromMySqlImports;
 var init_mysqlImports = __esm({
   "src/serializer/mysqlImports.ts"() {
     "use strict";
-    import_drizzle_orm8 = require("drizzle-orm");
-    import_mysql_core3 = require("drizzle-orm/mysql-core");
     init_utils3();
-    prepareFromExports3 = (exports2) => {
+    prepareFromExports3 = (exports) => {
       const tables = [];
       const views = [];
-      const i0values = Object.values(exports2);
+      const i0values = Object.values(exports);
       i0values.forEach((t6) => {
-        if ((0, import_drizzle_orm8.is)(t6, import_mysql_core3.MySqlTable)) {
+        if (is8(t6, MySqlTable2)) {
           tables.push(t6);
         }
-        if ((0, import_drizzle_orm8.is)(t6, import_mysql_core3.MySqlView)) {
+        if (is8(t6, MySqlView3)) {
           views.push(t6);
         }
       });
@@ -73845,7 +73896,7 @@ var init_mysqlImports = __esm({
       const { unregister } = await safeRegister();
       for (let i6 = 0; i6 < imports.length; i6++) {
         const it = imports[i6];
-        const i0 = require(`${it}`);
+        const i0 = __require(`${it}`);
         const prepared = prepareFromExports3(i0);
         tables.push(...prepared.tables);
         views.push(...prepared.views);
@@ -74165,18 +74216,18 @@ __export(singlestoreImports_exports, {
   prepareFromExports: () => prepareFromExports4,
   prepareFromSingleStoreImports: () => prepareFromSingleStoreImports
 });
-var import_drizzle_orm9, import_singlestore_core3, prepareFromExports4, prepareFromSingleStoreImports;
+import { is as is9 } from "drizzle-orm";
+import { SingleStoreTable as SingleStoreTable2 } from "drizzle-orm/singlestore-core";
+var prepareFromExports4, prepareFromSingleStoreImports;
 var init_singlestoreImports = __esm({
   "src/serializer/singlestoreImports.ts"() {
     "use strict";
-    import_drizzle_orm9 = require("drizzle-orm");
-    import_singlestore_core3 = require("drizzle-orm/singlestore-core");
     init_utils3();
-    prepareFromExports4 = (exports2) => {
+    prepareFromExports4 = (exports) => {
       const tables = [];
-      const i0values = Object.values(exports2);
+      const i0values = Object.values(exports);
       i0values.forEach((t6) => {
-        if ((0, import_drizzle_orm9.is)(t6, import_singlestore_core3.SingleStoreTable)) {
+        if (is9(t6, SingleStoreTable2)) {
           tables.push(t6);
         }
       });
@@ -74190,7 +74241,7 @@ var init_singlestoreImports = __esm({
       const { unregister } = await safeRegister();
       for (let i6 = 0; i6 < imports.length; i6++) {
         const it = imports[i6];
-        const i0 = require(`${it}`);
+        const i0 = __require(`${it}`);
         const prepared = prepareFromExports4(i0);
         tables.push(...prepared.tables);
       }
@@ -74588,35 +74639,17 @@ var init_singlestoreIntrospect = __esm({
 });
 
 // src/api.ts
-var api_exports = {};
-__export(api_exports, {
-  generateDrizzleJson: () => generateDrizzleJson,
-  generateMigration: () => generateMigration,
-  generateMySQLDrizzleJson: () => generateMySQLDrizzleJson,
-  generateMySQLMigration: () => generateMySQLMigration,
-  generateSQLiteDrizzleJson: () => generateSQLiteDrizzleJson,
-  generateSQLiteMigration: () => generateSQLiteMigration,
-  generateSingleStoreDrizzleJson: () => generateSingleStoreDrizzleJson,
-  generateSingleStoreMigration: () => generateSingleStoreMigration,
-  pushMySQLSchema: () => pushMySQLSchema,
-  pushSQLiteSchema: () => pushSQLiteSchema,
-  pushSchema: () => pushSchema,
-  pushSingleStoreSchema: () => pushSingleStoreSchema,
-  startStudioMySQLServer: () => startStudioMySQLServer,
-  startStudioPostgresServer: () => startStudioPostgresServer,
-  startStudioSQLiteServer: () => startStudioSQLiteServer,
-  startStudioSingleStoreServer: () => startStudioSingleStoreServer,
-  upPgSnapshot: () => upPgSnapshot
-});
-module.exports = __toCommonJS(api_exports);
-var import_crypto8 = require("crypto");
-var import_drizzle_orm10 = require("drizzle-orm");
-var import_mysql_core4 = require("drizzle-orm/mysql-core");
-var import_pg_core4 = require("drizzle-orm/pg-core");
-var import_relations3 = require("drizzle-orm/relations");
-var import_singlestore_core4 = require("drizzle-orm/singlestore-core");
-var import_sqlite_core4 = require("drizzle-orm/sqlite-core");
 init_migrate();
+import { randomUUID } from "crypto";
+import { is as is10 } from "drizzle-orm";
+import { getTableConfig as mysqlTableConfig2, MySqlTable as MySqlTable3 } from "drizzle-orm/mysql-core";
+import { getTableConfig as pgTableConfig2, PgTable as PgTable3 } from "drizzle-orm/pg-core";
+import { Relations as Relations3 } from "drizzle-orm/relations";
+import {
+  getTableConfig as singlestoreTableConfig2,
+  SingleStoreTable as SingleStoreTable3
+} from "drizzle-orm/singlestore-core";
+import { SQLiteTable as SQLiteTable3 } from "drizzle-orm/sqlite-core";
 
 // src/cli/commands/pgIntrospect.ts
 var import_hanji3 = __toESM(require_hanji());
@@ -74911,7 +74944,7 @@ init_mjs();
 init_global();
 
 // src/introspect-sqlite.ts
-var import_casing2 = require("drizzle-orm/casing");
+import { toCamelCase as toCamelCase2 } from "drizzle-orm/casing";
 
 // ../node_modules/.pnpm/camelcase@7.0.1/node_modules/camelcase/index.js
 var UPPERCASE = /[\p{Lu}]/u;
@@ -75074,43 +75107,43 @@ init_sqliteSchema();
 init_sqliteSerializer();
 
 // ../node_modules/.pnpm/env-paths@3.0.0/node_modules/env-paths/index.js
-var import_node_path = __toESM(require("path"), 1);
-var import_node_os2 = __toESM(require("os"), 1);
-var import_node_process2 = __toESM(require("process"), 1);
-var homedir = import_node_os2.default.homedir();
-var tmpdir = import_node_os2.default.tmpdir();
-var { env: env2 } = import_node_process2.default;
+import path2 from "path";
+import os2 from "os";
+import process3 from "process";
+var homedir = os2.homedir();
+var tmpdir = os2.tmpdir();
+var { env: env2 } = process3;
 var macos = (name) => {
-  const library = import_node_path.default.join(homedir, "Library");
+  const library = path2.join(homedir, "Library");
   return {
-    data: import_node_path.default.join(library, "Application Support", name),
-    config: import_node_path.default.join(library, "Preferences", name),
-    cache: import_node_path.default.join(library, "Caches", name),
-    log: import_node_path.default.join(library, "Logs", name),
-    temp: import_node_path.default.join(tmpdir, name)
+    data: path2.join(library, "Application Support", name),
+    config: path2.join(library, "Preferences", name),
+    cache: path2.join(library, "Caches", name),
+    log: path2.join(library, "Logs", name),
+    temp: path2.join(tmpdir, name)
   };
 };
 var windows = (name) => {
-  const appData = env2.APPDATA || import_node_path.default.join(homedir, "AppData", "Roaming");
-  const localAppData = env2.LOCALAPPDATA || import_node_path.default.join(homedir, "AppData", "Local");
+  const appData = env2.APPDATA || path2.join(homedir, "AppData", "Roaming");
+  const localAppData = env2.LOCALAPPDATA || path2.join(homedir, "AppData", "Local");
   return {
     // Data/config/cache/log are invented by me as Windows isn't opinionated about this
-    data: import_node_path.default.join(localAppData, name, "Data"),
-    config: import_node_path.default.join(appData, name, "Config"),
-    cache: import_node_path.default.join(localAppData, name, "Cache"),
-    log: import_node_path.default.join(localAppData, name, "Log"),
-    temp: import_node_path.default.join(tmpdir, name)
+    data: path2.join(localAppData, name, "Data"),
+    config: path2.join(appData, name, "Config"),
+    cache: path2.join(localAppData, name, "Cache"),
+    log: path2.join(localAppData, name, "Log"),
+    temp: path2.join(tmpdir, name)
   };
 };
 var linux = (name) => {
-  const username = import_node_path.default.basename(homedir);
+  const username = path2.basename(homedir);
   return {
-    data: import_node_path.default.join(env2.XDG_DATA_HOME || import_node_path.default.join(homedir, ".local", "share"), name),
-    config: import_node_path.default.join(env2.XDG_CONFIG_HOME || import_node_path.default.join(homedir, ".config"), name),
-    cache: import_node_path.default.join(env2.XDG_CACHE_HOME || import_node_path.default.join(homedir, ".cache"), name),
+    data: path2.join(env2.XDG_DATA_HOME || path2.join(homedir, ".local", "share"), name),
+    config: path2.join(env2.XDG_CONFIG_HOME || path2.join(homedir, ".config"), name),
+    cache: path2.join(env2.XDG_CACHE_HOME || path2.join(homedir, ".cache"), name),
     // https://wiki.debian.org/XDGBaseDirectorySpecification#state
-    log: import_node_path.default.join(env2.XDG_STATE_HOME || import_node_path.default.join(homedir, ".local", "state"), name),
-    temp: import_node_path.default.join(tmpdir, username, name)
+    log: path2.join(env2.XDG_STATE_HOME || path2.join(homedir, ".local", "state"), name),
+    temp: path2.join(tmpdir, username, name)
   };
 };
 function envPaths(name, { suffix = "nodejs" } = {}) {
@@ -75120,23 +75153,23 @@ function envPaths(name, { suffix = "nodejs" } = {}) {
   if (suffix) {
     name += `-${suffix}`;
   }
-  if (import_node_process2.default.platform === "darwin") {
+  if (process3.platform === "darwin") {
     return macos(name);
   }
-  if (import_node_process2.default.platform === "win32") {
+  if (process3.platform === "win32") {
     return windows(name);
   }
   return linux(name);
 }
 
 // src/utils/certs.ts
-var import_fs2 = require("fs");
-var import_promises = require("fs/promises");
-var import_node_child_process = require("child_process");
-var import_path2 = require("path");
+import { mkdirSync } from "fs";
+import { access, readFile } from "fs/promises";
+import { exec } from "child_process";
+import { join } from "path";
 function runCommand(command, options = {}) {
   return new Promise((resolve) => {
-    (0, import_node_child_process.exec)(command, options, (error2) => {
+    exec(command, options, (error2) => {
       return resolve({ exitCode: error2?.code ?? 0 });
     });
   });
@@ -75147,17 +75180,17 @@ var certs = async () => {
     const p5 = envPaths("drizzle-studio", {
       suffix: ""
     });
-    (0, import_fs2.mkdirSync)(p5.data, { recursive: true });
-    const keyPath = (0, import_path2.join)(p5.data, "localhost-key.pem");
-    const certPath = (0, import_path2.join)(p5.data, "localhost.pem");
+    mkdirSync(p5.data, { recursive: true });
+    const keyPath = join(p5.data, "localhost-key.pem");
+    const certPath = join(p5.data, "localhost.pem");
     try {
-      await Promise.all([(0, import_promises.access)(keyPath), (0, import_promises.access)(certPath)]);
+      await Promise.all([access(keyPath), access(certPath)]);
     } catch (e6) {
       await runCommand(`mkcert localhost`, { cwd: p5.data });
     }
     const [key, cert] = await Promise.all([
-      (0, import_promises.readFile)(keyPath, { encoding: "utf-8" }),
-      (0, import_promises.readFile)(certPath, { encoding: "utf-8" })
+      readFile(keyPath, { encoding: "utf-8" }),
+      readFile(certPath, { encoding: "utf-8" })
     ]);
     return key && cert ? { key, cert } : null;
   }
@@ -75167,7 +75200,7 @@ var certs = async () => {
 // src/api.ts
 var generateDrizzleJson = (imports, prevId, schemaFilters, casing2) => {
   const prepared = prepareFromExports(imports);
-  const id = (0, import_crypto8.randomUUID)();
+  const id = randomUUID();
   const snapshot = generatePgSnapshot(
     prepared.tables,
     prepared.enums,
@@ -75211,7 +75244,7 @@ var generateMigration = async (prev, cur) => {
 };
 var pushSchema = async (imports, drizzleInstance, schemaFilters, tablesFilter, extensionsFilters) => {
   const { applyPgSnapshotsDiff: applyPgSnapshotsDiff2 } = await Promise.resolve().then(() => (init_snapshotsDiffer(), snapshotsDiffer_exports));
-  const { sql } = require("drizzle-orm");
+  const { sql } = await import("drizzle-orm");
   const filters = (tablesFilter ?? []).concat(
     getTablesFilterByExtensions({ extensionsFilters, dialect: "postgresql" })
   );
@@ -75265,12 +75298,12 @@ var startStudioPostgresServer = async (imports, credentials2, options) => {
   const pgSchema2 = {};
   const relations = {};
   Object.entries(imports).forEach(([k5, t6]) => {
-    if ((0, import_drizzle_orm10.is)(t6, import_pg_core4.PgTable)) {
-      const schema6 = (0, import_pg_core4.getTableConfig)(t6).schema || "public";
+    if (is10(t6, PgTable3)) {
+      const schema6 = pgTableConfig2(t6).schema || "public";
       pgSchema2[schema6] = pgSchema2[schema6] || {};
       pgSchema2[schema6][k5] = t6;
     }
-    if ((0, import_drizzle_orm10.is)(t6, import_relations3.Relations)) {
+    if (is10(t6, Relations3)) {
       relations[k5] = t6;
     }
   });
@@ -75280,7 +75313,7 @@ var startStudioPostgresServer = async (imports, credentials2, options) => {
 var generateSQLiteDrizzleJson = async (imports, prevId, casing2) => {
   const { prepareFromExports: prepareFromExports5 } = await Promise.resolve().then(() => (init_sqliteImports(), sqliteImports_exports));
   const prepared = prepareFromExports5(imports);
-  const id = (0, import_crypto8.randomUUID)();
+  const id = randomUUID();
   const snapshot = generateSqliteSnapshot(prepared.tables, prepared.views, casing2);
   return {
     ...snapshot,
@@ -75307,7 +75340,7 @@ var generateSQLiteMigration = async (prev, cur) => {
 };
 var pushSQLiteSchema = async (imports, drizzleInstance) => {
   const { applySqliteSnapshotsDiff: applySqliteSnapshotsDiff2 } = await Promise.resolve().then(() => (init_snapshotsDiffer(), snapshotsDiffer_exports));
-  const { sql } = require("drizzle-orm");
+  const { sql } = await import("drizzle-orm");
   const db = {
     query: async (query, params) => {
       const res = drizzleInstance.all(sql.raw(query));
@@ -75359,12 +75392,12 @@ var startStudioSQLiteServer = async (imports, credentials2, options) => {
   const sqliteSchema2 = {};
   const relations = {};
   Object.entries(imports).forEach(([k5, t6]) => {
-    if ((0, import_drizzle_orm10.is)(t6, import_sqlite_core4.SQLiteTable)) {
+    if (is10(t6, SQLiteTable3)) {
       const schema6 = "public";
       sqliteSchema2[schema6] = sqliteSchema2[schema6] || {};
       sqliteSchema2[schema6][k5] = t6;
     }
-    if ((0, import_drizzle_orm10.is)(t6, import_relations3.Relations)) {
+    if (is10(t6, Relations3)) {
       relations[k5] = t6;
     }
   });
@@ -75374,7 +75407,7 @@ var startStudioSQLiteServer = async (imports, credentials2, options) => {
 var generateMySQLDrizzleJson = async (imports, prevId, casing2) => {
   const { prepareFromExports: prepareFromExports5 } = await Promise.resolve().then(() => (init_mysqlImports(), mysqlImports_exports));
   const prepared = prepareFromExports5(imports);
-  const id = (0, import_crypto8.randomUUID)();
+  const id = randomUUID();
   const snapshot = generateMySqlSnapshot(prepared.tables, prepared.views, casing2);
   return {
     ...snapshot,
@@ -75403,7 +75436,7 @@ var pushMySQLSchema = async (imports, drizzleInstance, databaseName) => {
   const { applyMysqlSnapshotsDiff: applyMysqlSnapshotsDiff2 } = await Promise.resolve().then(() => (init_snapshotsDiffer(), snapshotsDiffer_exports));
   const { logSuggestionsAndReturn: logSuggestionsAndReturn4 } = await Promise.resolve().then(() => (init_mysqlPushUtils(), mysqlPushUtils_exports));
   const { mysqlPushIntrospect: mysqlPushIntrospect2 } = await Promise.resolve().then(() => (init_mysqlIntrospect(), mysqlIntrospect_exports));
-  const { sql } = require("drizzle-orm");
+  const { sql } = await import("drizzle-orm");
   const db = {
     query: async (query, params) => {
       const res = await drizzleInstance.execute(sql.raw(query));
@@ -75447,12 +75480,12 @@ var startStudioMySQLServer = async (imports, credentials2, options) => {
   const mysqlSchema3 = {};
   const relations = {};
   Object.entries(imports).forEach(([k5, t6]) => {
-    if ((0, import_drizzle_orm10.is)(t6, import_mysql_core4.MySqlTable)) {
-      const schema6 = (0, import_mysql_core4.getTableConfig)(t6).schema || "public";
+    if (is10(t6, MySqlTable3)) {
+      const schema6 = mysqlTableConfig2(t6).schema || "public";
       mysqlSchema3[schema6] = mysqlSchema3[schema6] || {};
       mysqlSchema3[schema6][k5] = t6;
     }
-    if ((0, import_drizzle_orm10.is)(t6, import_relations3.Relations)) {
+    if (is10(t6, Relations3)) {
       relations[k5] = t6;
     }
   });
@@ -75462,7 +75495,7 @@ var startStudioMySQLServer = async (imports, credentials2, options) => {
 var generateSingleStoreDrizzleJson = async (imports, prevId, casing2) => {
   const { prepareFromExports: prepareFromExports5 } = await Promise.resolve().then(() => (init_singlestoreImports(), singlestoreImports_exports));
   const prepared = prepareFromExports5(imports);
-  const id = (0, import_crypto8.randomUUID)();
+  const id = randomUUID();
   const snapshot = generateSingleStoreSnapshot(
     prepared.tables,
     /* prepared.views, */
@@ -75496,7 +75529,7 @@ var pushSingleStoreSchema = async (imports, drizzleInstance, databaseName) => {
   const { applySingleStoreSnapshotsDiff: applySingleStoreSnapshotsDiff2 } = await Promise.resolve().then(() => (init_snapshotsDiffer(), snapshotsDiffer_exports));
   const { logSuggestionsAndReturn: logSuggestionsAndReturn4 } = await Promise.resolve().then(() => (init_singlestorePushUtils(), singlestorePushUtils_exports));
   const { singlestorePushIntrospect: singlestorePushIntrospect2 } = await Promise.resolve().then(() => (init_singlestoreIntrospect(), singlestoreIntrospect_exports));
-  const { sql } = require("drizzle-orm");
+  const { sql } = await import("drizzle-orm");
   const db = {
     query: async (query) => {
       const res = await drizzleInstance.execute(sql.raw(query));
@@ -75541,12 +75574,12 @@ var startStudioSingleStoreServer = async (imports, credentials2, options) => {
   const singleStoreSchema = {};
   const relations = {};
   Object.entries(imports).forEach(([k5, t6]) => {
-    if ((0, import_drizzle_orm10.is)(t6, import_singlestore_core4.SingleStoreTable)) {
-      const schema6 = (0, import_singlestore_core4.getTableConfig)(t6).schema || "public";
+    if (is10(t6, SingleStoreTable3)) {
+      const schema6 = singlestoreTableConfig2(t6).schema || "public";
       singleStoreSchema[schema6] = singleStoreSchema[schema6] || {};
       singleStoreSchema[schema6][k5] = t6;
     }
-    if ((0, import_drizzle_orm10.is)(t6, import_relations3.Relations)) {
+    if (is10(t6, Relations3)) {
       relations[k5] = t6;
     }
   });
@@ -75582,8 +75615,7 @@ var upPgSnapshot = (snapshot) => {
   }
   return snapshot;
 };
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
+export {
   generateDrizzleJson,
   generateMigration,
   generateMySQLDrizzleJson,
@@ -75601,7 +75633,7 @@ var upPgSnapshot = (snapshot) => {
   startStudioSQLiteServer,
   startStudioSingleStoreServer,
   upPgSnapshot
-});
+};
 /*! Bundled license information:
 
 web-streams-polyfill/dist/ponyfill.es2018.js:
