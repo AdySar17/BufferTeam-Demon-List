@@ -18,54 +18,122 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var query_exports = {};
 __export(query_exports, {
-  useLiveQuery: () => useLiveQuery
+  GelRelationalQuery: () => GelRelationalQuery,
+  RelationalQueryBuilder: () => RelationalQueryBuilder
 });
 module.exports = __toCommonJS(query_exports);
-var import_expo_sqlite = require("expo-sqlite");
-var import_react = require("react");
-var import_entity = require("../entity.cjs");
-var import_sql = require("../sql/sql.cjs");
-var import_sqlite_core = require("../sqlite-core/index.cjs");
-var import_query = require("../sqlite-core/query-builders/query.cjs");
-var import_subquery = require("../subquery.cjs");
-const useLiveQuery = (query, deps = []) => {
-  const [data, setData] = (0, import_react.useState)(
-    (0, import_entity.is)(query, import_query.SQLiteRelationalQuery) && query.mode === "first" ? void 0 : []
-  );
-  const [error, setError] = (0, import_react.useState)();
-  const [updatedAt, setUpdatedAt] = (0, import_react.useState)();
-  (0, import_react.useEffect)(() => {
-    const entity = (0, import_entity.is)(query, import_query.SQLiteRelationalQuery) ? query.table : query.config.table;
-    if ((0, import_entity.is)(entity, import_subquery.Subquery) || (0, import_entity.is)(entity, import_sql.SQL)) {
-      setError(new Error("Selecting from subqueries and SQL are not supported in useLiveQuery"));
-      return;
-    }
-    let listener;
-    const handleData = (data2) => {
-      setData(data2);
-      setUpdatedAt(/* @__PURE__ */ new Date());
-    };
-    query.then(handleData).catch(setError);
-    if ((0, import_entity.is)(entity, import_sqlite_core.SQLiteTable) || (0, import_entity.is)(entity, import_sqlite_core.SQLiteView)) {
-      const config = (0, import_entity.is)(entity, import_sqlite_core.SQLiteTable) ? (0, import_sqlite_core.getTableConfig)(entity) : (0, import_sqlite_core.getViewConfig)(entity);
-      listener = (0, import_expo_sqlite.addDatabaseChangeListener)(({ tableName }) => {
-        if (config.name === tableName) {
-          query.then(handleData).catch(setError);
+var import_entity = require("../../entity.cjs");
+var import_query_promise = require("../../query-promise.cjs");
+var import_relations = require("../../relations.cjs");
+var import_tracing = require("../../tracing.cjs");
+class RelationalQueryBuilder {
+  constructor(fullSchema, schema, tableNamesMap, table, tableConfig, dialect, session) {
+    this.fullSchema = fullSchema;
+    this.schema = schema;
+    this.tableNamesMap = tableNamesMap;
+    this.table = table;
+    this.tableConfig = tableConfig;
+    this.dialect = dialect;
+    this.session = session;
+  }
+  static [import_entity.entityKind] = "GelRelationalQueryBuilder";
+  findMany(config) {
+    return new GelRelationalQuery(
+      this.fullSchema,
+      this.schema,
+      this.tableNamesMap,
+      this.table,
+      this.tableConfig,
+      this.dialect,
+      this.session,
+      config ? config : {},
+      "many"
+    );
+  }
+  findFirst(config) {
+    return new GelRelationalQuery(
+      this.fullSchema,
+      this.schema,
+      this.tableNamesMap,
+      this.table,
+      this.tableConfig,
+      this.dialect,
+      this.session,
+      config ? { ...config, limit: 1 } : { limit: 1 },
+      "first"
+    );
+  }
+}
+class GelRelationalQuery extends import_query_promise.QueryPromise {
+  constructor(fullSchema, schema, tableNamesMap, table, tableConfig, dialect, session, config, mode) {
+    super();
+    this.fullSchema = fullSchema;
+    this.schema = schema;
+    this.tableNamesMap = tableNamesMap;
+    this.table = table;
+    this.tableConfig = tableConfig;
+    this.dialect = dialect;
+    this.session = session;
+    this.config = config;
+    this.mode = mode;
+  }
+  static [import_entity.entityKind] = "GelRelationalQuery";
+  /** @internal */
+  _prepare(name) {
+    return import_tracing.tracer.startActiveSpan("drizzle.prepareQuery", () => {
+      const { query, builtQuery } = this._toSQL();
+      return this.session.prepareQuery(
+        builtQuery,
+        void 0,
+        name,
+        true,
+        (rawRows, mapColumnValue) => {
+          const rows = rawRows.map(
+            (row) => (0, import_relations.mapRelationalRow)(this.schema, this.tableConfig, row, query.selection, mapColumnValue)
+          );
+          if (this.mode === "first") {
+            return rows[0];
+          }
+          return rows;
         }
-      });
-    }
-    return () => {
-      listener?.remove();
-    };
-  }, deps);
-  return {
-    data,
-    error,
-    updatedAt
-  };
-};
+      );
+    });
+  }
+  prepare(name) {
+    return this._prepare(name);
+  }
+  _getQuery() {
+    return this.dialect.buildRelationalQueryWithoutPK({
+      fullSchema: this.fullSchema,
+      schema: this.schema,
+      tableNamesMap: this.tableNamesMap,
+      table: this.table,
+      tableConfig: this.tableConfig,
+      queryConfig: this.config,
+      tableAlias: this.tableConfig.tsName
+    });
+  }
+  /** @internal */
+  getSQL() {
+    return this._getQuery().sql;
+  }
+  _toSQL() {
+    const query = this._getQuery();
+    const builtQuery = this.dialect.sqlToQuery(query.sql);
+    return { query, builtQuery };
+  }
+  toSQL() {
+    return this._toSQL().builtQuery;
+  }
+  execute() {
+    return import_tracing.tracer.startActiveSpan("drizzle.operation", () => {
+      return this._prepare().execute(void 0);
+    });
+  }
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  useLiveQuery
+  GelRelationalQuery,
+  RelationalQueryBuilder
 });
 //# sourceMappingURL=query.cjs.map
