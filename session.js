@@ -1,201 +1,116 @@
-import {
-  BeginTransactionCommand,
-  CommitTransactionCommand,
-  ExecuteStatementCommand,
-  RollbackTransactionCommand
-} from "@aws-sdk/client-rds-data";
-import { NoopCache } from "../../cache/core/cache.js";
-import { entityKind } from "../../entity.js";
-import {
-  PgPreparedQuery,
-  PgSession,
-  PgTransaction
-} from "../../pg-core/index.js";
-import { fillPlaceholders, sql } from "../../sql/sql.js";
-import { mapResultRow } from "../../utils.js";
-import { getValueFromDataApi, toValueParam } from "../common/index.js";
-class AwsDataApiPreparedQuery extends PgPreparedQuery {
-  constructor(client, queryString, params, typings, options, cache, queryMetadata, cacheConfig, fields, transactionId, _isResponseInArrayMode, customResultMapper) {
-    super({ sql: queryString, params }, cache, queryMetadata, cacheConfig);
+import { entityKind } from "../entity.js";
+import { NoopLogger } from "../logger.js";
+import { fillPlaceholders, sql } from "../sql/sql.js";
+import { SQLiteTransaction } from "../sqlite-core/index.js";
+import { SQLitePreparedQuery as PreparedQueryBase, SQLiteSession } from "../sqlite-core/session.js";
+import { mapResultRow } from "../utils.js";
+class SQLiteBunSession extends SQLiteSession {
+  constructor(client, dialect, schema, options = {}) {
+    super(dialect);
     this.client = client;
-    this.queryString = queryString;
-    this.params = params;
-    this.typings = typings;
-    this.options = options;
-    this.fields = fields;
-    this.transactionId = transactionId;
-    this._isResponseInArrayMode = _isResponseInArrayMode;
-    this.customResultMapper = customResultMapper;
-    this.rawQuery = new ExecuteStatementCommand({
-      sql: queryString,
-      parameters: [],
-      secretArn: options.secretArn,
-      resourceArn: options.resourceArn,
-      database: options.database,
-      transactionId,
-      includeResultMetadata: !fields && !customResultMapper
+    this.schema = schema;
+    this.logger = options.logger ?? new NoopLogger();
+  }
+  static [entityKind] = "SQLiteBunSession";
+  logger;
+  exec(query) {
+    this.client.exec(query);
+  }
+  prepareQuery(query, fields, executeMethod, isResponseInArrayMode, customResultMapper) {
+    const stmt = this.client.prepare(query.sql);
+    return new PreparedQuery(
+      stmt,
+      query,
+      this.logger,
+      fields,
+      executeMethod,
+      isResponseInArrayMode,
+      customResultMapper
+    );
+  }
+  transaction(transaction, config = {}) {
+    const tx = new SQLiteBunTransaction("sync", this.dialect, this, this.schema);
+    let result;
+    const nativeTx = this.client.transaction(() => {
+      result = transaction(tx);
     });
-  }
-  static [entityKind] = "AwsDataApiPreparedQuery";
-  rawQuery;
-  async execute(placeholderValues = {}) {
-    const { fields, joinsNotNullableMap, customResultMapper } = this;
-    const result = await this.values(placeholderValues);
-    if (!fields && !customResultMapper) {
-      const { columnMetadata, rows } = result;
-      if (!columnMetadata) {
-        return result;
-      }
-      const mappedRows = rows.map((sourceRow) => {
-        const row = {};
-        for (const [index, value] of sourceRow.entries()) {
-          const metadata = columnMetadata[index];
-          if (!metadata) {
-            throw new Error(
-              `Unexpected state: no column metadata found for index ${index}. Please report this issue on GitHub: https://github.com/drizzle-team/drizzle-orm/issues/new/choose`
-            );
-          }
-          if (!metadata.name) {
-            throw new Error(
-              `Unexpected state: no column name for index ${index} found in the column metadata. Please report this issue on GitHub: https://github.com/drizzle-team/drizzle-orm/issues/new/choose`
-            );
-          }
-          row[metadata.name] = value;
-        }
-        return row;
-      });
-      return Object.assign(result, { rows: mappedRows });
-    }
-    return customResultMapper ? customResultMapper(result.rows) : result.rows.map((row) => mapResultRow(fields, row, joinsNotNullableMap));
-  }
-  async all(placeholderValues) {
-    const result = await this.execute(placeholderValues);
-    if (!this.fields && !this.customResultMapper) {
-      return result.rows;
-    }
+    nativeTx[config.behavior ?? "deferred"]();
     return result;
   }
-  async values(placeholderValues = {}) {
-    const params = fillPlaceholders(this.params, placeholderValues ?? {});
-    this.rawQuery.input.parameters = params.map((param, index) => ({
-      name: `${index + 1}`,
-      ...toValueParam(param, this.typings[index])
-    }));
-    this.options.logger?.logQuery(this.rawQuery.input.sql, this.rawQuery.input.parameters);
-    const result = await this.queryWithCache(this.queryString, params, async () => {
-      return await this.client.send(this.rawQuery);
-    });
-    const rows = result.records?.map((row) => {
-      return row.map((field) => getValueFromDataApi(field));
-    }) ?? [];
-    return {
-      ...result,
-      rows
-    };
+}
+class SQLiteBunTransaction extends SQLiteTransaction {
+  static [entityKind] = "SQLiteBunTransaction";
+  transaction(transaction) {
+    const savepointName = `sp${this.nestedIndex}`;
+    const tx = new SQLiteBunTransaction("sync", this.dialect, this.session, this.schema, this.nestedIndex + 1);
+    this.session.run(sql.raw(`savepoint ${savepointName}`));
+    try {
+      const result = transaction(tx);
+      this.session.run(sql.raw(`release savepoint ${savepointName}`));
+      return result;
+    } catch (err) {
+      this.session.run(sql.raw(`rollback to savepoint ${savepointName}`));
+      throw err;
+    }
   }
-  /** @internal */
-  mapResultRows(records, columnMetadata) {
-    return records.map((record) => {
-      const row = {};
-      for (const [index, field] of record.entries()) {
-        const { name } = columnMetadata[index];
-        row[name ?? index] = getValueFromDataApi(field);
-      }
+}
+class PreparedQuery extends PreparedQueryBase {
+  constructor(stmt, query, logger, fields, executeMethod, _isResponseInArrayMode, customResultMapper) {
+    super("sync", executeMethod, query);
+    this.stmt = stmt;
+    this.logger = logger;
+    this.fields = fields;
+    this._isResponseInArrayMode = _isResponseInArrayMode;
+    this.customResultMapper = customResultMapper;
+  }
+  static [entityKind] = "SQLiteBunPreparedQuery";
+  run(placeholderValues) {
+    const params = fillPlaceholders(this.query.params, placeholderValues ?? {});
+    this.logger.logQuery(this.query.sql, params);
+    return this.stmt.run(...params);
+  }
+  all(placeholderValues) {
+    const { fields, query, logger, joinsNotNullableMap, stmt, customResultMapper } = this;
+    if (!fields && !customResultMapper) {
+      const params = fillPlaceholders(query.params, placeholderValues ?? {});
+      logger.logQuery(query.sql, params);
+      return stmt.all(...params);
+    }
+    const rows = this.values(placeholderValues);
+    if (customResultMapper) {
+      return customResultMapper(rows);
+    }
+    return rows.map((row) => mapResultRow(fields, row, joinsNotNullableMap));
+  }
+  get(placeholderValues) {
+    const params = fillPlaceholders(this.query.params, placeholderValues ?? {});
+    this.logger.logQuery(this.query.sql, params);
+    const row = this.stmt.values(...params)[0];
+    if (!row) {
+      return void 0;
+    }
+    const { fields, joinsNotNullableMap, customResultMapper } = this;
+    if (!fields && !customResultMapper) {
       return row;
-    });
+    }
+    if (customResultMapper) {
+      return customResultMapper([row]);
+    }
+    return mapResultRow(fields, row, joinsNotNullableMap);
+  }
+  values(placeholderValues) {
+    const params = fillPlaceholders(this.query.params, placeholderValues ?? {});
+    this.logger.logQuery(this.query.sql, params);
+    return this.stmt.values(...params);
   }
   /** @internal */
   isResponseInArrayMode() {
     return this._isResponseInArrayMode;
   }
 }
-class AwsDataApiSession extends PgSession {
-  constructor(client, dialect, schema, options, transactionId) {
-    super(dialect);
-    this.client = client;
-    this.schema = schema;
-    this.options = options;
-    this.transactionId = transactionId;
-    this.rawQuery = {
-      secretArn: options.secretArn,
-      resourceArn: options.resourceArn,
-      database: options.database
-    };
-    this.cache = options.cache ?? new NoopCache();
-  }
-  static [entityKind] = "AwsDataApiSession";
-  /** @internal */
-  rawQuery;
-  cache;
-  prepareQuery(query, fields, name, isResponseInArrayMode, customResultMapper, queryMetadata, cacheConfig, transactionId) {
-    return new AwsDataApiPreparedQuery(
-      this.client,
-      query.sql,
-      query.params,
-      query.typings ?? [],
-      this.options,
-      this.cache,
-      queryMetadata,
-      cacheConfig,
-      fields,
-      transactionId ?? this.transactionId,
-      isResponseInArrayMode,
-      customResultMapper
-    );
-  }
-  execute(query) {
-    return this.prepareQuery(
-      this.dialect.sqlToQuery(query),
-      void 0,
-      void 0,
-      false,
-      void 0,
-      void 0,
-      void 0,
-      this.transactionId
-    ).execute();
-  }
-  async transaction(transaction, config) {
-    const { transactionId } = await this.client.send(new BeginTransactionCommand(this.rawQuery));
-    const session = new AwsDataApiSession(this.client, this.dialect, this.schema, this.options, transactionId);
-    const tx = new AwsDataApiTransaction(this.dialect, session, this.schema);
-    if (config) {
-      await tx.setTransaction(config);
-    }
-    try {
-      const result = await transaction(tx);
-      await this.client.send(new CommitTransactionCommand({ ...this.rawQuery, transactionId }));
-      return result;
-    } catch (e) {
-      await this.client.send(new RollbackTransactionCommand({ ...this.rawQuery, transactionId }));
-      throw e;
-    }
-  }
-}
-class AwsDataApiTransaction extends PgTransaction {
-  static [entityKind] = "AwsDataApiTransaction";
-  async transaction(transaction) {
-    const savepointName = `sp${this.nestedIndex + 1}`;
-    const tx = new AwsDataApiTransaction(
-      this.dialect,
-      this.session,
-      this.schema,
-      this.nestedIndex + 1
-    );
-    await this.session.execute(sql.raw(`savepoint ${savepointName}`));
-    try {
-      const result = await transaction(tx);
-      await this.session.execute(sql.raw(`release savepoint ${savepointName}`));
-      return result;
-    } catch (e) {
-      await this.session.execute(sql.raw(`rollback to savepoint ${savepointName}`));
-      throw e;
-    }
-  }
-}
 export {
-  AwsDataApiPreparedQuery,
-  AwsDataApiSession,
-  AwsDataApiTransaction
+  PreparedQuery,
+  SQLiteBunSession,
+  SQLiteBunTransaction
 };
 //# sourceMappingURL=session.js.map

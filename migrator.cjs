@@ -21,10 +21,10 @@ __export(migrator_exports, {
   migrate: () => migrate
 });
 module.exports = __toCommonJS(migrator_exports);
-var import_migrator = require("../../migrator.cjs");
-async function migrate(db, config) {
+var import_migrator = require("../migrator.cjs");
+function migrate(db, config) {
   const migrations = (0, import_migrator.readMigrationFiles)(config);
-  await db.dialect.migrate(migrations, db.session, config);
+  db.dialect.migrate(migrations, db.session, config);
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

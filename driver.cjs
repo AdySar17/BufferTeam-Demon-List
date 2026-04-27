@@ -18,59 +18,23 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var driver_exports = {};
 __export(driver_exports, {
-  AwsDataApiPgDatabase: () => AwsDataApiPgDatabase,
-  AwsPgDialect: () => AwsPgDialect,
+  BunSQLiteDatabase: () => BunSQLiteDatabase,
   drizzle: () => drizzle
 });
 module.exports = __toCommonJS(driver_exports);
-var import_client_rds_data = require("@aws-sdk/client-rds-data");
-var import_entity = require("../../entity.cjs");
-var import_logger = require("../../logger.cjs");
-var import_db = require("../../pg-core/db.cjs");
-var import_dialect = require("../../pg-core/dialect.cjs");
-var import_pg_core = require("../../pg-core/index.cjs");
-var import_relations = require("../../relations.cjs");
-var import_sql = require("../../sql/sql.cjs");
-var import_table = require("../../table.cjs");
+var import_bun_sqlite = require("bun:sqlite");
+var import_entity = require("../entity.cjs");
+var import_logger = require("../logger.cjs");
+var import_relations = require("../relations.cjs");
+var import_db = require("../sqlite-core/db.cjs");
+var import_dialect = require("../sqlite-core/dialect.cjs");
+var import_utils = require("../utils.cjs");
 var import_session = require("./session.cjs");
-class AwsDataApiPgDatabase extends import_db.PgDatabase {
-  static [import_entity.entityKind] = "AwsDataApiPgDatabase";
-  execute(query) {
-    return super.execute(query);
-  }
+class BunSQLiteDatabase extends import_db.BaseSQLiteDatabase {
+  static [import_entity.entityKind] = "BunSQLiteDatabase";
 }
-class AwsPgDialect extends import_dialect.PgDialect {
-  static [import_entity.entityKind] = "AwsPgDialect";
-  escapeParam(num) {
-    return `:${num + 1}`;
-  }
-  buildInsertQuery({ table, values, onConflict, returning, select, withList }) {
-    const columns = table[import_table.Table.Symbol.Columns];
-    if (!select) {
-      for (const value of values) {
-        for (const fieldName of Object.keys(columns)) {
-          const colValue = value[fieldName];
-          if ((0, import_entity.is)(colValue, import_sql.Param) && colValue.value !== void 0 && (0, import_entity.is)(colValue.encoder, import_pg_core.PgArray) && Array.isArray(colValue.value)) {
-            value[fieldName] = import_sql.sql`cast(${colValue} as ${import_sql.sql.raw(colValue.encoder.getSQLType())})`;
-          }
-        }
-      }
-    }
-    return super.buildInsertQuery({ table, values, onConflict, returning, withList });
-  }
-  buildUpdateSet(table, set) {
-    const columns = table[import_table.Table.Symbol.Columns];
-    for (const [colName, colValue] of Object.entries(set)) {
-      const currentColumn = columns[colName];
-      if (currentColumn && (0, import_entity.is)(colValue, import_sql.Param) && colValue.value !== void 0 && (0, import_entity.is)(colValue.encoder, import_pg_core.PgArray) && Array.isArray(colValue.value)) {
-        set[colName] = import_sql.sql`cast(${colValue} as ${import_sql.sql.raw(colValue.encoder.getSQLType())})`;
-      }
-    }
-    return super.buildUpdateSet(table, set);
-  }
-}
-function construct(client, config) {
-  const dialect = new AwsPgDialect({ casing: config.casing });
+function construct(client, config = {}) {
+  const dialect = new import_dialect.SQLiteSyncDialect({ casing: config.casing });
   let logger;
   if (config.logger === true) {
     logger = new import_logger.DefaultLogger();
@@ -89,27 +53,29 @@ function construct(client, config) {
       tableNamesMap: tablesConfig.tableNamesMap
     };
   }
-  const session = new import_session.AwsDataApiSession(client, dialect, schema, { ...config, logger, cache: config.cache }, void 0);
-  const db = new AwsDataApiPgDatabase(dialect, session, schema);
+  const session = new import_session.SQLiteBunSession(client, dialect, schema, { logger });
+  const db = new BunSQLiteDatabase("sync", dialect, session, schema);
   db.$client = client;
-  db.$cache = config.cache;
-  if (db.$cache) {
-    db.$cache["invalidate"] = config.cache?.onMutate;
-  }
   return db;
 }
 function drizzle(...params) {
-  if (params[0] instanceof import_client_rds_data.RDSDataClient || params[0].constructor.name !== "Object") {
-    return construct(params[0], params[1]);
+  if (params[0] === void 0 || typeof params[0] === "string") {
+    const instance = params[0] === void 0 ? new import_bun_sqlite.Database() : new import_bun_sqlite.Database(params[0]);
+    return construct(instance, params[1]);
   }
-  if (params[0].client) {
-    const { client, ...drizzleConfig2 } = params[0];
-    return construct(client, drizzleConfig2);
+  if ((0, import_utils.isConfig)(params[0])) {
+    const { connection, client, ...drizzleConfig } = params[0];
+    if (client) return construct(client, drizzleConfig);
+    if (typeof connection === "object") {
+      const { source, ...opts } = connection;
+      const options = Object.values(opts).filter((v) => v !== void 0).length ? opts : void 0;
+      const instance2 = new import_bun_sqlite.Database(source, options);
+      return construct(instance2, drizzleConfig);
+    }
+    const instance = new import_bun_sqlite.Database(connection);
+    return construct(instance, drizzleConfig);
   }
-  const { connection, ...drizzleConfig } = params[0];
-  const { resourceArn, database, secretArn, ...rdsConfig } = connection;
-  const instance = new import_client_rds_data.RDSDataClient(rdsConfig);
-  return construct(instance, { resourceArn, database, secretArn, ...drizzleConfig });
+  return construct(params[0], params[1]);
 }
 ((drizzle2) => {
   function mock(config) {
@@ -119,8 +85,7 @@ function drizzle(...params) {
 })(drizzle || (drizzle = {}));
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  AwsDataApiPgDatabase,
-  AwsPgDialect,
+  BunSQLiteDatabase,
   drizzle
 });
 //# sourceMappingURL=driver.cjs.map
