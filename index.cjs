@@ -13,11 +13,15 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __reExport = (target, mod, secondTarget) => (__copyProps(target, mod, "default"), secondTarget && __copyProps(secondTarget, mod, "default"));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var core_exports = {};
-module.exports = __toCommonJS(core_exports);
-__reExport(core_exports, require("./cache.cjs"), module.exports);
+var expo_sqlite_exports = {};
+module.exports = __toCommonJS(expo_sqlite_exports);
+__reExport(expo_sqlite_exports, require("./driver.cjs"), module.exports);
+__reExport(expo_sqlite_exports, require("./query.cjs"), module.exports);
+__reExport(expo_sqlite_exports, require("./session.cjs"), module.exports);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  ...require("./cache.cjs")
+  ...require("./driver.cjs"),
+  ...require("./query.cjs"),
+  ...require("./session.cjs")
 });
 //# sourceMappingURL=index.cjs.map

@@ -1,36 +1,59 @@
+import { Redis } from '@upstash/redis';
+import type { MutationOption } from "../core/index.cjs";
+import { Cache } from "../core/index.cjs";
 import { entityKind } from "../../entity.cjs";
-import type { Table } from "../../index.cjs";
-import type { CacheConfig } from "./types.cjs";
-export declare abstract class Cache {
+import type { CacheConfig } from "../core/types.cjs";
+export declare class UpstashCache extends Cache {
+    redis: Redis;
+    protected useGlobally?: boolean | undefined;
     static readonly [entityKind]: string;
-    abstract strategy(): 'explicit' | 'all';
     /**
-     * Invoked if we should check cache for cached response
-     * @param sql
-     * @param tables
+     * Prefix for sets which denote the composite table names for each unique table
+     *
+     * Example: In the composite table set of "table1", you may find
+     * `${compositeTablePrefix}table1,table2` and `${compositeTablePrefix}table1,table3`
      */
-    abstract get(key: string, tables: string[], isTag: boolean, isAutoInvalidate?: boolean): Promise<any[] | undefined>;
+    private static compositeTableSetPrefix;
     /**
-     * Invoked if new query should be inserted to cache
-     * @param sql
-     * @param tables
+     * Prefix for hashes which map hash or tags to cache values
      */
-    abstract put(hashedQuery: string, response: any, tables: string[], isTag: boolean, config?: CacheConfig): Promise<void>;
+    private static compositeTablePrefix;
     /**
-     * Invoked if insert, update, delete was invoked
-     * @param tables
+     * Key which holds the mapping of tags to composite table names
+     *
+     * Using this tagsMapKey, you can find the composite table name for a given tag
+     * and get the cache value for that tag:
+     *
+     * ```ts
+     * const compositeTable = redis.hget(tagsMapKey, 'tag1')
+     * console.log(compositeTable) // `${compositeTablePrefix}table1,table2`
+     *
+     * const cachevalue = redis.hget(compositeTable, 'tag1')
      */
-    abstract onMutate(params: MutationOption): Promise<void>;
+    private static tagsMapKey;
+    /**
+     * Queries whose auto invalidation is false aren't stored in their respective
+     * composite table hashes because those hashes are deleted when a mutation
+     * occurs on related tables.
+     *
+     * Instead, they are stored in a separate hash with the prefix
+     * `__nonAutoInvalidate__` to prevent them from being deleted when a mutation
+     */
+    private static nonAutoInvalidateTablePrefix;
+    private luaScripts;
+    private internalConfig;
+    constructor(redis: Redis, config?: CacheConfig, useGlobally?: boolean | undefined);
+    strategy(): "all" | "explicit";
+    private toInternalConfig;
+    get(key: string, tables: string[], isTag?: boolean, isAutoInvalidate?: boolean): Promise<any[] | undefined>;
+    put(key: string, response: any, tables: string[], isTag?: boolean, config?: CacheConfig): Promise<void>;
+    onMutate(params: MutationOption): Promise<void>;
+    private addTablePrefix;
+    private getCompositeKey;
 }
-export declare class NoopCache extends Cache {
-    strategy(): "all";
-    static readonly [entityKind]: string;
-    get(_key: string): Promise<any[] | undefined>;
-    put(_hashedQuery: string, _response: any, _tables: string[], _config?: any): Promise<void>;
-    onMutate(_params: MutationOption): Promise<void>;
-}
-export type MutationOption = {
-    tags?: string | string[];
-    tables?: Table<any> | Table<any>[] | string | string[];
-};
-export declare function hashQuery(sql: string, params?: any[]): Promise<string>;
+export declare function upstashCache({ url, token, config, global }: {
+    url: string;
+    token: string;
+    config?: CacheConfig;
+    global?: boolean;
+}): UpstashCache;

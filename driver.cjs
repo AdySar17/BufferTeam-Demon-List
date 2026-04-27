@@ -18,22 +18,20 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var driver_exports = {};
 __export(driver_exports, {
-  BunSQLiteDatabase: () => BunSQLiteDatabase,
+  ExpoSQLiteDatabase: () => ExpoSQLiteDatabase,
   drizzle: () => drizzle
 });
 module.exports = __toCommonJS(driver_exports);
-var import_bun_sqlite = require("bun:sqlite");
 var import_entity = require("../entity.cjs");
 var import_logger = require("../logger.cjs");
 var import_relations = require("../relations.cjs");
 var import_db = require("../sqlite-core/db.cjs");
 var import_dialect = require("../sqlite-core/dialect.cjs");
-var import_utils = require("../utils.cjs");
 var import_session = require("./session.cjs");
-class BunSQLiteDatabase extends import_db.BaseSQLiteDatabase {
-  static [import_entity.entityKind] = "BunSQLiteDatabase";
+class ExpoSQLiteDatabase extends import_db.BaseSQLiteDatabase {
+  static [import_entity.entityKind] = "ExpoSQLiteDatabase";
 }
-function construct(client, config = {}) {
+function drizzle(client, config = {}) {
   const dialect = new import_dialect.SQLiteSyncDialect({ casing: config.casing });
   let logger;
   if (config.logger === true) {
@@ -53,39 +51,14 @@ function construct(client, config = {}) {
       tableNamesMap: tablesConfig.tableNamesMap
     };
   }
-  const session = new import_session.SQLiteBunSession(client, dialect, schema, { logger });
-  const db = new BunSQLiteDatabase("sync", dialect, session, schema);
+  const session = new import_session.ExpoSQLiteSession(client, dialect, schema, { logger });
+  const db = new ExpoSQLiteDatabase("sync", dialect, session, schema);
   db.$client = client;
   return db;
 }
-function drizzle(...params) {
-  if (params[0] === void 0 || typeof params[0] === "string") {
-    const instance = params[0] === void 0 ? new import_bun_sqlite.Database() : new import_bun_sqlite.Database(params[0]);
-    return construct(instance, params[1]);
-  }
-  if ((0, import_utils.isConfig)(params[0])) {
-    const { connection, client, ...drizzleConfig } = params[0];
-    if (client) return construct(client, drizzleConfig);
-    if (typeof connection === "object") {
-      const { source, ...opts } = connection;
-      const options = Object.values(opts).filter((v) => v !== void 0).length ? opts : void 0;
-      const instance2 = new import_bun_sqlite.Database(source, options);
-      return construct(instance2, drizzleConfig);
-    }
-    const instance = new import_bun_sqlite.Database(connection);
-    return construct(instance, drizzleConfig);
-  }
-  return construct(params[0], params[1]);
-}
-((drizzle2) => {
-  function mock(config) {
-    return construct({}, config);
-  }
-  drizzle2.mock = mock;
-})(drizzle || (drizzle = {}));
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  BunSQLiteDatabase,
+  ExpoSQLiteDatabase,
   drizzle
 });
 //# sourceMappingURL=driver.cjs.map

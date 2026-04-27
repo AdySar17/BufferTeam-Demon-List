@@ -2,23 +2,23 @@ import { entityKind } from "../entity.js";
 import { NoopLogger } from "../logger.js";
 import { fillPlaceholders, sql } from "../sql/sql.js";
 import { SQLiteTransaction } from "../sqlite-core/index.js";
-import { SQLitePreparedQuery as PreparedQueryBase, SQLiteSession } from "../sqlite-core/session.js";
+import {
+  SQLitePreparedQuery,
+  SQLiteSession
+} from "../sqlite-core/session.js";
 import { mapResultRow } from "../utils.js";
-class SQLiteBunSession extends SQLiteSession {
+class ExpoSQLiteSession extends SQLiteSession {
   constructor(client, dialect, schema, options = {}) {
     super(dialect);
     this.client = client;
     this.schema = schema;
     this.logger = options.logger ?? new NoopLogger();
   }
-  static [entityKind] = "SQLiteBunSession";
+  static [entityKind] = "ExpoSQLiteSession";
   logger;
-  exec(query) {
-    this.client.exec(query);
-  }
   prepareQuery(query, fields, executeMethod, isResponseInArrayMode, customResultMapper) {
-    const stmt = this.client.prepare(query.sql);
-    return new PreparedQuery(
+    const stmt = this.client.prepareSync(query.sql);
+    return new ExpoSQLitePreparedQuery(
       stmt,
       query,
       this.logger,
@@ -29,20 +29,23 @@ class SQLiteBunSession extends SQLiteSession {
     );
   }
   transaction(transaction, config = {}) {
-    const tx = new SQLiteBunTransaction("sync", this.dialect, this, this.schema);
-    let result;
-    const nativeTx = this.client.transaction(() => {
-      result = transaction(tx);
-    });
-    nativeTx[config.behavior ?? "deferred"]();
-    return result;
+    const tx = new ExpoSQLiteTransaction("sync", this.dialect, this, this.schema);
+    this.run(sql.raw(`begin${config?.behavior ? " " + config.behavior : ""}`));
+    try {
+      const result = transaction(tx);
+      this.run(sql`commit`);
+      return result;
+    } catch (err) {
+      this.run(sql`rollback`);
+      throw err;
+    }
   }
 }
-class SQLiteBunTransaction extends SQLiteTransaction {
-  static [entityKind] = "SQLiteBunTransaction";
+class ExpoSQLiteTransaction extends SQLiteTransaction {
+  static [entityKind] = "ExpoSQLiteTransaction";
   transaction(transaction) {
     const savepointName = `sp${this.nestedIndex}`;
-    const tx = new SQLiteBunTransaction("sync", this.dialect, this.session, this.schema, this.nestedIndex + 1);
+    const tx = new ExpoSQLiteTransaction("sync", this.dialect, this.session, this.schema, this.nestedIndex + 1);
     this.session.run(sql.raw(`savepoint ${savepointName}`));
     try {
       const result = transaction(tx);
@@ -54,7 +57,7 @@ class SQLiteBunTransaction extends SQLiteTransaction {
     }
   }
 }
-class PreparedQuery extends PreparedQueryBase {
+class ExpoSQLitePreparedQuery extends SQLitePreparedQuery {
   constructor(stmt, query, logger, fields, executeMethod, _isResponseInArrayMode, customResultMapper) {
     super("sync", executeMethod, query);
     this.stmt = stmt;
@@ -63,18 +66,22 @@ class PreparedQuery extends PreparedQueryBase {
     this._isResponseInArrayMode = _isResponseInArrayMode;
     this.customResultMapper = customResultMapper;
   }
-  static [entityKind] = "SQLiteBunPreparedQuery";
+  static [entityKind] = "ExpoSQLitePreparedQuery";
   run(placeholderValues) {
     const params = fillPlaceholders(this.query.params, placeholderValues ?? {});
     this.logger.logQuery(this.query.sql, params);
-    return this.stmt.run(...params);
+    const { changes, lastInsertRowId } = this.stmt.executeSync(params);
+    return {
+      changes,
+      lastInsertRowId
+    };
   }
   all(placeholderValues) {
-    const { fields, query, logger, joinsNotNullableMap, stmt, customResultMapper } = this;
+    const { fields, joinsNotNullableMap, query, logger, stmt, customResultMapper } = this;
     if (!fields && !customResultMapper) {
       const params = fillPlaceholders(query.params, placeholderValues ?? {});
       logger.logQuery(query.sql, params);
-      return stmt.all(...params);
+      return stmt.executeSync(params).getAllSync();
     }
     const rows = this.values(placeholderValues);
     if (customResultMapper) {
@@ -85,23 +92,24 @@ class PreparedQuery extends PreparedQueryBase {
   get(placeholderValues) {
     const params = fillPlaceholders(this.query.params, placeholderValues ?? {});
     this.logger.logQuery(this.query.sql, params);
-    const row = this.stmt.values(...params)[0];
+    const { fields, stmt, joinsNotNullableMap, customResultMapper } = this;
+    if (!fields && !customResultMapper) {
+      return stmt.executeSync(params).getFirstSync();
+    }
+    const rows = this.values(placeholderValues);
+    const row = rows[0];
     if (!row) {
       return void 0;
     }
-    const { fields, joinsNotNullableMap, customResultMapper } = this;
-    if (!fields && !customResultMapper) {
-      return row;
-    }
     if (customResultMapper) {
-      return customResultMapper([row]);
+      return customResultMapper(rows);
     }
     return mapResultRow(fields, row, joinsNotNullableMap);
   }
   values(placeholderValues) {
     const params = fillPlaceholders(this.query.params, placeholderValues ?? {});
     this.logger.logQuery(this.query.sql, params);
-    return this.stmt.values(...params);
+    return this.stmt.executeForRawResultSync(params).getAllSync();
   }
   /** @internal */
   isResponseInArrayMode() {
@@ -109,8 +117,8 @@ class PreparedQuery extends PreparedQueryBase {
   }
 }
 export {
-  PreparedQuery,
-  SQLiteBunSession,
-  SQLiteBunTransaction
+  ExpoSQLitePreparedQuery,
+  ExpoSQLiteSession,
+  ExpoSQLiteTransaction
 };
 //# sourceMappingURL=session.js.map

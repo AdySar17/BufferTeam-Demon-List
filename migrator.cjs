@@ -18,16 +18,73 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var migrator_exports = {};
 __export(migrator_exports, {
-  migrate: () => migrate
+  migrate: () => migrate,
+  useMigrations: () => useMigrations
 });
 module.exports = __toCommonJS(migrator_exports);
-var import_migrator = require("../migrator.cjs");
-function migrate(db, config) {
-  const migrations = (0, import_migrator.readMigrationFiles)(config);
-  db.dialect.migrate(migrations, db.session, config);
+var import_react = require("react");
+async function readMigrationFiles({ journal, migrations }) {
+  const migrationQueries = [];
+  for await (const journalEntry of journal.entries) {
+    const query = migrations[`m${journalEntry.idx.toString().padStart(4, "0")}`];
+    if (!query) {
+      throw new Error(`Missing migration: ${journalEntry.tag}`);
+    }
+    try {
+      const result = query.split("--> statement-breakpoint").map((it) => {
+        return it;
+      });
+      migrationQueries.push({
+        sql: result,
+        bps: journalEntry.breakpoints,
+        folderMillis: journalEntry.when,
+        hash: ""
+      });
+    } catch {
+      throw new Error(`Failed to parse migration: ${journalEntry.tag}`);
+    }
+  }
+  return migrationQueries;
 }
+async function migrate(db, config) {
+  const migrations = await readMigrationFiles(config);
+  return db.dialect.migrate(migrations, db.session);
+}
+const useMigrations = (db, migrations) => {
+  const initialState = {
+    success: false,
+    error: void 0
+  };
+  const fetchReducer = (state2, action) => {
+    switch (action.type) {
+      case "migrating": {
+        return { ...initialState };
+      }
+      case "migrated": {
+        return { ...initialState, success: action.payload };
+      }
+      case "error": {
+        return { ...initialState, error: action.payload };
+      }
+      default: {
+        return state2;
+      }
+    }
+  };
+  const [state, dispatch] = (0, import_react.useReducer)(fetchReducer, initialState);
+  (0, import_react.useEffect)(() => {
+    dispatch({ type: "migrating" });
+    migrate(db, migrations).then(() => {
+      dispatch({ type: "migrated", payload: true });
+    }).catch((error) => {
+      dispatch({ type: "error", payload: error });
+    });
+  }, []);
+  return state;
+};
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  migrate
+  migrate,
+  useMigrations
 });
 //# sourceMappingURL=migrator.cjs.map
