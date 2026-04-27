@@ -3,6 +3,10 @@ var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
@@ -11,25 +15,38 @@ var __copyProps = (to, from, except, desc) => {
   }
   return to;
 };
-var __reExport = (target, mod, secondTarget) => (__copyProps(target, mod, "default"), secondTarget && __copyProps(secondTarget, mod, "default"));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var query_builders_exports = {};
-module.exports = __toCommonJS(query_builders_exports);
-__reExport(query_builders_exports, require("./delete.cjs"), module.exports);
-__reExport(query_builders_exports, require("./insert.cjs"), module.exports);
-__reExport(query_builders_exports, require("./query-builder.cjs"), module.exports);
-__reExport(query_builders_exports, require("./refresh-materialized-view.cjs"), module.exports);
-__reExport(query_builders_exports, require("./select.cjs"), module.exports);
-__reExport(query_builders_exports, require("./select.types.cjs"), module.exports);
-__reExport(query_builders_exports, require("./update.cjs"), module.exports);
+var ws_exports = {};
+__export(ws_exports, {
+  drizzle: () => drizzle
+});
+module.exports = __toCommonJS(ws_exports);
+var import_ws = require("@libsql/client/ws");
+var import_utils = require("../../utils.cjs");
+var import_driver_core = require("../driver-core.cjs");
+function drizzle(...params) {
+  if (typeof params[0] === "string") {
+    const instance = (0, import_ws.createClient)({
+      url: params[0]
+    });
+    return (0, import_driver_core.construct)(instance, params[1]);
+  }
+  if ((0, import_utils.isConfig)(params[0])) {
+    const { connection, client, ...drizzleConfig } = params[0];
+    if (client) return (0, import_driver_core.construct)(client, drizzleConfig);
+    const instance = typeof connection === "string" ? (0, import_ws.createClient)({ url: connection }) : (0, import_ws.createClient)(connection);
+    return (0, import_driver_core.construct)(instance, drizzleConfig);
+  }
+  return (0, import_driver_core.construct)(params[0], params[1]);
+}
+((drizzle2) => {
+  function mock(config) {
+    return (0, import_driver_core.construct)({}, config);
+  }
+  drizzle2.mock = mock;
+})(drizzle || (drizzle = {}));
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  ...require("./delete.cjs"),
-  ...require("./insert.cjs"),
-  ...require("./query-builder.cjs"),
-  ...require("./refresh-materialized-view.cjs"),
-  ...require("./select.cjs"),
-  ...require("./select.types.cjs"),
-  ...require("./update.cjs")
+  drizzle
 });
 //# sourceMappingURL=index.cjs.map
