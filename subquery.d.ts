@@ -1,20 +1,5 @@
-import { entityKind } from "./entity.js";
-import type { SQL, SQLWrapper } from "./sql/sql.js";
-export interface Subquery<TAlias extends string = string, TSelectedFields extends Record<string, unknown> = Record<string, unknown>> extends SQLWrapper {
-}
-export declare class Subquery<TAlias extends string = string, TSelectedFields extends Record<string, unknown> = Record<string, unknown>> implements SQLWrapper {
-    static readonly [entityKind]: string;
-    _: {
-        brand: 'Subquery';
-        sql: SQL;
-        selectedFields: TSelectedFields;
-        alias: TAlias;
-        isWith: boolean;
-        usedTables?: string[];
-    };
-    constructor(sql: SQL, fields: TSelectedFields, alias: string, isWith?: boolean, usedTables?: string[]);
-}
-export declare class WithSubquery<TAlias extends string = string, TSelection extends Record<string, unknown> = Record<string, unknown>> extends Subquery<TAlias, TSelection> {
-    static readonly [entityKind]: string;
-}
-export type WithSubqueryWithoutSelection<TAlias extends string> = WithSubquery<TAlias, {}>;
+import type { AddAliasToSelection } from "../query-builders/select.types.js";
+import type { ColumnsSelection } from "../sql/sql.js";
+import type { Subquery, WithSubquery } from "../subquery.js";
+export type SubqueryWithSelection<TSelection extends ColumnsSelection, TAlias extends string> = Subquery<TAlias, AddAliasToSelection<TSelection, TAlias, 'gel'>> & AddAliasToSelection<TSelection, TAlias, 'gel'>;
+export type WithSubqueryWithSelection<TSelection extends ColumnsSelection, TAlias extends string> = WithSubquery<TAlias, AddAliasToSelection<TSelection, TAlias, 'gel'>> & AddAliasToSelection<TSelection, TAlias, 'gel'>;

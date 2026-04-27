@@ -1,47 +1,67 @@
-import type { SQLiteDatabase, SQLiteRunResult, SQLiteStatement } from 'expo-sqlite';
+import { type Cache } from "../cache/core/cache.js";
+import type { WithCacheConfig } from "../cache/core/types.js";
 import { entityKind } from "../entity.js";
-import type { Logger } from "../logger.js";
-import type { RelationalSchemaConfig, TablesRelationalConfig } from "../relations.js";
-import { type Query } from "../sql/sql.js";
-import type { SQLiteSyncDialect } from "../sqlite-core/dialect.js";
-import { SQLiteTransaction } from "../sqlite-core/index.js";
-import type { SelectedFieldsOrdered } from "../sqlite-core/query-builders/select.types.js";
-import { type PreparedQueryConfig as PreparedQueryConfigBase, type SQLiteExecuteMethod, SQLitePreparedQuery, SQLiteSession, type SQLiteTransactionConfig } from "../sqlite-core/session.js";
-export interface ExpoSQLiteSessionOptions {
-    logger?: Logger;
+import type { TablesRelationalConfig } from "../relations.js";
+import type { PreparedQuery } from "../session.js";
+import type { Query, SQL } from "../sql/index.js";
+import type { NeonAuthToken } from "../utils.js";
+import { GelDatabase } from "./db.js";
+import type { GelDialect } from "./dialect.js";
+import type { SelectedFieldsOrdered } from "./query-builders/select.types.js";
+export interface PreparedQueryConfig {
+    execute: unknown;
+    all: unknown;
+    values: unknown;
 }
-type PreparedQueryConfig = Omit<PreparedQueryConfigBase, 'statement' | 'run'>;
-export declare class ExpoSQLiteSession<TFullSchema extends Record<string, unknown>, TSchema extends TablesRelationalConfig> extends SQLiteSession<'sync', SQLiteRunResult, TFullSchema, TSchema> {
-    private client;
-    private schema;
+export declare abstract class GelPreparedQuery<T extends PreparedQueryConfig> implements PreparedQuery {
+    protected query: Query;
+    private cache?;
+    private queryMetadata?;
+    private cacheConfig?;
+    constructor(query: Query, cache?: Cache | undefined, queryMetadata?: {
+        type: 'select' | 'update' | 'delete' | 'insert';
+        tables: string[];
+    } | undefined, cacheConfig?: WithCacheConfig | undefined);
+    protected authToken?: NeonAuthToken;
+    getQuery(): Query;
+    mapResult(response: unknown, _isFromBatch?: boolean): unknown;
     static readonly [entityKind]: string;
-    private logger;
-    constructor(client: SQLiteDatabase, dialect: SQLiteSyncDialect, schema: RelationalSchemaConfig<TSchema> | undefined, options?: ExpoSQLiteSessionOptions);
-    prepareQuery<T extends Omit<PreparedQueryConfig, 'run'>>(query: Query, fields: SelectedFieldsOrdered | undefined, executeMethod: SQLiteExecuteMethod, isResponseInArrayMode: boolean, customResultMapper?: (rows: unknown[][]) => unknown): ExpoSQLitePreparedQuery<T>;
-    transaction<T>(transaction: (tx: ExpoSQLiteTransaction<TFullSchema, TSchema>) => T, config?: SQLiteTransactionConfig): T;
+    abstract execute(placeholderValues?: Record<string, unknown>): Promise<T['execute']>;
 }
-export declare class ExpoSQLiteTransaction<TFullSchema extends Record<string, unknown>, TSchema extends TablesRelationalConfig> extends SQLiteTransaction<'sync', SQLiteRunResult, TFullSchema, TSchema> {
+export declare abstract class GelSession<TQueryResult extends GelQueryResultHKT = any, // TO
+TFullSchema extends Record<string, unknown> = Record<string, never>, TSchema extends TablesRelationalConfig = Record<string, never>> {
+    protected dialect: GelDialect;
     static readonly [entityKind]: string;
-    transaction<T>(transaction: (tx: ExpoSQLiteTransaction<TFullSchema, TSchema>) => T): T;
+    constructor(dialect: GelDialect);
+    abstract prepareQuery<T extends PreparedQueryConfig = PreparedQueryConfig>(query: Query, fields: SelectedFieldsOrdered | undefined, name: string | undefined, isResponseInArrayMode: boolean, customResultMapper?: (rows: unknown[][], mapColumnValue?: (value: unknown) => unknown) => T['execute'], queryMetadata?: {
+        type: 'select' | 'update' | 'delete' | 'insert';
+        tables: string[];
+    }, cacheConfig?: WithCacheConfig): GelPreparedQuery<T>;
+    execute<T>(query: SQL): Promise<T>;
+    all<T = unknown>(query: SQL): Promise<T[]>;
+    count(sql: SQL): Promise<number>;
+    abstract transaction<T>(transaction: (tx: GelTransaction<TQueryResult, TFullSchema, TSchema>) => Promise<T>): Promise<T>;
 }
-export declare class ExpoSQLitePreparedQuery<T extends PreparedQueryConfig = PreparedQueryConfig> extends SQLitePreparedQuery<{
-    type: 'sync';
-    run: SQLiteRunResult;
-    all: T['all'];
-    get: T['get'];
-    values: T['values'];
-    execute: T['execute'];
-}> {
-    private stmt;
-    private logger;
-    private fields;
-    private _isResponseInArrayMode;
-    private customResultMapper?;
+export declare abstract class GelTransaction<TQueryResult extends GelQueryResultHKT, TFullSchema extends Record<string, unknown> = Record<string, never>, TSchema extends TablesRelationalConfig = Record<string, never>> extends GelDatabase<TQueryResult, TFullSchema, TSchema> {
+    protected schema: {
+        fullSchema: Record<string, unknown>;
+        schema: TSchema;
+        tableNamesMap: Record<string, string>;
+    } | undefined;
     static readonly [entityKind]: string;
-    constructor(stmt: SQLiteStatement, query: Query, logger: Logger, fields: SelectedFieldsOrdered | undefined, executeMethod: SQLiteExecuteMethod, _isResponseInArrayMode: boolean, customResultMapper?: ((rows: unknown[][]) => unknown) | undefined);
-    run(placeholderValues?: Record<string, unknown>): SQLiteRunResult;
-    all(placeholderValues?: Record<string, unknown>): T['all'];
-    get(placeholderValues?: Record<string, unknown>): T['get'];
-    values(placeholderValues?: Record<string, unknown>): T['values'];
+    constructor(dialect: GelDialect, session: GelSession<any, any, any>, schema: {
+        fullSchema: Record<string, unknown>;
+        schema: TSchema;
+        tableNamesMap: Record<string, string>;
+    } | undefined);
+    rollback(): never;
+    abstract transaction<T>(transaction: (tx: GelTransaction<TQueryResult, TFullSchema, TSchema>) => Promise<T>): Promise<T>;
 }
-export {};
+export interface GelQueryResultHKT {
+    readonly $brand: 'GelQueryResultHKT';
+    readonly row: unknown;
+    readonly type: unknown;
+}
+export type GelQueryResultKind<TKind extends GelQueryResultHKT, TRow> = (TKind & {
+    readonly row: TRow;
+})['type'];

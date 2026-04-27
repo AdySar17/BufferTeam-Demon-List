@@ -1,1 +1,1 @@
-export declare const ViewBaseConfig: unique symbol;
+export declare const GelViewConfig: unique symbol;

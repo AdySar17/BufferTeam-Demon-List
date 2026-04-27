@@ -1,79 +1,71 @@
-import { entityKind } from "./entity.js";
-import { TableName } from "./table.utils.js";
-const Schema = Symbol.for("drizzle:Schema");
-const Columns = Symbol.for("drizzle:Columns");
-const ExtraConfigColumns = Symbol.for("drizzle:ExtraConfigColumns");
-const OriginalName = Symbol.for("drizzle:OriginalName");
-const BaseName = Symbol.for("drizzle:BaseName");
-const IsAlias = Symbol.for("drizzle:IsAlias");
-const ExtraConfigBuilder = Symbol.for("drizzle:ExtraConfigBuilder");
-const IsDrizzleTable = Symbol.for("drizzle:IsDrizzleTable");
-class Table {
-  static [entityKind] = "Table";
+import { entityKind } from "../entity.js";
+import { Table } from "../table.js";
+import { getGelColumnBuilders } from "./columns/all.js";
+const InlineForeignKeys = Symbol.for("drizzle:GelInlineForeignKeys");
+const EnableRLS = Symbol.for("drizzle:EnableRLS");
+class GelTable extends Table {
+  static [entityKind] = "GelTable";
   /** @internal */
-  static Symbol = {
-    Name: TableName,
-    Schema,
-    OriginalName,
-    Columns,
-    ExtraConfigColumns,
-    BaseName,
-    IsAlias,
-    ExtraConfigBuilder
-  };
-  /**
-   * @internal
-   * Can be changed if the table is aliased.
-   */
-  [TableName];
-  /**
-   * @internal
-   * Used to store the original name of the table, before any aliasing.
-   */
-  [OriginalName];
+  static Symbol = Object.assign({}, Table.Symbol, {
+    InlineForeignKeys,
+    EnableRLS
+  });
+  /**@internal */
+  [InlineForeignKeys] = [];
   /** @internal */
-  [Schema];
+  [EnableRLS] = false;
   /** @internal */
-  [Columns];
+  [Table.Symbol.ExtraConfigBuilder] = void 0;
   /** @internal */
-  [ExtraConfigColumns];
-  /**
-   *  @internal
-   * Used to store the table name before the transformation via the `tableCreator` functions.
-   */
-  [BaseName];
-  /** @internal */
-  [IsAlias] = false;
-  /** @internal */
-  [IsDrizzleTable] = true;
-  /** @internal */
-  [ExtraConfigBuilder] = void 0;
-  constructor(name, schema, baseName) {
-    this[TableName] = this[OriginalName] = name;
-    this[Schema] = schema;
-    this[BaseName] = baseName;
+  [Table.Symbol.ExtraConfigColumns] = {};
+}
+function gelTableWithSchema(name, columns, extraConfig, schema, baseName = name) {
+  const rawTable = new GelTable(name, schema, baseName);
+  const parsedColumns = typeof columns === "function" ? columns(getGelColumnBuilders()) : columns;
+  const builtColumns = Object.fromEntries(
+    Object.entries(parsedColumns).map(([name2, colBuilderBase]) => {
+      const colBuilder = colBuilderBase;
+      colBuilder.setName(name2);
+      const column = colBuilder.build(rawTable);
+      rawTable[InlineForeignKeys].push(...colBuilder.buildForeignKeys(column, rawTable));
+      return [name2, column];
+    })
+  );
+  const builtColumnsForExtraConfig = Object.fromEntries(
+    Object.entries(parsedColumns).map(([name2, colBuilderBase]) => {
+      const colBuilder = colBuilderBase;
+      colBuilder.setName(name2);
+      const column = colBuilder.buildExtraConfigColumn(rawTable);
+      return [name2, column];
+    })
+  );
+  const table = Object.assign(rawTable, builtColumns);
+  table[Table.Symbol.Columns] = builtColumns;
+  table[Table.Symbol.ExtraConfigColumns] = builtColumnsForExtraConfig;
+  if (extraConfig) {
+    table[GelTable.Symbol.ExtraConfigBuilder] = extraConfig;
   }
+  return Object.assign(table, {
+    enableRLS: () => {
+      table[GelTable.Symbol.EnableRLS] = true;
+      return table;
+    }
+  });
 }
-function isTable(table) {
-  return typeof table === "object" && table !== null && IsDrizzleTable in table;
-}
-function getTableName(table) {
-  return table[TableName];
-}
-function getTableUniqueName(table) {
-  return `${table[Schema] ?? "public"}.${table[TableName]}`;
+const gelTable = (name, columns, extraConfig) => {
+  return gelTableWithSchema(name, columns, extraConfig, void 0);
+};
+function gelTableCreator(customizeTableName) {
+  return (name, columns, extraConfig) => {
+    return gelTableWithSchema(customizeTableName(name), columns, extraConfig, void 0, name);
+  };
 }
 export {
-  BaseName,
-  Columns,
-  ExtraConfigBuilder,
-  ExtraConfigColumns,
-  IsAlias,
-  OriginalName,
-  Schema,
-  Table,
-  getTableName,
-  getTableUniqueName,
-  isTable
+  EnableRLS,
+  GelTable,
+  InlineForeignKeys,
+  gelTable,
+  gelTableCreator,
+  gelTableWithSchema
 };
 //# sourceMappingURL=table.js.map

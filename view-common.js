@@ -1,5 +1,5 @@
-const ViewBaseConfig = Symbol.for("drizzle:ViewBaseConfig");
+const GelViewConfig = Symbol.for("drizzle:GelViewConfig");
 export {
-  ViewBaseConfig
+  GelViewConfig
 };
 //# sourceMappingURL=view-common.js.map

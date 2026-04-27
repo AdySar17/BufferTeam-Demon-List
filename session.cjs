@@ -18,130 +18,153 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var session_exports = {};
 __export(session_exports, {
-  ExpoSQLitePreparedQuery: () => ExpoSQLitePreparedQuery,
-  ExpoSQLiteSession: () => ExpoSQLiteSession,
-  ExpoSQLiteTransaction: () => ExpoSQLiteTransaction
+  GelPreparedQuery: () => GelPreparedQuery,
+  GelSession: () => GelSession,
+  GelTransaction: () => GelTransaction
 });
 module.exports = __toCommonJS(session_exports);
+var import_cache = require("../cache/core/cache.cjs");
 var import_entity = require("../entity.cjs");
-var import_logger = require("../logger.cjs");
-var import_sql = require("../sql/sql.cjs");
-var import_sqlite_core = require("../sqlite-core/index.cjs");
-var import_session = require("../sqlite-core/session.cjs");
-var import_utils = require("../utils.cjs");
-class ExpoSQLiteSession extends import_session.SQLiteSession {
-  constructor(client, dialect, schema, options = {}) {
-    super(dialect);
-    this.client = client;
-    this.schema = schema;
-    this.logger = options.logger ?? new import_logger.NoopLogger();
-  }
-  static [import_entity.entityKind] = "ExpoSQLiteSession";
-  logger;
-  prepareQuery(query, fields, executeMethod, isResponseInArrayMode, customResultMapper) {
-    const stmt = this.client.prepareSync(query.sql);
-    return new ExpoSQLitePreparedQuery(
-      stmt,
-      query,
-      this.logger,
-      fields,
-      executeMethod,
-      isResponseInArrayMode,
-      customResultMapper
-    );
-  }
-  transaction(transaction, config = {}) {
-    const tx = new ExpoSQLiteTransaction("sync", this.dialect, this, this.schema);
-    this.run(import_sql.sql.raw(`begin${config?.behavior ? " " + config.behavior : ""}`));
-    try {
-      const result = transaction(tx);
-      this.run(import_sql.sql`commit`);
-      return result;
-    } catch (err) {
-      this.run(import_sql.sql`rollback`);
-      throw err;
+var import_errors = require("../errors.cjs");
+var import_tracing = require("../tracing.cjs");
+var import_db = require("./db.cjs");
+class GelPreparedQuery {
+  constructor(query, cache, queryMetadata, cacheConfig) {
+    this.query = query;
+    this.cache = cache;
+    this.queryMetadata = queryMetadata;
+    this.cacheConfig = cacheConfig;
+    if (cache && cache.strategy() === "all" && cacheConfig === void 0) {
+      this.cacheConfig = { enable: true, autoInvalidate: true };
     }
-  }
-}
-class ExpoSQLiteTransaction extends import_sqlite_core.SQLiteTransaction {
-  static [import_entity.entityKind] = "ExpoSQLiteTransaction";
-  transaction(transaction) {
-    const savepointName = `sp${this.nestedIndex}`;
-    const tx = new ExpoSQLiteTransaction("sync", this.dialect, this.session, this.schema, this.nestedIndex + 1);
-    this.session.run(import_sql.sql.raw(`savepoint ${savepointName}`));
-    try {
-      const result = transaction(tx);
-      this.session.run(import_sql.sql.raw(`release savepoint ${savepointName}`));
-      return result;
-    } catch (err) {
-      this.session.run(import_sql.sql.raw(`rollback to savepoint ${savepointName}`));
-      throw err;
+    if (!this.cacheConfig?.enable) {
+      this.cacheConfig = void 0;
     }
-  }
-}
-class ExpoSQLitePreparedQuery extends import_session.SQLitePreparedQuery {
-  constructor(stmt, query, logger, fields, executeMethod, _isResponseInArrayMode, customResultMapper) {
-    super("sync", executeMethod, query);
-    this.stmt = stmt;
-    this.logger = logger;
-    this.fields = fields;
-    this._isResponseInArrayMode = _isResponseInArrayMode;
-    this.customResultMapper = customResultMapper;
-  }
-  static [import_entity.entityKind] = "ExpoSQLitePreparedQuery";
-  run(placeholderValues) {
-    const params = (0, import_sql.fillPlaceholders)(this.query.params, placeholderValues ?? {});
-    this.logger.logQuery(this.query.sql, params);
-    const { changes, lastInsertRowId } = this.stmt.executeSync(params);
-    return {
-      changes,
-      lastInsertRowId
-    };
-  }
-  all(placeholderValues) {
-    const { fields, joinsNotNullableMap, query, logger, stmt, customResultMapper } = this;
-    if (!fields && !customResultMapper) {
-      const params = (0, import_sql.fillPlaceholders)(query.params, placeholderValues ?? {});
-      logger.logQuery(query.sql, params);
-      return stmt.executeSync(params).getAllSync();
-    }
-    const rows = this.values(placeholderValues);
-    if (customResultMapper) {
-      return customResultMapper(rows);
-    }
-    return rows.map((row) => (0, import_utils.mapResultRow)(fields, row, joinsNotNullableMap));
-  }
-  get(placeholderValues) {
-    const params = (0, import_sql.fillPlaceholders)(this.query.params, placeholderValues ?? {});
-    this.logger.logQuery(this.query.sql, params);
-    const { fields, stmt, joinsNotNullableMap, customResultMapper } = this;
-    if (!fields && !customResultMapper) {
-      return stmt.executeSync(params).getFirstSync();
-    }
-    const rows = this.values(placeholderValues);
-    const row = rows[0];
-    if (!row) {
-      return void 0;
-    }
-    if (customResultMapper) {
-      return customResultMapper(rows);
-    }
-    return (0, import_utils.mapResultRow)(fields, row, joinsNotNullableMap);
-  }
-  values(placeholderValues) {
-    const params = (0, import_sql.fillPlaceholders)(this.query.params, placeholderValues ?? {});
-    this.logger.logQuery(this.query.sql, params);
-    return this.stmt.executeForRawResultSync(params).getAllSync();
   }
   /** @internal */
-  isResponseInArrayMode() {
-    return this._isResponseInArrayMode;
+  async queryWithCache(queryString, params, query) {
+    if (this.cache === void 0 || (0, import_entity.is)(this.cache, import_cache.NoopCache) || this.queryMetadata === void 0) {
+      try {
+        return await query();
+      } catch (e) {
+        throw new import_errors.DrizzleQueryError(queryString, params, e);
+      }
+    }
+    if (this.cacheConfig && !this.cacheConfig.enable) {
+      try {
+        return await query();
+      } catch (e) {
+        throw new import_errors.DrizzleQueryError(queryString, params, e);
+      }
+    }
+    if ((this.queryMetadata.type === "insert" || this.queryMetadata.type === "update" || this.queryMetadata.type === "delete") && this.queryMetadata.tables.length > 0) {
+      try {
+        const [res] = await Promise.all([
+          query(),
+          this.cache.onMutate({ tables: this.queryMetadata.tables })
+        ]);
+        return res;
+      } catch (e) {
+        throw new import_errors.DrizzleQueryError(queryString, params, e);
+      }
+    }
+    if (!this.cacheConfig) {
+      try {
+        return await query();
+      } catch (e) {
+        throw new import_errors.DrizzleQueryError(queryString, params, e);
+      }
+    }
+    if (this.queryMetadata.type === "select") {
+      const fromCache = await this.cache.get(
+        this.cacheConfig.tag ?? (await (0, import_cache.hashQuery)(queryString, params)),
+        this.queryMetadata.tables,
+        this.cacheConfig.tag !== void 0,
+        this.cacheConfig.autoInvalidate
+      );
+      if (fromCache === void 0) {
+        let result;
+        try {
+          result = await query();
+        } catch (e) {
+          throw new import_errors.DrizzleQueryError(queryString, params, e);
+        }
+        await this.cache.put(
+          this.cacheConfig.tag ?? (await (0, import_cache.hashQuery)(queryString, params)),
+          result,
+          // make sure we send tables that were used in a query only if user wants to invalidate it on each write
+          this.cacheConfig.autoInvalidate ? this.queryMetadata.tables : [],
+          this.cacheConfig.tag !== void 0,
+          this.cacheConfig.config
+        );
+        return result;
+      }
+      return fromCache;
+    }
+    try {
+      return await query();
+    } catch (e) {
+      throw new import_errors.DrizzleQueryError(queryString, params, e);
+    }
+  }
+  authToken;
+  getQuery() {
+    return this.query;
+  }
+  mapResult(response, _isFromBatch) {
+    return response;
+  }
+  static [import_entity.entityKind] = "GelPreparedQuery";
+  /** @internal */
+  joinsNotNullableMap;
+}
+class GelSession {
+  constructor(dialect) {
+    this.dialect = dialect;
+  }
+  static [import_entity.entityKind] = "GelSession";
+  execute(query) {
+    return import_tracing.tracer.startActiveSpan("drizzle.operation", () => {
+      const prepared = import_tracing.tracer.startActiveSpan("drizzle.prepareQuery", () => {
+        return this.prepareQuery(
+          this.dialect.sqlToQuery(query),
+          void 0,
+          void 0,
+          false
+        );
+      });
+      return prepared.execute(void 0);
+    });
+  }
+  all(query) {
+    return this.prepareQuery(
+      this.dialect.sqlToQuery(query),
+      void 0,
+      void 0,
+      false
+    ).all();
+  }
+  async count(sql) {
+    const res = await this.execute(sql);
+    return Number(
+      res[0]["count"]
+    );
+  }
+}
+class GelTransaction extends import_db.GelDatabase {
+  constructor(dialect, session, schema) {
+    super(dialect, session, schema);
+    this.schema = schema;
+  }
+  static [import_entity.entityKind] = "GelTransaction";
+  rollback() {
+    throw new import_errors.TransactionRollbackError();
   }
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  ExpoSQLitePreparedQuery,
-  ExpoSQLiteSession,
-  ExpoSQLiteTransaction
+  GelPreparedQuery,
+  GelSession,
+  GelTransaction
 });
 //# sourceMappingURL=session.cjs.map
