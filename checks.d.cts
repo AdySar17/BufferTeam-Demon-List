@@ -1,1 +1,18 @@
-export { _lt as lt, _lte as lte, _lte as maximum, _gt as gt, _gte as gte, _gte as minimum, _positive as positive, _negative as negative, _nonpositive as nonpositive, _nonnegative as nonnegative, _multipleOf as multipleOf, _maxSize as maxSize, _minSize as minSize, _size as size, _maxLength as maxLength, _minLength as minLength, _length as length, _regex as regex, _lowercase as lowercase, _uppercase as uppercase, _includes as includes, _startsWith as startsWith, _endsWith as endsWith, _property as property, _mime as mime, _overwrite as overwrite, _normalize as normalize, _trim as trim, _toLowerCase as toLowerCase, _toUpperCase as toUpperCase, } from "../core/index.cjs";
+import { entityKind } from "../entity.cjs";
+import type { SQL } from "../sql/index.cjs";
+import type { GelTable } from "./table.cjs";
+export declare class CheckBuilder {
+    name: string;
+    value: SQL;
+    static readonly [entityKind]: string;
+    protected brand: 'GelConstraintBuilder';
+    constructor(name: string, value: SQL);
+}
+export declare class Check {
+    table: GelTable;
+    static readonly [entityKind]: string;
+    readonly name: string;
+    readonly value: SQL;
+    constructor(table: GelTable, builder: CheckBuilder);
+}
+export declare function check(name: string, value: SQL): CheckBuilder;

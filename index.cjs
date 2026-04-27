@@ -13,13 +13,49 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __reExport = (target, mod, secondTarget) => (__copyProps(target, mod, "default"), secondTarget && __copyProps(secondTarget, mod, "default"));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var gel_exports = {};
-module.exports = __toCommonJS(gel_exports);
-__reExport(gel_exports, require("./driver.cjs"), module.exports);
-__reExport(gel_exports, require("./session.cjs"), module.exports);
+var gel_core_exports = {};
+module.exports = __toCommonJS(gel_core_exports);
+__reExport(gel_core_exports, require("./alias.cjs"), module.exports);
+__reExport(gel_core_exports, require("./checks.cjs"), module.exports);
+__reExport(gel_core_exports, require("./columns/index.cjs"), module.exports);
+__reExport(gel_core_exports, require("./db.cjs"), module.exports);
+__reExport(gel_core_exports, require("./dialect.cjs"), module.exports);
+__reExport(gel_core_exports, require("./foreign-keys.cjs"), module.exports);
+__reExport(gel_core_exports, require("./indexes.cjs"), module.exports);
+__reExport(gel_core_exports, require("./policies.cjs"), module.exports);
+__reExport(gel_core_exports, require("./primary-keys.cjs"), module.exports);
+__reExport(gel_core_exports, require("./query-builders/index.cjs"), module.exports);
+__reExport(gel_core_exports, require("./roles.cjs"), module.exports);
+__reExport(gel_core_exports, require("./schema.cjs"), module.exports);
+__reExport(gel_core_exports, require("./sequence.cjs"), module.exports);
+__reExport(gel_core_exports, require("./session.cjs"), module.exports);
+__reExport(gel_core_exports, require("./subquery.cjs"), module.exports);
+__reExport(gel_core_exports, require("./table.cjs"), module.exports);
+__reExport(gel_core_exports, require("./unique-constraint.cjs"), module.exports);
+__reExport(gel_core_exports, require("./utils.cjs"), module.exports);
+__reExport(gel_core_exports, require("./view-common.cjs"), module.exports);
+__reExport(gel_core_exports, require("./view.cjs"), module.exports);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  ...require("./driver.cjs"),
-  ...require("./session.cjs")
+  ...require("./alias.cjs"),
+  ...require("./checks.cjs"),
+  ...require("./columns/index.cjs"),
+  ...require("./db.cjs"),
+  ...require("./dialect.cjs"),
+  ...require("./foreign-keys.cjs"),
+  ...require("./indexes.cjs"),
+  ...require("./policies.cjs"),
+  ...require("./primary-keys.cjs"),
+  ...require("./query-builders/index.cjs"),
+  ...require("./roles.cjs"),
+  ...require("./schema.cjs"),
+  ...require("./sequence.cjs"),
+  ...require("./session.cjs"),
+  ...require("./subquery.cjs"),
+  ...require("./table.cjs"),
+  ...require("./unique-constraint.cjs"),
+  ...require("./utils.cjs"),
+  ...require("./view-common.cjs"),
+  ...require("./view.cjs")
 });
 //# sourceMappingURL=index.cjs.map

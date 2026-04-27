@@ -1,1 +1,32 @@
-export { _lt as lt, _lte as lte, _lte as maximum, _gt as gt, _gte as gte, _gte as minimum, _positive as positive, _negative as negative, _nonpositive as nonpositive, _nonnegative as nonnegative, _multipleOf as multipleOf, _maxSize as maxSize, _minSize as minSize, _size as size, _maxLength as maxLength, _minLength as minLength, _length as length, _regex as regex, _lowercase as lowercase, _uppercase as uppercase, _includes as includes, _startsWith as startsWith, _endsWith as endsWith, _property as property, _mime as mime, _overwrite as overwrite, _normalize as normalize, _trim as trim, _toLowerCase as toLowerCase, _toUpperCase as toUpperCase, } from "../core/index.js";
+import { entityKind } from "../entity.js";
+class CheckBuilder {
+  constructor(name, value) {
+    this.name = name;
+    this.value = value;
+  }
+  static [entityKind] = "GelCheckBuilder";
+  brand;
+  /** @internal */
+  build(table) {
+    return new Check(table, this);
+  }
+}
+class Check {
+  constructor(table, builder) {
+    this.table = table;
+    this.name = builder.name;
+    this.value = builder.value;
+  }
+  static [entityKind] = "GelCheck";
+  name;
+  value;
+}
+function check(name, value) {
+  return new CheckBuilder(name, value);
+}
+export {
+  Check,
+  CheckBuilder,
+  check
+};
+//# sourceMappingURL=checks.js.map

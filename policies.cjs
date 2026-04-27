@@ -16,43 +16,43 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var checks_exports = {};
-__export(checks_exports, {
-  Check: () => Check,
-  CheckBuilder: () => CheckBuilder,
-  check: () => check
+var policies_exports = {};
+__export(policies_exports, {
+  GelPolicy: () => GelPolicy,
+  gelPolicy: () => gelPolicy
 });
-module.exports = __toCommonJS(checks_exports);
+module.exports = __toCommonJS(policies_exports);
 var import_entity = require("../entity.cjs");
-class CheckBuilder {
-  constructor(name, value) {
+class GelPolicy {
+  constructor(name, config) {
     this.name = name;
-    this.value = value;
+    if (config) {
+      this.as = config.as;
+      this.for = config.for;
+      this.to = config.to;
+      this.using = config.using;
+      this.withCheck = config.withCheck;
+    }
   }
-  static [import_entity.entityKind] = "GelCheckBuilder";
-  brand;
+  static [import_entity.entityKind] = "GelPolicy";
+  as;
+  for;
+  to;
+  using;
+  withCheck;
   /** @internal */
-  build(table) {
-    return new Check(table, this);
+  _linkedTable;
+  link(table) {
+    this._linkedTable = table;
+    return this;
   }
 }
-class Check {
-  constructor(table, builder) {
-    this.table = table;
-    this.name = builder.name;
-    this.value = builder.value;
-  }
-  static [import_entity.entityKind] = "GelCheck";
-  name;
-  value;
-}
-function check(name, value) {
-  return new CheckBuilder(name, value);
+function gelPolicy(name, config) {
+  return new GelPolicy(name, config);
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  Check,
-  CheckBuilder,
-  check
+  GelPolicy,
+  gelPolicy
 });
-//# sourceMappingURL=checks.cjs.map
+//# sourceMappingURL=policies.cjs.map
