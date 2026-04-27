@@ -1,19 +1,52 @@
-import { Column } from "./column.js";
-import { is } from "./entity.js";
-import { Param, SQL, View } from "./sql/sql.js";
-import { Subquery } from "./subquery.js";
-import { getTableName, Table } from "./table.js";
-import { ViewBaseConfig } from "./view-common.js";
+"use strict";
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var utils_exports = {};
+__export(utils_exports, {
+  applyMixins: () => applyMixins,
+  getColumnNameAndConfig: () => getColumnNameAndConfig,
+  getTableColumns: () => getTableColumns,
+  getTableLikeName: () => getTableLikeName,
+  getViewSelectedFields: () => getViewSelectedFields,
+  haveSameKeys: () => haveSameKeys,
+  isConfig: () => isConfig,
+  mapResultRow: () => mapResultRow,
+  mapUpdateSet: () => mapUpdateSet,
+  orderSelectedFields: () => orderSelectedFields,
+  textDecoder: () => textDecoder
+});
+module.exports = __toCommonJS(utils_exports);
+var import_column = require("./column.cjs");
+var import_entity = require("./entity.cjs");
+var import_sql = require("./sql/sql.cjs");
+var import_subquery = require("./subquery.cjs");
+var import_table = require("./table.cjs");
+var import_view_common = require("./view-common.cjs");
 function mapResultRow(columns, row, joinsNotNullableMap) {
   const nullifyMap = {};
   const result = columns.reduce(
     (result2, { path, field }, columnIndex) => {
       let decoder;
-      if (is(field, Column)) {
+      if ((0, import_entity.is)(field, import_column.Column)) {
         decoder = field;
-      } else if (is(field, SQL)) {
+      } else if ((0, import_entity.is)(field, import_sql.SQL)) {
         decoder = field.decoder;
-      } else if (is(field, Subquery)) {
+      } else if ((0, import_entity.is)(field, import_subquery.Subquery)) {
         decoder = field._.sql.decoder;
       } else {
         decoder = field.sql.decoder;
@@ -28,11 +61,11 @@ function mapResultRow(columns, row, joinsNotNullableMap) {
         } else {
           const rawValue = row[columnIndex];
           const value = node[pathChunk] = rawValue === null ? null : decoder.mapFromDriverValue(rawValue);
-          if (joinsNotNullableMap && is(field, Column) && path.length === 2) {
+          if (joinsNotNullableMap && (0, import_entity.is)(field, import_column.Column) && path.length === 2) {
             const objectName = path[0];
             if (!(objectName in nullifyMap)) {
-              nullifyMap[objectName] = value === null ? getTableName(field.table) : false;
-            } else if (typeof nullifyMap[objectName] === "string" && nullifyMap[objectName] !== getTableName(field.table)) {
+              nullifyMap[objectName] = value === null ? (0, import_table.getTableName)(field.table) : false;
+            } else if (typeof nullifyMap[objectName] === "string" && nullifyMap[objectName] !== (0, import_table.getTableName)(field.table)) {
               nullifyMap[objectName] = false;
             }
           }
@@ -57,10 +90,10 @@ function orderSelectedFields(fields, pathPrefix) {
       return result;
     }
     const newPath = pathPrefix ? [...pathPrefix, name] : [name];
-    if (is(field, Column) || is(field, SQL) || is(field, SQL.Aliased) || is(field, Subquery)) {
+    if ((0, import_entity.is)(field, import_column.Column) || (0, import_entity.is)(field, import_sql.SQL) || (0, import_entity.is)(field, import_sql.SQL.Aliased) || (0, import_entity.is)(field, import_subquery.Subquery)) {
       result.push({ path: newPath, field });
-    } else if (is(field, Table)) {
-      result.push(...orderSelectedFields(field[Table.Symbol.Columns], newPath));
+    } else if ((0, import_entity.is)(field, import_table.Table)) {
+      result.push(...orderSelectedFields(field[import_table.Table.Symbol.Columns], newPath));
     } else {
       result.push(...orderSelectedFields(field, newPath));
     }
@@ -82,10 +115,10 @@ function haveSameKeys(left, right) {
 }
 function mapUpdateSet(table, values) {
   const entries = Object.entries(values).filter(([, value]) => value !== void 0).map(([key, value]) => {
-    if (is(value, SQL) || is(value, Column)) {
+    if ((0, import_entity.is)(value, import_sql.SQL) || (0, import_entity.is)(value, import_column.Column)) {
       return [key, value];
     } else {
-      return [key, new Param(value, table[Table.Symbol.Columns][key])];
+      return [key, new import_sql.Param(value, table[import_table.Table.Symbol.Columns][key])];
     }
   });
   if (entries.length === 0) {
@@ -106,13 +139,13 @@ function applyMixins(baseClass, extendedClasses) {
   }
 }
 function getTableColumns(table) {
-  return table[Table.Symbol.Columns];
+  return table[import_table.Table.Symbol.Columns];
 }
 function getViewSelectedFields(view) {
-  return view[ViewBaseConfig].selectedFields;
+  return view[import_view_common.ViewBaseConfig].selectedFields;
 }
 function getTableLikeName(table) {
-  return is(table, Subquery) ? table._.alias : is(table, View) ? table[ViewBaseConfig].name : is(table, SQL) ? void 0 : table[Table.Symbol.IsAlias] ? table[Table.Symbol.Name] : table[Table.Symbol.BaseName];
+  return (0, import_entity.is)(table, import_subquery.Subquery) ? table._.alias : (0, import_entity.is)(table, import_sql.View) ? table[import_view_common.ViewBaseConfig].name : (0, import_entity.is)(table, import_sql.SQL) ? void 0 : table[import_table.Table.Symbol.IsAlias] ? table[import_table.Table.Symbol.Name] : table[import_table.Table.Symbol.BaseName];
 }
 function getColumnNameAndConfig(a, b) {
   return {
@@ -158,7 +191,8 @@ function isConfig(data) {
   return false;
 }
 const textDecoder = typeof TextDecoder === "undefined" ? null : new TextDecoder();
-export {
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
   applyMixins,
   getColumnNameAndConfig,
   getTableColumns,
@@ -170,5 +204,5 @@ export {
   mapUpdateSet,
   orderSelectedFields,
   textDecoder
-};
-//# sourceMappingURL=utils.js.map
+});
+//# sourceMappingURL=utils.cjs.map
